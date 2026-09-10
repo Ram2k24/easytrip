@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="360" height="120" viewBox="0 0 360 120" fill="none" role="img" aria-label="Easy Trip Nepal wordmark concept">
+  <!-- Brand mark: rounded square, deep teal, white Himalayan peaks + marigold sun -->
+  <rect x="8" y="20" width="80" height="80" rx="20" fill="#236E60"/>
+  <circle cx="70" cy="42" r="7" fill="#F5B94C"/>
+  <path d="M22 84 L44 48 L56 66 L64 54 L82 84 Z" fill="#FFFFFF"/>
+  <path d="M44 48 L50 57 L44 64 L38 57 Z" fill="#D8ECE7"/>
+  <!-- Wordmark (placeholder geometry — final lettering to be produced in brand typography, Bricolage Grotesque 700) -->
+  <text x="104" y="66" font-family="'Bricolage Grotesque', 'Inter', sans-serif" font-size="38" font-weight="700" fill="#1F2A2A" letter-spacing="-1">easytrip</text>
+  <text x="106" y="88" font-family="'Inter', sans-serif" font-size="15" font-weight="600" fill="#236E60" letter-spacing="4">NEPAL</text>
+</svg>
