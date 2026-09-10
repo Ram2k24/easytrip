@@ -4,7 +4,7 @@
 |---|---|
 | Document ID | ETN-ARCH-003 |
 | Phase | 03 — Technical Architecture |
-| Version | 0.1 (DRAFT — pending engineering sign-off) |
+| Version | 0.2 (DRAFT — pending engineering sign-off) |
 | Date | 2026-09-09 |
 | Depends on | [`docs/prd/01-product-requirements.md`](../prd/01-product-requirements.md) (PRD v0.1) · [`docs/ux/02-ux-design-system.md`](../ux/02-ux-design-system.md) (UX v0.1) |
 | Status | Awaiting stakeholder review (open items: Appendix C) |
@@ -14,6 +14,7 @@
 | Version | Date | Author | Summary |
 |---|---|---|---|
 | 0.1 | 2026-09-09 | Product/Engineering (Arena agent) | Initial technical architecture: 20 mandated areas, module boundaries, folder structures, API versioning, environment configuration, dev/staging/production, Nepal→international scaling. |
+| 0.2 | 2026-09-10 | Product/Engineering (Arena agent) | **Deployment target changed per stakeholder direction: self-hosted web server (Docker Compose) / local environments — no managed cloud.** Rewrote §20 + §0.4 diagram; updated §0.1, T-7, §12.1, §15, §18, §22, §25, §26, §27, Appendices B/C. Application architecture (modules, API, data, providers) unchanged. |
 
 **Binding inheritance:** PRD global constraints GC-1…GC-7 and Phase 02 design rules apply to this document. Where this document and the PRD disagree, the PRD wins.
 
@@ -30,7 +31,7 @@
 | UI | Tailwind CSS 4 + `@easytrip/ui` package (Phase 02 tokens 1:1) | Design QA gates apply |
 | Backend | **NestJS 11 + TypeScript (strict)** | Modular monolith (§2) |
 | Validation | **Zod** (single schema source in `packages/contracts`) | Web + API share schemas |
-| Database | **PostgreSQL 16** (managed, Multi-AZ) via **Drizzle ORM** | Migrations: drizzle-kit; SQL escape hatch allowed |
+| Database | **PostgreSQL 16** (Docker Compose on the web server; optional WAL archiving/replica §20.5/§20.8) via **Drizzle ORM** | Migrations: drizzle-kit; SQL escape hatch allowed |
 | Cache/queues | **Redis 7** (managed) + **BullMQ** | §11, §12 |
 | Storage | **S3-compatible** (3 buckets) + CDN | §8 |
 | Search | **PostgreSQL FTS + pg_trgm** behind a `SearchProvider` SPI | §10, swap-ready for V2 |
@@ -40,7 +41,7 @@
 | Observability | pino (logs) + **OpenTelemetry** (traces/metrics) + SLO alerts | §14, §15 |
 | API contract | OpenAPI 3.1 generated from code; URI versioning `/v1` | §3, §24 |
 | Testing | Jest (api) · Vitest + RTL (web/ui) · Playwright (E2E) · Testcontainers (integration) | PRD quality gates |
-| Cloud target | **AWS as canonical** (ECS Fargate + RDS + ElastiCache + S3/CloudFront) + **Vercel** (web); Terraform IaC | T-7; any 12-factor equivalent stays possible |
+| Deployment target | **Self-hosted web server** — Docker Compose (Caddy + web + api + worker + Postgres + Redis + MinIO + optional observability profile); local dev parity via the same compose files; **no managed cloud** | T-7; containerized ⇒ portable to any larger host or cloud later |
 | AI | None in MVP; rule-based suggestions V1.5; LLM planner V2 (provider-gated, GC-2) | §19 |
 
 ### 0.2 Architecture style
@@ -60,7 +61,7 @@
 | T-4 | Drizzle ORM | Typed, migration-first, SQL escape hatch for search/complex queries |
 | T-5 | BullMQ + DB timer-sweep for SLAs | Durable, inspectable, admin-adjustable timers (no lost in-memory jobs) |
 | T-6 | Transactional outbox for domain events | No lost/duplicate cross-module side effects |
-| T-7 | AWS canonical + Vercel web from day 1 | PRD requires AWS-deployable; avoids a later migration; IaC keeps alternatives open |
+| T-7 | Self-hosted web server (Docker Compose) / local environments — **no managed cloud** | Stakeholder direction (2026-09-10); cost control + data sovereignty; 12-factor + containers keep the stack portable to a larger host, second host, or any cloud later (§20.8) |
 | T-8 | Provider SPI + capability matrix | GC-2: no invented external capabilities; UI reads verified capabilities |
 | T-9 | Money = BIGINT minor units + ISO code (GC-7) | No float money, no rounding drift; app-side integer math |
 | T-10 | Postgres FTS for MVP search behind SPI | Zero new infra; documented swap trigger to dedicated engine [V2] |
@@ -69,36 +70,31 @@
 
 ### 0.4 System context
 
+> Self-hosted deployment (stakeholder direction 2026-09-10): all platform components run as one Docker Compose stack on the web server; provider calls are outbound internet APIs only. Full detail: §20.
+
 ```
                          ┌────────────────────────────────────────────────────────┐
                          │                        CLIENTS                         │
                          │  browsers (mobile-first) · future PWA/app [V2] · ops   │
-                         └──────────────┬─────────────────────────────┬───────────┘
-                                        │ HTTPS (TLS 1.2+)            │ HTTPS
-                                        ▼                             ▼
-        ┌────────────────────────────────────────┐   ┌────────────────────────────────────────┐
-        │  WEB (Vercel)                          │   │  EXTERNAL PROVIDERS (adapters, T-8)    │
-        │  Next.js 15 · SSG/ISR/SSR/CSR          │   │  payment PSPs · email · SMS/WA [V1.5]  │
-        │  auth via httpOnly cookies · RSC       │   │  maps (client, OSM) · LLM [V2] · AV    │
-        └───────┬────────────────────────────────┘   │  [V1.5] · observability · 3P [V1.5]    │
-                │ typed API client (OpenAPI)         └───────▲───────────────────▲────────────┘
-                │  + server-side fetch (BFF-lite)            │ outbound (SPI)     │ inbound webhooks
-                ▼                                            │ (signed)           │ (signature-verified)
-        ┌──────────────────────────────────────────────────────────────────────────┐
-        │  API (NestJS 11, stateless, ECS Fargate) — /v1/* · /v1/webhooks/*        │
-        │  REST + OpenAPI · RBAC guards · validation · idempotency · audit         │
-        │  modules: auth users customers vendors catalog+lines quotes bookings     │
-        │  payments refunds reviews notifications corporate destinations content   │
-        │  search ai-planner reports admin + outbox dispatcher                     │
-        └──────┬───────────────┬───────────────┬───────────────┬───────────────────┘
-               ▼               ▼               ▼               ▼
-        ┌────────────┐  ┌────────────┐  ┌──────────────┐  ┌────────────────────────┐
-        │ Postgres 16│  │ Redis 7    │  │ S3 + CDN     │  │ WORKER (ECS, same img) │
-        │ Multi-AZ   │  │ cache · RL │  │ private ·    │  │ BullMQ consumers:      │
-        │ PITR 5min  │  │ queues(L)  │  │ media · orig │  │ timers media email     │
-        │            │  │ dedup ·    │  │ tmp          │  │ search payments        │
-        └────────────┘  │ locks      │  └──────────────┘  │ rollups exports …      │
-                        └────────────┘                     └────────────────────────┘
+                         └───────────────────┬────────────────────────────────────┘
+                                             │ HTTPS (TLS 1.2+, Let's Encrypt)
+                                             ▼
+   ┌───────────────────────────────────────────────────────────────────────────────────────┐
+   │                 SELF-HOSTED WEB SERVER (Linux, Docker Compose)                        │
+   │  Caddy proxy + TLS · www.→web · api.→api · assets.→minio(public)                     │
+   │                                                                                       │
+   │  web (Next.js 15, standalone Node) · api (NestJS 11, stateless, /v1/*, /v1/webhooks/*)│
+   │  worker (BullMQ: timers, media, email, payments-fallback, rollups, exports, …)        │
+   │  postgres 16 (own volume, PITR-lite) · redis 7 (cache/RL/queues/locks) · minio (S3)   │
+   │  [profile obs]: otel-collector · prometheus · grafana · loki · tempo · uptime-kuma    │
+   └──────────────────────────┬────────────────────────────────────────────────────────────┘
+                              │ offsite backup (daily: pg dump/WAL · RDB · mc mirror)
+                              ▼
+            second disk / NAS / second server (any S3-compatible storage you control)
+                              ▲
+   EXTERNAL PROVIDERS (adapters, T-8) — internet API services only (GC-2, decision-gated):
+   payment PSPs · email · SMS/WhatsApp [V1.5] · maps (client-side, OSM) · LLM [V2] · AV [V1.5]
+   (outbound SPI calls + inbound webhooks to api. — no hosted infrastructure of ours)
 ```
 
 ---
@@ -260,7 +256,7 @@ error:    { "error": { "code": "ETN-BK-103", "message": "…", "details": {…},
 
 ### 4.1 Engine & organization
 
-- PostgreSQL 16 (managed, Multi-AZ, PITR 5-min / 35-day retention); **single logical database**, single schema, **table prefixes per module** (T-3). Boundaries are code-enforced (§2.2), not schema-enforced (RRL/RLS evaluated `[V2]`, §6.5).
+- PostgreSQL 16 (Docker Compose; daily dumps + optional WAL archiving ⇒ PITR-lite, RPO 5 min — §20.5); **single logical database**, single schema, **table prefixes per module** (T-3). Boundaries are code-enforced (§2.2), not schema-enforced (RRL/RLS evaluated `[V2]`, §6.5).
 - Drizzle ORM: typed schemas per module in `packages/database` (owned by the module), migrations (drizzle-kit) versioned and reviewed; SQL escape hatch allowed for FTS/complex queries (documented per query).
 - Naming: `snake_case`; every table: `id` (ULID, sortable), `created_at`, `updated_at` (UTC timestamptz); status where applicable; FK `ON DELETE` explicit per relationship.
 
@@ -303,7 +299,7 @@ error:    { "error": { "code": "ETN-BK-103", "message": "…", "details": {…},
 - DB-01 **Money:** `BIGINT` minor units + `currency` (ISO) columns (T-9); no NUMERIC for balances; app-side integer math; snapshots (`price_snapshot_jsonb`, `policy_snapshot_jsonb`, `qtr_offer.breakdown_jsonb`) immutable after creation (PRD PR-08).
 - DB-02 **State:** booking/offer/refund/payment/settlement states are single-column enums changed **only** via owning-module commands (BR-3); every transition also appends `bk_event`/module event table (append-only).
 - DB-03 **Availability:** `av_count`/`av_departure` rows carry `version`; decrement `UPDATE … WHERE version=$n`; capacity ≤ 0 ⇒ row locked-out (not deleted); published-only rule enforced in the booking command (GC-3).
-- DB-04 **PII:** encrypted columns (`passport_enc`, `mfa_enrollment.secret_enc`, `ven_bank` details) — app-level AES-256-GCM, data keys from KMS (env key ref); never in logs/events/ledger memos; masked in API responses (PRD §33.3).
+- DB-04 **PII:** encrypted columns (`passport_enc`, `mfa_enrollment.secret_enc`, `ven_bank` details) — app-level AES-256-GCM, data keys from a server key file / Docker secret (env key ref, chmod 600); never in logs/events/ledger memos; masked in API responses (PRD §33.3).
 - DB-05 **Audit:** `audit_log` append-only (no UPDATE/DELETE grants), actor + role + action + entity + before/after hash + IP + ts (PRD §33.4).
 - DB-06 **Outbox:** `outbox` (id, aggregate_type/id, event_type, payload_jsonb, created_at, published_at, attempt) — same transaction as state change (T-6).
 
@@ -331,7 +327,7 @@ error:    { "error": { "code": "ETN-BK-103", "message": "…", "details": {…},
 
 - Migrations: numbered, expand/contract (T-12); CI runs against **fresh DB** and **N-1 upgrade path**; destructive changes two-phase (flag old writes off → migrate → enable new writes).
 - Seeds (idempotent, versioned, separate from migrations): geo tree (7 provinces / 77 districts / cities / airports — curated, PRD C-8), service lines, `tax_config` (Nepal 13 % example — config, GC-1), `fx_rate` initial rows (manual, labeled source), feature flags, default SLAs.
-- Backups: PITR 5 min + daily snapshot, 35-day retention; **quarterly restore drill** (PRD §33.1) to a throwaway instance; cross-account backup export `[V1.5]`.
+- Backups: daily dump + optional WAL archiving (RPO 5 min), 35-day retention (§20.5); **quarterly restore drill** (PRD §33.1) to a throwaway compose project; backup export to second host/NAS `[V1.5]`.
 
 ---
 
@@ -574,7 +570,7 @@ Localized content table (`cms_localized` / per-line title/desc per locale) + per
 
 ## 11. Caching
 
-### 11.1 Redis roles (managed, Multi-AZ)
+### 11.1 Redis roles (single compose instance + AOF; optional second-host replica §20.8)
 
 | Role | Data | Persistence | Failure behavior |
 |---|---|---|---|
@@ -616,7 +612,7 @@ Localized content table (`cms_localized` / per-line title/desc per locale) + per
 | `settlement` (weekly batch) | worker | 1 (lock) | 2× | ✓ | Monday 06:00 KTM |
 
 - Job contract: **idempotent handlers**, versioned payloads `{v, …}`, attempts ≤ max then DLQ (admin-visible: list, inspect, manual requeue, poison-pill cap); per-queue metrics (depth, lag, fail rate) → dashboards + alerts (§15).
-- Worker deployment: separate service (same image, `worker` entrypoint), autoscaled on queue depth (CloudWatch), versioned with API (no long-lived queue payload compatibility concerns — deploys are minutes; payloads are versioned regardless).
+- Worker deployment: separate container (same image, `worker` entrypoint), scaled by adding replicas/hosts when queue depth demands (threshold script or manual — §20.8), versioned with API (no long-lived queue payload compatibility concerns — deploys are minutes; payloads are versioned regardless).
 
 ### 12.2 Why queues for side effects, not for money movement
 
@@ -717,13 +713,13 @@ domain command (outbox event)
 ### 15.1 Stack
 
 - **OpenTelemetry** (T-11) in api + worker + web-server: traces (auto-instrumented: HTTP, Postgres, Redis, provider SDKs), metrics (RED + business), logs (same pipeline).
-- Backend: **managed observability platform (Datadog/New Relic/Honeycomb-class) for MVP speed** — decision E-2; OTel-native exporter keeps it vendor-swappable (self-hosted Grafana: Prometheus + Loki + Tempo, as the cost alternative); X-Ray-compatible trace format as fallback.
+- Backend: **self-hosted** (deployment is self-hosted — no managed SaaS): MVP tier = pino file logs + Prometheus (+ node_exporter/cAdvisor) + Grafana + Uptime Kuma (synthetic checks); full tier (compose profile `obs`) = OTel Collector → Tempo (traces) + Loki (logs) + Prometheus (metrics). The OTel exporter points at the local collector, so the telemetry stack stays swappable (§20.7, E-2).
 - Sampling: 10 % traces, 100 % for errors + payment flows; budget-aware (cost guardrails, §15.4).
 
 ### 15.2 Health & readiness
 
 - `GET /healthz` (process alive — LB keepalive), `GET /readyz` (deps: DB ping, Redis ping, S3 head, queue reachable — LB routing), `GET /metrics` (Prometheus format, network-restricted).
-- Deploy gates use `/readyz`; ECS service health checks 10 s interval, 3 failures ⇒ replace.
+- Deploy gates use `/readyz`; container healthchecks (compose) + Caddy upstream checks; unhealthy containers restarted per policy.
 
 ### 15.3 SLOs & alerts
 
@@ -743,7 +739,7 @@ System (RED per service + deps) · Payments (funnel by method, webhook health, c
 
 ### 15.5 Synthetic checks & incident ops
 
-- External synthetic (per minute, multi-region lite): home 200, search 200, `/healthz`, login page; checkout **dry-run on staging** (sandbox PSP) per deploy + daily.
+- Synthetic (Uptime Kuma, §20.7): home 200, search 200, `/healthz`, login page — from the host itself + one optional external checker (VPS/phone-apn); checkout **dry-run on staging** (sandbox PSP) per deploy + daily.
 - Status page `[V1.5]`; incident process per PRD §33.5 (SEV definitions, comms templates, runbook per alert type, post-mortem ≤ 5 business days); status-history retention 1 yr.
 
 ---
@@ -851,7 +847,7 @@ Format `ETN-{DOMAIN}-{NNN}`; HTTP mapping + user-safe message (Phase 02 Appendix
 | 13 | GDS/NDC airline APIs | live air inventory | V2 pilot (separate PRD) | outbound + webhook | provider decision | air stays quote-only (by design) |
 | 14 | Hotel channel manager | hotel feed | FUT | inbound/outbound | provider decision | hotels stay direct-vendor (by design) |
 | 15 | Object storage + CDN | files/media | MVP (infra) | outbound | S3-compatible + CDN (C-5) | uploads blocked (SEV1) |
-| 16 | Observability | logs/metrics/traces | MVP (infra) | outbound | managed platform (E-2) | monitoring degraded (SEV1) |
+| 16 | Observability | logs/metrics/traces | MVP (infra, self-hosted) | internal (`obs` profile) | self-hosted Grafana stack (E-2) | monitoring degraded (SEV1) |
 | 17 | Breach-password list | auth hardening | MVP | outbound (k-anonymity) or local list | HIBP range API vs local (E-3) | check skipped (logged) |
 | 18 | AV scanning | private doc safety | V1.5 | outbound or self-hosted | provider AV / ClamAV-class | uploads held for manual scan (alert) |
 | 19 | 3P web analytics | traffic insights | V1.5 (optional, D9) | client-side | self-hosted Plausible-class | none (first-party analytics unaffected) |
@@ -916,65 +912,127 @@ Observability  session log (anonymized, 30 d) · cost dashboard · quality sampl
 
 ## 20. Deployment Architecture
 
-### 20.1 Topology (canonical target, T-7)
+> **Deployment model (stakeholder direction, 2026-09-10):** the platform is deployed to a **self-hosted web server** (or local environment for development) — **no managed cloud hosting** (no Vercel, no AWS/GCP managed services). The entire platform runs as a **Docker Compose stack** on the web server; local development uses the **same compose files** (parity). App architecture (modules, API, data, provider adapters) is unchanged by this decision — 12-factor + containers keep the stack portable to a bigger host, a second host, or any cloud later without application changes.
+>
+> Scope note: third-party **provider APIs** (payment, email, future SMS/LLM) remain internet services by nature (PRD C-1/C-3). "No cloud" applies to **our infrastructure hosting**, not to provider integrations — which stay decision-gated (GC-2) exactly as specified.
+
+### 20.1 Topology (single web server, MVP)
 
 ```
-Vercel ────────────────  web (Next.js; edge for static/ISR, Node runtime for auth/BFF routes)
-                          · preview per PR · production
-
-AWS (Terraform, all 12-factor; equivalent managed stacks stay viable)
-  ECS Fargate
-    ├─ service: api      (stateless; ALB; 2..10 tasks; Multi-AZ)
-    └─ service: worker   (BullMQ consumers; 1..4 tasks; scale on queue depth)
-  RDS PostgreSQL 16      (Multi-AZ; PITR; RDS Proxy pooling)
-  ElastiCache Redis 7    (Multi-AZ; AOF)
-  S3 + CloudFront        (§8 buckets; origin-authenticated)
-  Secrets Manager · CloudWatch/X-Ray (OTel) · WAF (basic)
+                                ┌────────────────────────────────────────────────────┐
+                                │                       CLIENTS                      │
+                                │ browsers (mobile-first) · future PWA/app [V2] · ops │
+                                └───────────────────┬────────────────────────────────┘
+                                                    │ HTTPS (TLS 1.2+, Let's Encrypt)
+                                                    ▼
+   ┌──────────────────────────────────────────────────────────────────────────────────────────┐
+   │                 SELF-HOSTED WEB SERVER (Ubuntu LTS, Docker Engine)                       │
+   │                                                                                          │
+   │  Caddy reverse proxy · automatic Let's Encrypt · security headers (PRD §33.1)            │
+   │    www./apex → web:3000      api. → api:3001      assets. → minio (public media)         │
+   │                                                                                          │
+   │  compose net "frontend":  web (Next.js standalone, Node) · api (NestJS, stateless)       │
+   │  compose net "backend"   (db/redis/minio NEVER bind host ports):                          │
+   │    api · worker (BullMQ consumers) · postgres:16 (vol pgdata) · redis:7 (AOF)            │
+   │    · minio (S3-compatible, §8 buckets)                                                    │
+   │  [profile "obs"]: otel-collector · prometheus · grafana · loki · tempo · uptime-kuma     │
+   └──────────────────────────────┬───────────────────────────────────────────────────────────┘
+                                  │ offsite backup (mandatory at launch, §20.5)
+                                  ▼
+                second disk / NAS / second server — any S3-compatible storage you control
 ```
 
-- Single container image for api + worker (different entrypoints); web builds via Vercel (monorepo-aware).
-- **Why AWS-first (T-7):** PRD requires AWS-deployability; choosing it at day 1 avoids a later migration and aligns backups/compliance tooling; IaC + 12-factor keep any major cloud viable (decision recorded if changed).
+**Service resource budgets (MVP baseline)**
 
-### 20.2 Pipeline (trunk-based, T-12)
+| Service | Memory budget | Notes |
+|---|---|---|
+| Caddy (proxy) | 128 MB | TLS, routing, media cache headers |
+| web (Next.js standalone) | 512 MB – 1 GB | SSR/ISR; `output: 'standalone'` |
+| api (NestJS) | 1 – 1.5 GB | stateless; ≥ 2 replicas optional |
+| worker (BullMQ) | 512 MB – 1 GB | media/email/timers/payments-fallback |
+| postgres 16 | 3 – 4 GB | `shared_buffers` sized to budget |
+| redis 7 | 512 MB | AOF everysec (money-adjacent keys, §11.1) |
+| minio | 512 MB | media + private + orig + tmp buckets |
+| OS + headroom | ~2 GB | |
+
+**Recommended host: 8 vCPU / 16 GB RAM / 200 GB NVMe** (soft-launch minimum: 4 vCPU / 8 GB / 100 GB). Right-size after first monitoring month.
+
+- **Images:** built in CI, pushed to **GitHub Container Registry (GHCR — image registry only, not hosting)**, pinned by digest in `docker-compose.prod.yaml`; multi-stage Dockerfiles (web: `next build` → standalone; api/worker: single image, two entrypoints).
+- **Networks:** `frontend` (Caddy ↔ web/api) and `backend` (api/worker ↔ postgres/redis/minio). postgres/redis/minio are **internal-only** — never exposed on host ports (defense in depth with the firewall, §20.6).
+- **ISR on a container:** ISR cache is in-memory + `.next/cache` on a named volume; cache loss on restart is acceptable (pages revalidate on next hit / on publish events).
+
+### 20.2 Reverse proxy, TLS, domains
+
+- **Caddy**: automatic Let's Encrypt (HTTP-01; DNS-01 if multiple domains on one IP), HSTS, security headers per PRD §33.1, HTTP/2, brotli; `assets.` → minio public bucket with `Cache-Control: immutable` per object key; no CDN in MVP (direct origin + immutable media caching; a CDN in front of Caddy is an additive later change, zero app change).
+- **Domains (all on the same host):** `www.`/apex (web) · `api.` (API + inbound provider webhooks) · `assets.` (media). Staging: `staging.` / `staging-api.` (same server, second compose project — or a small second server).
+- DNS: domain must point at the web server (stakeholder action, Appendix C).
+
+### 20.3 Pipeline (CI/CD without cloud hosting)
 
 ```
-push/PR → CI: typecheck · lint (incl. module boundaries + secret scan) · unit
-        · integration (Testcontainers: fresh + N-1 upgrade) · OpenAPI diff gate
-        · dependency audit · build
-  → web: Vercel preview (per PR) — points at staging API (E-6)
-  → staging: migrate (upgrade-path verified) → deploy api (rolling, /readyz gate)
-            → deploy worker → E2E (Playwright, incl. sandbox payment round-trip)
-            → synthetic smoke
-  → production: migrate → deploy api (rolling; min 2 tasks; readiness-gated)
-            → deploy worker → Vercel production → post-deploy watch (15 min:
-            health, synthetics, error rate) → announce
+push/PR → CI (GitHub Actions — build/test infrastructure only; self-hosted runner
+         option if preferred): typecheck · lint (boundaries + secret scan) · unit
+         · integration (Testcontainers: fresh + N-1 upgrade) · OpenAPI diff gate
+         · dependency audit · docker build → push GHCR (tag = git sha, digest-pinned)
+  → staging: SSH deploy (script on server, or Actions SSH step):
+         compose pull (pinned sha) → compose run --rm api migrate (drizzle;
+         expand/contract rules unchanged) → compose up -d (healthcheck-gated)
+         → E2E (Playwright, incl. sandbox payment round-trip) → synthetic smoke
+  → production: same steps on the prod project → post-deploy watch (15 min:
+         /healthz, /readyz, synthetics, error rate in logs) → announce
 ```
 
-- **Migrations:** expand/contract only; backward-compatible with N-1 across the deploy window; destructive changes two-phase (flag off old writes → migrate → enable new writes); rollback = redeploy N-1 (DB rollback only for pure-additive).
-- **Feature flags (two tiers):** env kill-switches (hard off: payment methods, AI planner, custom-trip, review submission, bank-transfer) + DB `adm_feature_flag` (runtime, audited, per-env) for gradual rollout.
-- **Hotfix:** cherry-pick + fast lane (security gates never skipped).
+- **Rollback:** redeploy previous pinned sha (`compose pull && compose up -d`); DB rollback only for pure-additive (T-12 unchanged); feature-flag kill switches unchanged (§25.4).
+- **Local:** `docker compose -f compose.yaml -f compose.dev.yaml up` on a laptop = same stack, dev profile (Mailpit for email, mock providers, debug, OTP-to-logs). pnpm dev (hot reload) for web/api against the compose infra is the daily loop.
+- **Compose files are config-as-code:** versioned in the repo; deploy script is ~10 lines (pull, migrate, up, smoke) — no cloud control planes, no Terraform.
 
-### 20.3 Scaling & capacity
+### 20.4 Configuration & secrets on the server
 
-| Component | Strategy |
-|---|---|
-| api | autoscale on CPU 65 % / RPS per task; min 2 (Multi-AZ); stateless (session in DB/cookie) |
-| worker | autoscale on queue depth (per-queue targets); media vs payments-fallback scaled independently |
-| web | Vercel auto (edge + Node runtime) |
-| DB | vertical headroom at launch class; read replica `[V2]` (trigger §4.5); partitioning planned (§4.5) |
-| Redis | managed scale; maxmemory + AOF sized for queues + dedup (not for big caches) |
-| Storage/CDN | infinite; lifecycle policies |
-| Seasonality (PRD R-5) | **pre-scale +50 % api/worker 2 weeks before Mar–May & Sep–Nov peaks**; load-test re-run at V2 |
-| Load gate | 2× projected peak (search p95, checkout concurrency) pre-launch (PRD §33.5) + at V2 |
+- Per-project `.env` on the server (`/opt/easytrip/{prod,staging}/.env`): `chmod 600`, owned by the deploy user; or **Docker secrets** for provider keys (both supported; choose one, document it). Never in the repo (pre-commit + CI secret scan unchanged); env catalog (§25.2) applies with local endpoint values (`S3_ENDPOINT=http://minio:9000`, `OTEL_ENDPOINT=http://otel-collector:4317`, …).
+- Rotation runbooks unchanged (provider 90 d, JWT 180 d, webhook secrets on suspicion); access = deploy user + root, both audited (login logs).
 
-### 20.4 DR & availability
+### 20.5 Backups & DR (self-hosted, honest numbers)
 
-- RPO 5 min (PITR) · RTO 1 h (runbook: ALB target-group failover, DB Multi-AZ auto-failover, Redis managed failover, backup-restore to clone); cross-account backup export `[V1.5]`; quarterly restore drill (PRD §33.1); data-loss runbook (PITR clone + provider-record backfill for payments).
-- TLS 1.2+ everywhere, HSTS; CORS allowlist (web origin only); security headers per PRD §33.1; WAF basic (rate-limit assist, SQLi signatures).
+| Asset | Mechanism | Retention |
+|---|---|---|
+| Postgres | daily `pg_dump` (custom format, gzip); **optional WAL archiving** ⇒ PITR-lite (RPO 5 min vs 24 h) | 14 daily + 4 weekly + 12 monthly (local) + same set offsite |
+| Redis | BGSAVE copies (queues/dedup are reconstructable — low criticality) | 7 daily |
+| MinIO | `mc mirror` / rclone to offsite target | full + incremental daily |
+| `.env`/secrets | encrypted copy offsite (age/gpg) | per rotation |
 
-### 20.5 Domain & environment wiring
+- **Offsite backup is a launch gate** (PRD A8 addendum): single-disk loss must not be data loss. Target = any storage you control (second disk, NAS, second server, any S3-compatible bucket on another host).
+- **RPO:** 24 h (daily dump) or 5 min (WAL archiving on) · **RTO:** ~1 h (restore on the same/standby host: clone volumes + `compose up`).
+- **Restore runbook + quarterly restore drill** (PRD §33.1) against a throwaway compose project; results recorded.
+- **Host failure (single point of failure — accepted, documented):** mitigation = backups + fast redeploy (`compose up` on a fresh host in ~30 min with domain re-point); optional **standby host** (warm clone, half-quarterly sync) `[V1.5]` if SLA demands.
+- Cross-region/host backup sync replaces any "cloud backup" concept.
 
-`www.`/apex (web) · `api.` (API) · `assets.` (CDN) — per environment (staging subdomain set); env-specific CORS + cookie domain + OpenAPI visibility; all internal service-to-service calls over private network (no public DB/Redis/S3).
+### 20.6 Server hardening (ops baseline, part of pre-launch security gate)
+
+- Firewall (UFW): 22 (SSH keys only + **fail2ban**), 80/443 public — nothing else.
+- `unattended-upgrades` (security), non-root deploy user, SSH keys only, Docker hardening (pinned digests, non-root containers, no privileged, compose resource limits, read-only rootfs where possible), compose network isolation (§20.1), log rotation (Loki or logrotate), disk alerts at 75 %.
+- Provider webhook reachability: `api.` public; all provider callbacks hit the public API (no port exposure of services).
+
+### 20.7 Observability (self-hosted — updates §15.1)
+
+- **MVP tier (default):** pino JSON logs (file + optional Loki), **Prometheus + node_exporter + cAdvisor** (host + container metrics), **Grafana** dashboards, **Uptime Kuma** (external + internal health checks), alerts via notify channel (Grafana/Alertmanager → email/in-app ops alert).
+- **Full tier (compose profile `obs`):** OTel Collector → **Tempo** (traces) + **Loki** (logs) + **Prometheus** (metrics) — T-11 unchanged (OTel is vendor-neutral; the exporter points at the local collector).
+- Synthetic checks: Uptime Kuma (home, search, `/healthz`, login page) from the server **+ one optional lightweight external checker** (cheap second VPS or home connection) — single-checker limitation documented; checkout dry-run stays on staging (sandbox PSP).
+
+### 20.8 Scaling path (host-first, no cloud assumption)
+
+| Stage | Trigger | Change (compose/infra only — app unchanged) |
+|---|---|---|
+| 1. Vertical | MVP | bigger vCPU/RAM/disk on the same host |
+| 2. Split | DB CPU > 70 % sustained or storage I/O contention | move postgres + redis + minio to **host B** (WireGuard between hosts; only env URLs change) |
+| 3. Workers | peak queue depth (seasonal, PRD R-5) | second worker replica (same host or host B); pre-scale before Mar–May / Sep–Nov peaks |
+| 4. HA (optional) | SLA/budget decision | Postgres streaming replica on host B + failover runbook; optional HAProxy fronting two app hosts |
+| 5. Beyond | multi-region / far larger scale | any larger self-hosted setup — or any cloud — without app changes (12-factor) |
+
+- Load-test gate unchanged (2× projected peak, PRD §33.5) — executed against staging on a host of production-like spec.
+
+### 20.9 Environment wiring
+
+Domains per §20.2; CORS allowlist + cookie domain per environment; provider webhook URLs registered per environment (sandbox vs production mode); `staging` compose project uses sandbox provider credentials (never production secrets — §26).
 
 ---
 
@@ -1118,7 +1176,7 @@ apps/web/
   next.config.ts  tsconfig.json  tailwind/postcss config  package.json
 ```
 
-**Rules:** `app/` stays route-only (no business logic — logic in `features/`); server-only modules marked (`"use server"` / `server-only` package) for PII paths; no direct `fetch` outside `lib/api/`; generated client is the only API type source.
+**Rules:** `app/` stays route-only (no business logic — logic in `features/`); server-only modules marked (`"use server"` / `server-only` package) for PII paths; no direct `fetch` outside `lib/api/`; generated client is the only API type source; `next.config` uses `output: 'standalone'` so the production image is the `next start`-equivalent bundle for the web container (§20.1).
 
 ---
 
@@ -1216,14 +1274,14 @@ Rule: **anything an operator may tune without a deploy is in the DB, never env**
 | Group | Variables | Notes |
 |---|---|---|
 | App | `APP_ENV` (dev/staging/prod), `APP_URL`, `API_URL`, `WEB_ORIGIN`, `ALLOWED_ORIGINS` (CORS), `LOG_LEVEL`, `TZ_DEFAULT=Asia/Katmandu` | CORS strict allowlist |
-| DB | `DATABASE_URL`, `DB_POOL_MAX`, `DB_STATEMENT_TIMEOUT_MS` | RDS Proxy aware |
+| DB | `DATABASE_URL`, `DB_POOL_MAX`, `DB_STATEMENT_TIMEOUT_MS` | compose Postgres; optional PgBouncer container for many small services later |
 | Redis | `REDIS_URL`, `REDIS_PREFIX` | per-env prefix isolation |
-| Storage | `S3_ENDPOINT`, `S3_REGION`, `S3_BUCKET_PRIVATE/MEDIA/ORIG/TMP`, `CDN_URL`, `S3_CRED_REF` (secret manager ref, not raw) | no raw creds in env |
+| Storage | `S3_ENDPOINT` (internal: `http://minio:9000`), `S3_REGION`, `S3_BUCKET_PRIVATE/MEDIA/ORIG/TMP`, `CDN_URL` (public media origin = Caddy → minio, §8.4), `S3_ACCESS_KEY`/`S3_SECRET_KEY` (env/Docker secret) | backend network only (§20.1); no raw creds in env outside `.env` |
 | Auth | `JWT_SECRET_REF`, `JWT_ACCESS_TTL_S=900`, `REFRESH_TTL_DAYS=30`, `ARGON2_{M,K,P}`, `MFA_ISSUER`, `COOKIE_DOMAIN`, `AUTH_MOCK_ENABLED` (dev-only; staging/prod boot-assert false) | §5 |
 | Payments | per provider: `{PSP}_MODE` (sandbox/production), `{PSP}_CRED_REF`, `{PSP}_WEBHOOK_SECRET_REF`, `{PSP}_ENABLED` (kill-switch) | capability matrix in DB (§7.1) |
 | Notifications | `EMAIL_FROM`, `EMAIL_PROVIDER_CRED_REF`, `SMS_*` `[V1.5]`, `WA_*` `[V1.5]` | |
 | Media | `MEDIA_CONCURRENCY`, `MEDIA_MAX_PER_ORG_GB` (default; DB-overridable) | |
-| Telemetry | `OTEL_ENDPOINT`, `OTEL_EXPORTER`, `OTEL_SAMPLE_RATE`, `OTEL_SERVICE_NAME` | |
+| Telemetry | `OTEL_ENDPOINT` (local OTel collector, e.g. `http://otel-collector:4317`), `OTEL_EXPORTER`, `OTEL_SAMPLE_RATE`, `OTEL_SERVICE_NAME` | |
 | Analytics | `TRACK_RATE_LIMIT_PER_MIN` | schema registry in code |
 | Jobs | `TIMER_SWEEP_INTERVAL_S=30`, `WORKER_CONCURRENCY_{QUEUE}` overrides | |
 | Rate limits | `RL_TIER_{ANON/AUTH/STRICT/PAYMENT}_RPM` | §3.6 |
@@ -1231,7 +1289,7 @@ Rule: **anything an operator may tune without a deploy is in the DB, never env**
 
 ### 25.3 Secrets hygiene
 
-- Secret manager (per-env), naming `{env}.{service}.{purpose}`; access audited; rotation: provider secrets 90 d, JWT 180 d (runbook), webhook secrets on any suspected exposure; **no secrets in repo** (pre-commit + CI secret scan; `.env.example` placeholders only); no secrets in logs (serializer redaction, §14); no secrets in images (build args scrubbed).
+- Per-environment `.env` on the server (`chmod 600`) or Docker secrets — no cloud dependency; naming `{env}.{service}.{purpose}`; access = deploy user + root (OS login audit); rotation: provider secrets 90 d, JWT 180 d (runbook), webhook secrets on any suspected exposure; **no secrets in repo** (pre-commit + CI secret scan; `.env.example` placeholders only); no secrets in logs (serializer redaction, §14); no secrets in images (build args scrubbed).
 
 ### 25.4 Feature flags (two tiers, §20.2)
 
@@ -1244,19 +1302,19 @@ Rule: **anything an operator may tune without a deploy is in the DB, never env**
 
 | Dimension | **Local (dev)** | **Staging** | **Production** |
 |---|---|---|---|
-| Stack | docker-compose (Postgres 16, Redis 7, MinIO) + `pnpm dev` (api + web) | Full managed stack (same IaC as prod, smaller scale) | Full managed stack, Multi-AZ |
+| Stack | `docker compose` dev profile (Postgres 16, Redis 7, MinIO, Mailpit, mock providers) + `pnpm dev` for hot reload — **same compose files as production** | Same host: second compose project on `staging.` domains (or a small second server); same images as production | Web server: main domains, full stack + optional `obs` profile |
 | Data | **Dev fixtures** (explicitly synthetic, labeled; GC-3 applies to production surfaces — fixtures are a dev tool, never a data source) | Synthetic seed + **anonymized production export** `[V1.5]`; scripted weekly reset | Real data only |
 | Providers | **Mock adapters** (payment mock via SPI; email → local sink; OTP to logs) — hard-disabled outside dev | **Real providers in sandbox/test mode** (payment test mode, email test mode or allow-listed real sends) | Real providers, production mode |
 | Auth | Same flows; OTP printed to logs (dev-only); no MFA enrollment friction (dev factor) | Real MFA required (admin); test users | Real |
 | Vendors | Fixture vendors | Pilot onboarding exercises; **vendor production onboarding happens in production** (real documents), with booking flows dry-runnable on staging via synthetic vendors (decision E-4) | Real vendors (launch floor PRD A8) |
-| Observability | Local pretty logs + optional local Grafana | Same observability backend, separate project + alerts (suppressed paging, tickets only) | Full SLO alerts + paging |
+| Observability | Local pretty logs + optional local Grafana | Self-hosted observability stack, separate compose project; ticket-only alerts | Self-hosted observability stack; full SLO alerts + paging (notify channel) |
 | CI/E2E | Unit + integration (Testcontainers) | Integration + **E2E (Playwright incl. sandbox payment)** + load tests + pen-test target | Synthetic checks (read-only), no E2E against prod |
-| Secrets | Local `.env` (gitignored), mock creds | Staging secrets (sandbox creds; **never production secrets**) | Production secrets (secret manager) |
+| Secrets | Local `.env` (gitignored), mock creds | Staging secrets (sandbox creds; **never production secrets**) | Production secrets (server `.env` chmod 600 / Docker secrets, §25.3) |
 | Who | Engineers (personal) | Eng + QA + ops + **pilot vendors** (scoped) | End users + scoped admins |
 | Purpose | Fast loop, safe experimentation | Pre-release verification, release gate, debugging with realistic data | Service |
 
 - **Data movement:** prod → staging only via anonymized export tool `[V1.5]` (PII masked, PII fields dropped); staging → prod: never; migrations rehearsed on staging (fresh + N-1 upgrade).
-- **Previews:** PR ⇒ Vercel web preview → staging API (E-6); team-only views via DB feature flags (percentage/role scope) — never ad-hoc env hacks.
+- **Previews:** no per-PR web preview (no Vercel) — PR verification runs against **staging** (shared); optional branch-tagged deploy to staging for team review (E-6); team-only views via DB feature flags (percentage/role scope) — never ad-hoc env hacks.
 - **Launch gate (prod):** PRD Appendix A8 + §33.5 security gate + staging soak (48 h) + load test 2× peak.
 
 ---
@@ -1281,7 +1339,7 @@ GC-1 made geography, currency, timezone, locale, tax, pricing, vendor, service, 
 | **Services** | NP destinations across 10 lines | — | **first non-NP destination pilot** — agency-fulfilled via existing QUOTE flow (`INTL_TRAVEL`/`V-9`); then direct intl vendors | **data + supply** (engine unchanged) |
 | **Search** | English FTS + trigram | — | multilingual index (per-locale config / engine swap §10.2) | code (provider-swap path documented) |
 | **Site** | single domain, EN | hreflang (ne/en) | country subdomain/site (locale + currency + payment + support per country) | code + ops (V2 decision) |
-| **Data/privacy** | NP data practices; DPA with sub-processors | GDPR-class DPA review | data residency evaluation (regional hosting), GDPR compliance pass | infra decision + legal |
+| **Data/privacy** | NP data practices; DPA with sub-processors; **server location under our control — data sovereignty from day one** | GDPR-class DPA review | residency needs ⇒ relocate/replicate the self-hosted stack (region = host choice), GDPR compliance pass | infra (host move) + legal |
 | **Ops** | KTM support + trip desk | — | per-region support SLAs; localized vendor onboarding | ops |
 
 ### 27.3 Sequencing
@@ -1319,19 +1377,19 @@ FX accounting (dual-record already, §7.6) · per-market legal variance (country
 | ID | Decision | Alternatives considered | Why |
 |---|---|---|---|
 | T-1 | Modular monolith API | Microservices; single flat app | Team size/ops; boundaries keep extraction viable (payments/search/notifications first candidates) |
-| T-2 | Next 15 App Router (SSG/ISR/SSR/CSR split) | MPA + SPA; pure SSR | SEO + perf + interactivity in one stack; Vercel fit |
+| T-2 | Next 15 App Router (SSG/ISR/SSR/CSR split) | MPA + SPA; pure SSR | SEO + perf + interactivity in one stack; `output: 'standalone'` fits self-hosted container deployment |
 | T-3 | Single DB, table prefixes | Per-domain schemas; polyglot | Ops simplicity; code-enforced boundaries (CI) |
 | T-4 | Drizzle ORM | Prisma; TypeORM | Typed + migration-first + SQL escape for FTS |
 | T-5 | BullMQ + DB timer sweep | In-memory timers; dedicated scheduler service | Durable, inspectable, admin-adjustable SLAs |
 | T-6 | Transactional outbox | Direct queue publish on change | No lost/duplicate cross-module events |
-| T-7 | AWS canonical + Vercel web | GCP; Fly/Render PaaS; all-Serverless | PRD AWS requirement at day 1; IaC keeps options open |
+| T-7 | Self-hosted web server / local environments, no managed cloud | Managed cloud (previously proposed); PaaS; Vercel | Stakeholder direction 2026-09-10; containers keep all exit paths open (§20.8) |
 | T-8 | Provider SPI + capability matrix | Hard-coded provider integrations | GC-2: no invented capabilities; UI driven by verified matrix |
 | T-9 | BIGINT minor units | NUMERIC(14,2) | No float/rounding drift; integer math app-side |
 | T-10 | Postgres FTS behind SPI | Meilisearch day 1; external SaaS | Zero new infra; documented swap trigger (T-10.2) |
 | T-11 | OTel from day 1 | Vendor-locked APM agents | Vendor-neutral telemetry; business + system in one |
 | T-12 | Trunk-based + expand/contract + flags | Release branches | Small safe fast deploys; kill switches |
-| E-1 | AWS as canonical cloud (confirm) | — | see T-7 |
-| E-2 | Managed observability platform (MVP) | Self-hosted Grafana stack | Speed; OTel keeps swap open |
+| E-1 | Self-hosted web server confirmed (stakeholder, 2026-09-10) | Managed cloud (rejected for now) | T-7; host specs / domain / offsite backup target = Appendix C item 1 |
+| E-2 | Self-hosted observability (MVP tier: Prometheus + Grafana + Uptime Kuma; full tier via `obs` profile) | Managed observability SaaS | Deployment is self-hosted — no managed SaaS; OTel keeps options open |
 | E-3 | HIBP k-anonymity range API (or local list) | Full-hash lookup | Privacy + practicality |
 | E-4 | Vendor onboarding in production; staging dry-runs with synthetic vendors | Staging-first onboarding | Real documents in real system; staging parity for flows |
 | E-5 | JWT HS256 + 180 d rotation runbook (MVP) | RS256/JWKS from day 1 | Single service today; upgrade path documented |
@@ -1341,11 +1399,11 @@ FX accounting (dual-record already, §7.6) · per-market legal variance (country
 
 ## Appendix C — Sign-off items (before Phase 04 scaffold)
 
-1. **Cloud confirmation (E-1):** AWS canonical (recommended) or alternative.
-2. **Observability vendor (E-2)** selection (affects budget line).
+1. **Web server confirmation (E-1):** host specs (recommended 8 vCPU / 16 GB / 200 GB NVMe), region, domain + DNS control, and offsite backup target (second disk / NAS / second server) — offsite backup is a launch gate (§20.5).
+2. **Observability tier (E-2):** MVP tier (Prometheus + Grafana + Uptime Kuma) vs full `obs` profile at launch.
 3. **Breach-list approach (E-3).**
-4. **Preview API strategy (E-6)** confirmation.
-5. **Postgres instance class + budget** at launch (right-sized by monitoring; decision with DevOps).
+4. **PR preview strategy (E-6):** staging-shared (recommended) vs branch-tagged staging deploy.
+5. **Web server sizing confirmation** (8 vCPU / 16 GB / 200 GB NVMe baseline) + optional standby host `[V1.5]`.
 6. **Redis persistence scope** confirmation (AOF everysec for money-adjacent keys as specified).
 7. **Webhook processing inline** (critical path) vs queued — confirm §3.5/§12.2 stance.
 8. **Admin console in same web app** (role-gated routes) vs separate app — current plan: same app (UX §6.4 routes), separate build target optional `[V1.5]`.

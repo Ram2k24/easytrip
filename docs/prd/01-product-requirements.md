@@ -4,7 +4,7 @@
 |---|---|
 | Document ID | ETN-PRD-001 |
 | Phase | 01 — Product Requirements |
-| Version | 0.1 (DRAFT — pending product sign-off) |
+| Version | 0.2 (DRAFT — pending product sign-off) |
 | Date | 2026-09-09 |
 | Status | Awaiting stakeholder review (see Appendix G: Open Decisions) |
 | Supersedes | — |
@@ -14,6 +14,7 @@
 | Version | Date | Author | Summary |
 |---|---|---|---|
 | 0.1 | 2026-09-09 | Product/Engineering (Arena agent) | Initial full PRD covering all 35 mandated sections + scope classification + appendices. |
+| 0.2 | 2026-09-10 | Product/Engineering (Arena agent) | Deployment target changed per stakeholder direction: **self-hosted web server (Docker Compose) / local environment — no managed cloud**. Added D14 (Appendix G); updated C-5, C-6 (external dependencies) and the Secrets row. Third-party provider APIs (payments/email) remain internet services; "no cloud" applies to our infrastructure hosting only. |
 
 **Scope legend used throughout this document**
 
@@ -1350,7 +1351,7 @@ Custom departure: quote request (dates, group size, private/group, needs text) �
 | Injection | Parameterized queries via ORM only; Zod validation on **every** input (API + forms); no string-built SQL; template escaping | MVP |
 | Authentication | Argon2id password hashing; JWT access (15 min) + rotating refresh (30 d, reuse detection ⇒ session family revocation); password policy (min 10, breach-list check); login lockout 5/15 min per identifier; email-verified gate; admin TOTP MFA **required** | MVP |
 | Authorization | RBAC deny-by-default; per-route role checks + object ownership checks (customer→own, vendor→own org, admin scoped); corporate org isolation | MVP |
-| Secrets | Env/secret manager only; no secrets in repo (pre-commit + CI secret scan); rotation policy; least-privilege provider credentials | MVP |
+| Secrets | Per-env server `.env` (chmod 600) or Docker secrets only; no secrets in repo (pre-commit + CI secret scan); rotation policy; least-privilege provider credentials | MVP |
 | Crypto | TLS 1.2+ everywhere; AES-256 at rest for PII fields; HMAC for signed URLs (vendor share links) | MVP |
 | File uploads | MIME + magic-byte validation, size caps, random server-side names, private-by-default buckets, public only for approved media; AV-scan hook `[V1.5]`; no executables | MVP |
 | API protection | Rate limiting (per IP/user/endpoint tier; login & payment endpoints strict), CORS allowlist, generic error responses + stable error codes (no stack leaks), no debug routes in prod | MVP |
@@ -1557,8 +1558,8 @@ Platform: typed API-first backend, PostgreSQL + Redis, S3-compatible storage, RB
 | C-2 | **International card acceptance path** (D2): partner acquirer or compliant foreign-entity route | Finance + Legal | Launch (else honest gap in UI) | Intl customers pay via supported methods only | Evaluate at provider stage; contract by month 1 |
 | C-3 | Transactional email provider | Eng | Phase 01 end | No notification SLAs | Decide in Phase 01 sign-off |
 | C-4 | SMS/WhatsApp (official) provider | Eng | V1.5 | Notification channels reduced | Provider market review at V1.5 planning |
-| C-5 | Object storage + CDN (S3-compatible) | DevOps | Phase 02 | Media pipeline blocked | Managed service selection (cloud-agnostic) |
-| C-6 | Hosting: web (Vercel-class), API (containers/FaaS), managed Postgres + Redis | DevOps | Phase 02 | No environments | 12-factor setup; AWS-portable IaC |
+| C-5 | Object storage + CDN (S3-compatible) | DevOps | Phase 02 | Media pipeline blocked | **MinIO on the self-hosted web server** (S3-compatible; cloud-agnostic) |
+| C-6 | Hosting: **self-hosted web server** (Docker Compose: Caddy + web + api + worker + Postgres + Redis + MinIO) or local environment — **no managed cloud** (D14, confirmed 2026-09-10) | DevOps | Phase 02 | No environments | 12-factor setup; portable container images (Phase 03 §20) |
 | C-7 | Domain, business entity, merchant accounts, legal docs (ToS, privacy, vendor agreement incl. commission/clawback, DPA) | Legal/Ops | Pre-launch (legal before vendor onboarding) | Cannot onboard vendors or collect payments | Legal draft in Phase 02; sign-off gate before first vendor approval |
 | C-8 | Seed data: geo tree (7 provinces, 77 districts, cities), airports, destinations | Product/Ops | Phase 03 (catalog) | Catalog/search/SEO blocked | Curated, sourced, original — no scraped datasets |
 | C-9 | LLM provider (if V2 AI planner proceeds) | Product/Eng | V2 planning | AI planner defers | Gate on privacy/cost/quality evaluation |
@@ -1649,7 +1650,8 @@ Platform: typed API-first backend, PostgreSQL + Redis, S3-compatible storage, RB
 | D11 | Corporate in MVP | Core (account/roles/approvals/caps/CSV); invoicing V1.5 | Core |
 | D12 | Launch supply floor | 20 vendors / 100 services / 6 lines (working target) | Ops to confirm |
 | D13 | Legal docs owner & timing | Drafts in Phase 02; signed before first vendor approval | Per recommendation |
+| D14 | Deployment target | **Self-hosted web server (Docker Compose) / local environment — no managed cloud** (stakeholder-confirmed 2026-09-10; supersedes earlier AWS-canonical proposal) | Self-hosted (confirmed) |
 
 ---
 
-*End of PRD v0.1. This document is a DRAFT pending sign-off on Appendix G. Any scope change requires a version bump and a change-log entry.*
+*End of PRD v0.2. This document is a DRAFT pending sign-off on Appendix G. Any scope change requires a version bump and a change-log entry.*
