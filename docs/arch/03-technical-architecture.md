@@ -1,20 +1,20 @@
 # Easy Trip Nepal — Technical Architecture (Phase 03)
 
-| Field | Value |
-|---|---|
-| Document ID | ETN-ARCH-003 |
-| Phase | 03 — Technical Architecture |
-| Version | 0.2 (DRAFT — pending engineering sign-off) |
-| Date | 2026-09-09 |
-| Depends on | [`docs/prd/01-product-requirements.md`](../prd/01-product-requirements.md) (PRD v0.1) · [`docs/ux/02-ux-design-system.md`](../ux/02-ux-design-system.md) (UX v0.1) |
-| Status | Awaiting stakeholder review (open items: Appendix C) |
+| Field       | Value                                                                                                                                                              |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Document ID | ETN-ARCH-003                                                                                                                                                       |
+| Phase       | 03 — Technical Architecture                                                                                                                                        |
+| Version     | 0.2 (DRAFT — pending engineering sign-off)                                                                                                                         |
+| Date        | 2026-09-09                                                                                                                                                         |
+| Depends on  | [`docs/prd/01-product-requirements.md`](../prd/01-product-requirements.md) (PRD v0.1) · [`docs/ux/02-ux-design-system.md`](../ux/02-ux-design-system.md) (UX v0.1) |
+| Status      | Awaiting stakeholder review (open items: Appendix C)                                                                                                               |
 
 **Change log**
 
-| Version | Date | Author | Summary |
-|---|---|---|---|
-| 0.1 | 2026-09-09 | Product/Engineering (Arena agent) | Initial technical architecture: 20 mandated areas, module boundaries, folder structures, API versioning, environment configuration, dev/staging/production, Nepal→international scaling. |
-| 0.2 | 2026-09-10 | Product/Engineering (Arena agent) | **Deployment target changed per stakeholder direction: self-hosted web server (Docker Compose) / local environments — no managed cloud.** Rewrote §20 + §0.4 diagram; updated §0.1, T-7, §12.1, §15, §18, §22, §25, §26, §27, Appendices B/C. Application architecture (modules, API, data, providers) unchanged. |
+| Version | Date       | Author                            | Summary                                                                                                                                                                                                                                                                                                           |
+| ------- | ---------- | --------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 0.1     | 2026-09-09 | Product/Engineering (Arena agent) | Initial technical architecture: 20 mandated areas, module boundaries, folder structures, API versioning, environment configuration, dev/staging/production, Nepal→international scaling.                                                                                                                          |
+| 0.2     | 2026-09-10 | Product/Engineering (Arena agent) | **Deployment target changed per stakeholder direction: self-hosted web server (Docker Compose) / local environments — no managed cloud.** Rewrote §20 + §0.4 diagram; updated §0.1, T-7, §12.1, §15, §18, §22, §25, §26, §27, Appendices B/C. Application architecture (modules, API, data, providers) unchanged. |
 
 **Binding inheritance:** PRD global constraints GC-1…GC-7 and Phase 02 design rules apply to this document. Where this document and the PRD disagree, the PRD wins.
 
@@ -24,25 +24,25 @@
 
 ### 0.1 Stack (final choices)
 
-| Concern | Choice | Notes |
-|---|---|---|
-| Monorepo | pnpm workspaces + Turborepo | `apps/web`, `apps/api`, `packages/*` |
-| Frontend | **Next.js 15 (App Router) + React 19 + TypeScript (strict)** | SSG/ISR + SSR + CSR split per surface (§1) |
-| UI | Tailwind CSS 4 + `@easytrip/ui` package (Phase 02 tokens 1:1) | Design QA gates apply |
-| Backend | **NestJS 11 + TypeScript (strict)** | Modular monolith (§2) |
-| Validation | **Zod** (single schema source in `packages/contracts`) | Web + API share schemas |
-| Database | **PostgreSQL 16** (Docker Compose on the web server; optional WAL archiving/replica §20.5/§20.8) via **Drizzle ORM** | Migrations: drizzle-kit; SQL escape hatch allowed |
-| Cache/queues | **Redis 7** (managed) + **BullMQ** | §11, §12 |
-| Storage | **S3-compatible** (3 buckets) + CDN | §8 |
-| Search | **PostgreSQL FTS + pg_trgm** behind a `SearchProvider` SPI | §10, swap-ready for V2 |
-| Payments | **Provider-agnostic SPI** + capability matrix (GC-2) | §7 |
-| Auth | JWT access + rotating opaque refresh (cookie), Argon2id, TOTP for admin | §5 |
-| Jobs | BullMQ + **timer-sweep pattern** (DB-backed SLA timers) | §12 |
-| Observability | pino (logs) + **OpenTelemetry** (traces/metrics) + SLO alerts | §14, §15 |
-| API contract | OpenAPI 3.1 generated from code; URI versioning `/v1` | §3, §24 |
-| Testing | Jest (api) · Vitest + RTL (web/ui) · Playwright (E2E) · Testcontainers (integration) | PRD quality gates |
+| Concern           | Choice                                                                                                                                                                                                  | Notes                                                           |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
+| Monorepo          | pnpm workspaces + Turborepo                                                                                                                                                                             | `apps/web`, `apps/api`, `packages/*`                            |
+| Frontend          | **Next.js 15 (App Router) + React 19 + TypeScript (strict)**                                                                                                                                            | SSG/ISR + SSR + CSR split per surface (§1)                      |
+| UI                | Tailwind CSS 4 + `@easytrip/ui` package (Phase 02 tokens 1:1)                                                                                                                                           | Design QA gates apply                                           |
+| Backend           | **NestJS 11 + TypeScript (strict)**                                                                                                                                                                     | Modular monolith (§2)                                           |
+| Validation        | **Zod** (single schema source in `packages/contracts`)                                                                                                                                                  | Web + API share schemas                                         |
+| Database          | **PostgreSQL 16** (Docker Compose on the web server; optional WAL archiving/replica §20.5/§20.8) via **Drizzle ORM**                                                                                    | Migrations: drizzle-kit; SQL escape hatch allowed               |
+| Cache/queues      | **Redis 7** (managed) + **BullMQ**                                                                                                                                                                      | §11, §12                                                        |
+| Storage           | **S3-compatible** (3 buckets) + CDN                                                                                                                                                                     | §8                                                              |
+| Search            | **PostgreSQL FTS + pg_trgm** behind a `SearchProvider` SPI                                                                                                                                              | §10, swap-ready for V2                                          |
+| Payments          | **Provider-agnostic SPI** + capability matrix (GC-2)                                                                                                                                                    | §7                                                              |
+| Auth              | JWT access + rotating opaque refresh (cookie), Argon2id, TOTP for admin                                                                                                                                 | §5                                                              |
+| Jobs              | BullMQ + **timer-sweep pattern** (DB-backed SLA timers)                                                                                                                                                 | §12                                                             |
+| Observability     | pino (logs) + **OpenTelemetry** (traces/metrics) + SLO alerts                                                                                                                                           | §14, §15                                                        |
+| API contract      | OpenAPI 3.1 generated from code; URI versioning `/v1`                                                                                                                                                   | §3, §24                                                         |
+| Testing           | Jest (api) · Vitest + RTL (web/ui) · Playwright (E2E) · Testcontainers (integration)                                                                                                                    | PRD quality gates                                               |
 | Deployment target | **Self-hosted web server** — Docker Compose (Caddy + web + api + worker + Postgres + Redis + MinIO + optional observability profile); local dev parity via the same compose files; **no managed cloud** | T-7; containerized ⇒ portable to any larger host or cloud later |
-| AI | None in MVP; rule-based suggestions V1.5; LLM planner V2 (provider-gated, GC-2) | §19 |
+| AI                | None in MVP; rule-based suggestions V1.5; LLM planner V2 (provider-gated, GC-2)                                                                                                                         | §19                                                             |
 
 ### 0.2 Architecture style
 
@@ -53,20 +53,20 @@
 
 ### 0.3 Key decisions (summarized; full table Appendix B)
 
-| ID | Decision | One-line rationale |
-|---|---|---|
-| T-1 | Modular monolith, not microservices | Team/ops size; modules + events preserve decomposability |
-| T-2 | Next 15 App Router, SSG/ISR/SSR/CSR per surface | SEO + performance + interactivity in one framework |
-| T-3 | Single Postgres DB, table prefixes per module | Operational simplicity; boundaries enforced in code, not schemas |
-| T-4 | Drizzle ORM | Typed, migration-first, SQL escape hatch for search/complex queries |
-| T-5 | BullMQ + DB timer-sweep for SLAs | Durable, inspectable, admin-adjustable timers (no lost in-memory jobs) |
-| T-6 | Transactional outbox for domain events | No lost/duplicate cross-module side effects |
-| T-7 | Self-hosted web server (Docker Compose) / local environments — **no managed cloud** | Stakeholder direction (2026-09-10); cost control + data sovereignty; 12-factor + containers keep the stack portable to a larger host, second host, or any cloud later (§20.8) |
-| T-8 | Provider SPI + capability matrix | GC-2: no invented external capabilities; UI reads verified capabilities |
-| T-9 | Money = BIGINT minor units + ISO code (GC-7) | No float money, no rounding drift; app-side integer math |
-| T-10 | Postgres FTS for MVP search behind SPI | Zero new infra; documented swap trigger to dedicated engine [V2] |
-| T-11 | OpenTelemetry from day 1, vendor-neutral exporter | Vendor-swappable observability; business + system telemetry together |
-| T-12 | Trunk-based + expand/contract migrations + feature flags | Small, safe, fast deploys; kill switches for risky behavior |
+| ID   | Decision                                                                            | One-line rationale                                                                                                                                                            |
+| ---- | ----------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| T-1  | Modular monolith, not microservices                                                 | Team/ops size; modules + events preserve decomposability                                                                                                                      |
+| T-2  | Next 15 App Router, SSG/ISR/SSR/CSR per surface                                     | SEO + performance + interactivity in one framework                                                                                                                            |
+| T-3  | Single Postgres DB, table prefixes per module                                       | Operational simplicity; boundaries enforced in code, not schemas                                                                                                              |
+| T-4  | Drizzle ORM                                                                         | Typed, migration-first, SQL escape hatch for search/complex queries                                                                                                           |
+| T-5  | BullMQ + DB timer-sweep for SLAs                                                    | Durable, inspectable, admin-adjustable timers (no lost in-memory jobs)                                                                                                        |
+| T-6  | Transactional outbox for domain events                                              | No lost/duplicate cross-module side effects                                                                                                                                   |
+| T-7  | Self-hosted web server (Docker Compose) / local environments — **no managed cloud** | Stakeholder direction (2026-09-10); cost control + data sovereignty; 12-factor + containers keep the stack portable to a larger host, second host, or any cloud later (§20.8) |
+| T-8  | Provider SPI + capability matrix                                                    | GC-2: no invented external capabilities; UI reads verified capabilities                                                                                                       |
+| T-9  | Money = BIGINT minor units + ISO code (GC-7)                                        | No float money, no rounding drift; app-side integer math                                                                                                                      |
+| T-10 | Postgres FTS for MVP search behind SPI                                              | Zero new infra; documented swap trigger to dedicated engine [V2]                                                                                                              |
+| T-11 | OpenTelemetry from day 1, vendor-neutral exporter                                   | Vendor-swappable observability; business + system telemetry together                                                                                                          |
+| T-12 | Trunk-based + expand/contract migrations + feature flags                            | Small, safe, fast deploys; kill switches for risky behavior                                                                                                                   |
 
 ### 0.4 System context
 
@@ -113,16 +113,16 @@
 
 ### 1.2 Rendering strategy (per surface)
 
-| Surface | Mode | Reason |
-|---|---|---|
-| Home, category hubs, destination hubs, guides, about/legal | **SSG/ISR** (revalidate: time 5 min + **on-demand** via API publish-event → `POST /api/revalidate` (secret-authenticated)) | PRD SEO (§32.3) + speed |
-| Service detail (all lines) | **ISR** (on-demand revalidation on service/price/availability events; stale-while-revalidate) | SEO + fresh data |
-| Search results | **SSR** (server component calling API with query params) + client facet interactivity | Shareable URLs (RM-01) + instant first paint |
-| Auth pages, quote deep links | **SSR** (light) | State-aware render, fast |
-| My Trips, Account, Wishlist | **SSR shell + RSC data** (auth via cookies server-side) | PII never in client bundle |
-| Checkout, booking wizard, custom-trip builder, offer view | **CSR** (interactive, React Query) | Multi-step state, optimistic UI (safe ops only, Phase 02 LD) |
-| Vendor portal, Admin console | **CSR under authenticated shell** (React Query everywhere) | App-like density |
-| Error/404/500 pages | SSG | Phase 02 §8.18 |
+| Surface                                                    | Mode                                                                                                                       | Reason                                                       |
+| ---------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| Home, category hubs, destination hubs, guides, about/legal | **SSG/ISR** (revalidate: time 5 min + **on-demand** via API publish-event → `POST /api/revalidate` (secret-authenticated)) | PRD SEO (§32.3) + speed                                      |
+| Service detail (all lines)                                 | **ISR** (on-demand revalidation on service/price/availability events; stale-while-revalidate)                              | SEO + fresh data                                             |
+| Search results                                             | **SSR** (server component calling API with query params) + client facet interactivity                                      | Shareable URLs (RM-01) + instant first paint                 |
+| Auth pages, quote deep links                               | **SSR** (light)                                                                                                            | State-aware render, fast                                     |
+| My Trips, Account, Wishlist                                | **SSR shell + RSC data** (auth via cookies server-side)                                                                    | PII never in client bundle                                   |
+| Checkout, booking wizard, custom-trip builder, offer view  | **CSR** (interactive, React Query)                                                                                         | Multi-step state, optimistic UI (safe ops only, Phase 02 LD) |
+| Vendor portal, Admin console                               | **CSR under authenticated shell** (React Query everywhere)                                                                 | App-like density                                             |
+| Error/404/500 pages                                        | SSG                                                                                                                        | Phase 02 §8.18                                               |
 
 ### 1.3 Data & auth on the web
 
@@ -183,12 +183,12 @@ Rules: `domain` imports nothing above it; `infrastructure` implements interfaces
 
 ### 2.5 Testing strategy (api)
 
-| Layer | Tool | Coverage focus |
-|---|---|---|
-| Unit | Jest | domain 100% transition coverage; services with in-memory fakes; state machine exhaustiveness |
+| Layer       | Tool                                                         | Coverage focus                                                                                                                                                                                                     |
+| ----------- | ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Unit        | Jest                                                         | domain 100% transition coverage; services with in-memory fakes; state machine exhaustiveness                                                                                                                       |
 | Integration | Jest + Supertest + **Testcontainers** (Postgres 16, Redis 7) | auth flows, RBAC matrix (role × route class), booking e2e with **mock payment provider** (SPI, dev-only), webhook signature/replay/out-of-order, idempotency replays, oversell concurrency, migration upgrade path |
-| Contract | OpenAPI diff gate + client drift test | breaking-change detection (§24) |
-| E2E (api) | Playwright API mode against staging | sandbox payment round-trip, settlement dry-run |
+| Contract    | OpenAPI diff gate + client drift test                        | breaking-change detection (§24)                                                                                                                                                                                    |
+| E2E (api)   | Playwright API mode against staging                          | sandbox payment round-trip, settlement dry-run                                                                                                                                                                     |
 
 ---
 
@@ -218,24 +218,24 @@ error:    { "error": { "code": "ETN-BK-103", "message": "…", "details": {…},
 
 ### 3.4 Endpoint inventory (grouped)
 
-| Area | Example endpoints |
-|---|---|
-| Auth | `POST /v1/auth/login|register|logout|refresh|reset-request|reset-confirm|otp/*|mfa/*`, `GET /v1/auth/me` |
-| Customer | `GET /v1/customers/me`, `PUT …/me`, wishlist `GET|POST|DELETE /v1/customers/me/wishlist(/{id})`, notifications `GET /v1/customers/me/notifications`, `PATCH …/read` |
-| Catalog (per line) | `GET /v1/tours` (+filters), `GET /v1/tours/{slug}` (SEO), same for trekking/hotels/vehicles/transfers/packages/transportation/flights (search), `GET /v1/destinations(/{slug})`, `GET /v1/guides(/{slug})` |
-| Search | `GET /v1/search` (global; line/destination/date/party/price/rating/sort), `GET /v1/search/facets` |
-| Booking | `POST /v1/bookings` (mode: instant/quote/custom; idempotency), `GET /v1/bookings(/{id})`, `POST /v1/bookings/{id}/cancel`, `POST /v1/bookings/{id}/reschedule-request`, `GET /v1/bookings/{id}/voucher.pdf`, `GET /v1/bookings/{id}/itinerary` |
-| Quotes/offers | `GET /v1/bookings/{id}/offers`, `POST /v1/quotes/guest` (no auth), guest offer view `GET /v1/quotes/{token}` |
-| Payments | `POST /v1/payments/intents` (server-priced), `GET /v1/payments/intents/{id}`, `POST /v1/payments/intents/{id}/retry` |
-| Reviews | `POST /v1/reviews` (eligibility server-side), `GET /v1/services/{id}/reviews`, `POST /v1/reviews/{id}/flag` |
-| Custom trip | `POST /v1/custom-trips` (draft), `GET|PUT /v1/custom-trips/{draftId}`, `POST /v1/custom-trips/{draftId}/submit`, offers via bookings |
-| Corporate | `POST /v1/corporate/orgs`, `GET /v1/corporate/me/org|members|policy`, `POST /v1/corporate/approvals/{id}/decision`, `GET /v1/corporate/expenses.csv` |
-| Vendor | `/v1/vendor/dashboard|services(/{id})|availability|bookings(/{id})|offers|earnings|settlements|documents|reports…` |
-| Admin | `/v1/admin/approvals|bookings|payments|refunds|settlements|customers|vendors|disputes|content|geo|reports|audit|settings…` |
-| Uploads | `POST /v1/uploads/init` → presigned PUT → `POST /v1/uploads/confirm` (§8) |
-| Analytics | `POST /v1/track` (consent-gated, rate-limited) |
-| Webhooks (inbound) | `POST /v1/webhooks/payments/{provider}` (signature-verified, replay-protected) |
-| Ops (unversioned) | `GET /healthz`, `GET /readyz`, `GET /metrics` (network-restricted), `POST /api/revalidate` (web, secret-authenticated) |
+| Area               | Example endpoints                                                                                                                                                                                                                              |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Auth               | `POST /v1/auth/login                                                                                                                                                                                                                           | register                                                                                       | logout                                                                                                       | refresh         | reset-request | reset-confirm | otp/*       | mfa/*`, `GET /v1/auth/me` |
+| Customer           | `GET /v1/customers/me`, `PUT …/me`, wishlist `GET                                                                                                                                                                                              | POST                                                                                           | DELETE /v1/customers/me/wishlist(/{id})`, notifications `GET /v1/customers/me/notifications`, `PATCH …/read` |
+| Catalog (per line) | `GET /v1/tours` (+filters), `GET /v1/tours/{slug}` (SEO), same for trekking/hotels/vehicles/transfers/packages/transportation/flights (search), `GET /v1/destinations(/{slug})`, `GET /v1/guides(/{slug})`                                     |
+| Search             | `GET /v1/search` (global; line/destination/date/party/price/rating/sort), `GET /v1/search/facets`                                                                                                                                              |
+| Booking            | `POST /v1/bookings` (mode: instant/quote/custom; idempotency), `GET /v1/bookings(/{id})`, `POST /v1/bookings/{id}/cancel`, `POST /v1/bookings/{id}/reschedule-request`, `GET /v1/bookings/{id}/voucher.pdf`, `GET /v1/bookings/{id}/itinerary` |
+| Quotes/offers      | `GET /v1/bookings/{id}/offers`, `POST /v1/quotes/guest` (no auth), guest offer view `GET /v1/quotes/{token}`                                                                                                                                   |
+| Payments           | `POST /v1/payments/intents` (server-priced), `GET /v1/payments/intents/{id}`, `POST /v1/payments/intents/{id}/retry`                                                                                                                           |
+| Reviews            | `POST /v1/reviews` (eligibility server-side), `GET /v1/services/{id}/reviews`, `POST /v1/reviews/{id}/flag`                                                                                                                                    |
+| Custom trip        | `POST /v1/custom-trips` (draft), `GET                                                                                                                                                                                                          | PUT /v1/custom-trips/{draftId}`, `POST /v1/custom-trips/{draftId}/submit`, offers via bookings |
+| Corporate          | `POST /v1/corporate/orgs`, `GET /v1/corporate/me/org                                                                                                                                                                                           | members                                                                                        | policy`, `POST /v1/corporate/approvals/{id}/decision`, `GET /v1/corporate/expenses.csv`                      |
+| Vendor             | `/v1/vendor/dashboard                                                                                                                                                                                                                          | services(/{id})                                                                                | availability                                                                                                 | bookings(/{id}) | offers        | earnings      | settlements | documents                 | reports…` |
+| Admin              | `/v1/admin/approvals                                                                                                                                                                                                                           | bookings                                                                                       | payments                                                                                                     | refunds         | settlements   | customers     | vendors     | disputes                  | content   | geo | reports | audit | settings…` |
+| Uploads            | `POST /v1/uploads/init` → presigned PUT → `POST /v1/uploads/confirm` (§8)                                                                                                                                                                      |
+| Analytics          | `POST /v1/track` (consent-gated, rate-limited)                                                                                                                                                                                                 |
+| Webhooks (inbound) | `POST /v1/webhooks/payments/{provider}` (signature-verified, replay-protected)                                                                                                                                                                 |
+| Ops (unversioned)  | `GET /healthz`, `GET /readyz`, `GET /metrics` (network-restricted), `POST /api/revalidate` (web, secret-authenticated)                                                                                                                         |
 
 ### 3.5 Webhooks (inbound)
 
@@ -262,37 +262,37 @@ error:    { "error": { "code": "ETN-BK-103", "message": "…", "details": {…},
 
 ### 4.2 Module → table ownership (prefixes)
 
-| Module | Prefixes / key tables |
-|---|---|
-| auth | `auth_session` (refresh families), `auth_idp_account` (Google/OTP future), `mfa_enrollment`, `otp_issue`, `audit_log`, `idempotency_key`, `outbox` |
-| users | `user` (identity: email, phone, country, password_hash, status, verification levels), `user_verification_event` |
-| customers | `cust_profile` (display name, preferred currency/locale), `cust_guest_contact` (quote w/o account + signed token), `cust_wishlist_item` |
-| vendors | `ven_org`, `ven_user` (membership + org role), `ven_capability` (line, status, expiry), `ven_document`, `ven_bank` (finance-scoped, verified flag), `ven_payout_detail` |
-| corporate | `corp_org`, `corp_user`, `corp_policy`, `corp_approval` |
-| destinations | `geo_country`, `geo_state`, `geo_district`, `geo_city` (→ generalized `geo_node` w/ type+parent, §27), `geo_alias`, `geo_airport`, `dst_destination` (hub: geo ref, slug, content, seo, ops_rank) |
-| content | `cms_guide`, `cms_banner`, `cms_help`, `cms_localized` [V1.5] |
-| catalog (core) | `srv_service` (vendor, line, status, destination, geo points, title/slug, description, seo_json, flags instant/quote, version), `srv_media`, `srv_addon`, `price_surcharge` (date-based), `tax_config`, `fx_rate` |
-| vehicles | `veh_fleet_vehicle` (make/model/class/seats/fuel/year/plate_masked/self_drive), `veh_rate` (per-day, KM limit, overtime, fuel/driver policy) |
-| transfers | `trf_route` (origin/dest, type, est duration), `trf_service` (route, vehicle class, mode), `trf_window` (date, window, capacity, sold) |
-| transportation | `trp_service` (charter route/date capacity) |
-| hotels | `htl_property`, `htl_room_type`, `htl_rate_plan` (per-night, min stay, meal, cancel policy ref, tax flag, capacity) |
-| tours | `tour_service` (duration, min/max, languages, meeting), `tour_inclusion` (structured ✓/✕), `tour_departure` (date, seats, sold) |
-| treks | `trek_attr` (difficulty, nights, season tags, permits flags, accommodation), `trek_departure` |
-| packages | `pkg_service` (components refs, style flags family/corporate, per-person pricing) |
-| flights | `flt_route` (curated route catalog + IATA refs) |
-| availability (shared by lines) | `av_count` (entity, date, capacity, sold, version) — daily granularity; `av_departure` (dated seat capacity) — used by tours/treks/packages/transfers-scheduled |
-| quotes | `qtr_request` (inputs, routing, status), `qtr_offer` (booking, version, total, breakdown_jsonb, terms, valid_until, state) |
-| bookings | `bk_booking` (mode, state, vendor, service, trip_group, price_snapshot_jsonb, policy_snapshot_jsonb, scheduled start/end local + tz, idem ref), `bk_event` (transition audit), `bk_timer` (SLA timers, §12.3), `bk_traveler` (name, dob, `passport_enc`, nationality), `bk_document` (e-ticket, voucher), `bk_group` (trip group) |
-| payments | `pay_method` (user, provider, token_ref, last4, brand), `pay_intent` (booking, amount_minor, currency, state, provider_ref, expires), `pay_charge` (provider ref, fx rate, charged amount/currency), `pay_ledger_entry` (account, amount, currency, ref_type/ref_id, memo, prev_hash [V1.5]), `pay_settlement` (vendor, period, gross, commission, refunds, net, state), `pay_payout`, `pay_recon_run` [V1.5] |
-| refunds | `ref_refund` (booking, amount, state, method, provider_ref, timeline, policy ref), `ref_case` (vendor-mediated status, agency SLA) |
-| reviews | `rev_review` (booking, service, rating, text, state), `rev_photo`, `rev_reply`, `rev_report`, `rev_aggregate` (service, avg, count, histogram_jsonb, updated_at) |
-| notifications | `ntf_notification` (user, type, title, body, data, read_at), `ntf_preference`, `ntf_suppression`, `ntf_delivery_log` |
-| disputes | `dsp_dispute`, `dsp_evidence` |
-| search | `srch_keyword_alias` (ops typo/variant map) |
-| ai-planner | `ai_session_meta` (V2: budget, cost, state), `ai_feedback` (ops sampling) |
-| reports | `rpt_kpi_rollup` (day, scope, metric, value), `rpt_funnel_daily` |
-| admin | `adm_feature_flag`, `adm_setting` (commission per line, SLA defaults, capability matrix overrides, template config) |
-| analytics | `ana_event` (**monthly partitioned**), `ana_session` (pseudonymous) |
+| Module                         | Prefixes / key tables                                                                                                                                                                                                                                                                                                                                                                                         |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| auth                           | `auth_session` (refresh families), `auth_idp_account` (Google/OTP future), `mfa_enrollment`, `otp_issue`, `audit_log`, `idempotency_key`, `outbox`                                                                                                                                                                                                                                                            |
+| users                          | `user` (identity: email, phone, country, password_hash, status, verification levels), `user_verification_event`                                                                                                                                                                                                                                                                                               |
+| customers                      | `cust_profile` (display name, preferred currency/locale), `cust_guest_contact` (quote w/o account + signed token), `cust_wishlist_item`                                                                                                                                                                                                                                                                       |
+| vendors                        | `ven_org`, `ven_user` (membership + org role), `ven_capability` (line, status, expiry), `ven_document`, `ven_bank` (finance-scoped, verified flag), `ven_payout_detail`                                                                                                                                                                                                                                       |
+| corporate                      | `corp_org`, `corp_user`, `corp_policy`, `corp_approval`                                                                                                                                                                                                                                                                                                                                                       |
+| destinations                   | `geo_country`, `geo_state`, `geo_district`, `geo_city` (→ generalized `geo_node` w/ type+parent, §27), `geo_alias`, `geo_airport`, `dst_destination` (hub: geo ref, slug, content, seo, ops_rank)                                                                                                                                                                                                             |
+| content                        | `cms_guide`, `cms_banner`, `cms_help`, `cms_localized` [V1.5]                                                                                                                                                                                                                                                                                                                                                 |
+| catalog (core)                 | `srv_service` (vendor, line, status, destination, geo points, title/slug, description, seo_json, flags instant/quote, version), `srv_media`, `srv_addon`, `price_surcharge` (date-based), `tax_config`, `fx_rate`                                                                                                                                                                                             |
+| vehicles                       | `veh_fleet_vehicle` (make/model/class/seats/fuel/year/plate_masked/self_drive), `veh_rate` (per-day, KM limit, overtime, fuel/driver policy)                                                                                                                                                                                                                                                                  |
+| transfers                      | `trf_route` (origin/dest, type, est duration), `trf_service` (route, vehicle class, mode), `trf_window` (date, window, capacity, sold)                                                                                                                                                                                                                                                                        |
+| transportation                 | `trp_service` (charter route/date capacity)                                                                                                                                                                                                                                                                                                                                                                   |
+| hotels                         | `htl_property`, `htl_room_type`, `htl_rate_plan` (per-night, min stay, meal, cancel policy ref, tax flag, capacity)                                                                                                                                                                                                                                                                                           |
+| tours                          | `tour_service` (duration, min/max, languages, meeting), `tour_inclusion` (structured ✓/✕), `tour_departure` (date, seats, sold)                                                                                                                                                                                                                                                                               |
+| treks                          | `trek_attr` (difficulty, nights, season tags, permits flags, accommodation), `trek_departure`                                                                                                                                                                                                                                                                                                                 |
+| packages                       | `pkg_service` (components refs, style flags family/corporate, per-person pricing)                                                                                                                                                                                                                                                                                                                             |
+| flights                        | `flt_route` (curated route catalog + IATA refs)                                                                                                                                                                                                                                                                                                                                                               |
+| availability (shared by lines) | `av_count` (entity, date, capacity, sold, version) — daily granularity; `av_departure` (dated seat capacity) — used by tours/treks/packages/transfers-scheduled                                                                                                                                                                                                                                               |
+| quotes                         | `qtr_request` (inputs, routing, status), `qtr_offer` (booking, version, total, breakdown_jsonb, terms, valid_until, state)                                                                                                                                                                                                                                                                                    |
+| bookings                       | `bk_booking` (mode, state, vendor, service, trip_group, price_snapshot_jsonb, policy_snapshot_jsonb, scheduled start/end local + tz, idem ref), `bk_event` (transition audit), `bk_timer` (SLA timers, §12.3), `bk_traveler` (name, dob, `passport_enc`, nationality), `bk_document` (e-ticket, voucher), `bk_group` (trip group)                                                                             |
+| payments                       | `pay_method` (user, provider, token_ref, last4, brand), `pay_intent` (booking, amount_minor, currency, state, provider_ref, expires), `pay_charge` (provider ref, fx rate, charged amount/currency), `pay_ledger_entry` (account, amount, currency, ref_type/ref_id, memo, prev_hash [V1.5]), `pay_settlement` (vendor, period, gross, commission, refunds, net, state), `pay_payout`, `pay_recon_run` [V1.5] |
+| refunds                        | `ref_refund` (booking, amount, state, method, provider_ref, timeline, policy ref), `ref_case` (vendor-mediated status, agency SLA)                                                                                                                                                                                                                                                                            |
+| reviews                        | `rev_review` (booking, service, rating, text, state), `rev_photo`, `rev_reply`, `rev_report`, `rev_aggregate` (service, avg, count, histogram_jsonb, updated_at)                                                                                                                                                                                                                                              |
+| notifications                  | `ntf_notification` (user, type, title, body, data, read_at), `ntf_preference`, `ntf_suppression`, `ntf_delivery_log`                                                                                                                                                                                                                                                                                          |
+| disputes                       | `dsp_dispute`, `dsp_evidence`                                                                                                                                                                                                                                                                                                                                                                                 |
+| search                         | `srch_keyword_alias` (ops typo/variant map)                                                                                                                                                                                                                                                                                                                                                                   |
+| ai-planner                     | `ai_session_meta` (V2: budget, cost, state), `ai_feedback` (ops sampling)                                                                                                                                                                                                                                                                                                                                     |
+| reports                        | `rpt_kpi_rollup` (day, scope, metric, value), `rpt_funnel_daily`                                                                                                                                                                                                                                                                                                                                              |
+| admin                          | `adm_feature_flag`, `adm_setting` (commission per line, SLA defaults, capability matrix overrides, template config)                                                                                                                                                                                                                                                                                           |
+| analytics                      | `ana_event` (**monthly partitioned**), `ana_session` (pseudonymous)                                                                                                                                                                                                                                                                                                                                           |
 
 ### 4.3 Entity & consistency rules
 
@@ -305,18 +305,18 @@ error:    { "error": { "code": "ETN-BK-103", "message": "…", "details": {…},
 
 ### 4.4 Indexes (hot paths)
 
-| Table | Indexes |
-|---|---|
-| `srv_service` | unique(slug); (line, status, destination_id); GIN tsvector (generated); GIN trgm (title, slug); (vendor_id, status); (created_at desc) |
-| `bk_booking` | (state); (vendor_id, created_at desc); (trip_group_id); (contact_user_id, created_at desc); (pay_intent_ref) unique partial (where state in pay-states) |
-| `av_count` / `av_departure` | unique(entity_id, date); (entity_id, date) with `sold < capacity` partial for search |
-| `pay_ledger_entry` | (ref_type, ref_id); (account, ts); BRIN (ts) |
-| `ana_event` | partition by month (ts); (name, ts); BRIN (ts) |
-| `audit_log` | (actor_id, ts desc); (entity_type, entity_id, ts desc); BRIN (ts) |
-| `qtr_offer` | (booking_id, version desc); (state, valid_until) for expiry timer |
-| `ntf_notification` | (user_id, created_at desc) partial (read_at IS NULL) for badge count |
-| `rev_aggregate` | unique(service_id) |
-| `bk_timer` | (state, due_at) — timer sweep scan (§12.3) |
+| Table                       | Indexes                                                                                                                                                 |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `srv_service`               | unique(slug); (line, status, destination_id); GIN tsvector (generated); GIN trgm (title, slug); (vendor_id, status); (created_at desc)                  |
+| `bk_booking`                | (state); (vendor_id, created_at desc); (trip_group_id); (contact_user_id, created_at desc); (pay_intent_ref) unique partial (where state in pay-states) |
+| `av_count` / `av_departure` | unique(entity_id, date); (entity_id, date) with `sold < capacity` partial for search                                                                    |
+| `pay_ledger_entry`          | (ref_type, ref_id); (account, ts); BRIN (ts)                                                                                                            |
+| `ana_event`                 | partition by month (ts); (name, ts); BRIN (ts)                                                                                                          |
+| `audit_log`                 | (actor_id, ts desc); (entity_type, entity_id, ts desc); BRIN (ts)                                                                                       |
+| `qtr_offer`                 | (booking_id, version desc); (state, valid_until) for expiry timer                                                                                       |
+| `ntf_notification`          | (user_id, created_at desc) partial (read_at IS NULL) for badge count                                                                                    |
+| `rev_aggregate`             | unique(service_id)                                                                                                                                      |
+| `bk_timer`                  | (state, due_at) — timer sweep scan (§12.3)                                                                                                              |
 
 ### 4.5 Partitioning, retention, growth
 
@@ -335,14 +335,14 @@ error:    { "error": { "code": "ETN-BK-103", "message": "…", "details": {…},
 
 ### 5.1 Methods & levels (aligned to PRD §16)
 
-| Method | Version | Notes |
-|---|---|---|
-| Email + password (Argon2id) | MVP | OWASP baseline: m = 19 456 KiB, t = 2, p = 1 (decision E-5 for tuning) |
-| Email OTP (verification, reset) | MVP | 6-digit, 10-min expiry, single-use, rate-limited (3/15 min per identifier) |
-| TOTP MFA | MVP (admin **required**), customer `[V1.5]` | RFC 6238, 30 s, ±1 window, enrollment QR |
-| Google OAuth | `[V1.5]` | via `auth_idp_account` (provider, subject) + email-match linking |
-| Phone OTP (login + verification) | `[V1.5]` | E.164, intl codes (GC-1) |
-| Guest (no account) | MVP | quote requests only; contact + signed one-time deep-link token (24 h) |
+| Method                           | Version                                     | Notes                                                                      |
+| -------------------------------- | ------------------------------------------- | -------------------------------------------------------------------------- |
+| Email + password (Argon2id)      | MVP                                         | OWASP baseline: m = 19 456 KiB, t = 2, p = 1 (decision E-5 for tuning)     |
+| Email OTP (verification, reset)  | MVP                                         | 6-digit, 10-min expiry, single-use, rate-limited (3/15 min per identifier) |
+| TOTP MFA                         | MVP (admin **required**), customer `[V1.5]` | RFC 6238, 30 s, ±1 window, enrollment QR                                   |
+| Google OAuth                     | `[V1.5]`                                    | via `auth_idp_account` (provider, subject) + email-match linking           |
+| Phone OTP (login + verification) | `[V1.5]`                                    | E.164, intl codes (GC-1)                                                   |
+| Guest (no account)               | MVP                                         | quote requests only; contact + signed one-time deep-link token (24 h)      |
 
 ### 5.2 Token & session model
 
@@ -377,20 +377,20 @@ Roles: `CUSTOMER`, `VENDOR`, `ADMIN_SUPER`, `ADMIN_OPS`, `ADMIN_FINANCE`, `ADMIN
 
 Permission catalog (string permissions, mapped per role; deny-by-default):
 
-| Permission | SUPER | OPS | FINANCE | SUPPORT | TRIP_DESK | VENDOR | CUSTOMER |
-|---|---|---|---|---|---|---|---|
-| `vendors:approve` / `vendors:suspend` | ✓ | ✓ | | | | | |
-| `bookings:read:all` / `bookings:intervene` (force-cancel, extend) | ✓ | ✓ | ✓(read) | ✓(read) | | | |
-| `payments:verify-bank` / `refunds:approve` / `settlements:manage` | ✓ | | ✓ | | | | |
-| `customers:manage` / `corporate:kyc` | ✓ | ✓ | | ✓ | | | |
-| `content:manage` / `geo:manage` / `destinations:manage` | ✓ | ✓ | | ✓(help only) | | | |
-| `disputes:manage` | ✓ | ✓ | ✓(finance outcome) | ✓(case work) | | | |
-| `reports:finance` / `reports:ops` | ✓ | ✓(ops) | ✓(finance) | | | | |
-| `settings:write` (commission, SLAs, flags, fx) | ✓ only | | | | | | |
-| `audit:read` | ✓ | ✓ | ✓ | | | | |
-| `tripsdesk:work` (quote routing, offer threads, custom-trip coordination) | | | | | ✓ | | |
-| `vendor:*` (own org) | | | | | | ✓ (org-scoped) | |
-| `customer:*` (own) | | | | | | | ✓ (self-scoped) |
+| Permission                                                                | SUPER  | OPS    | FINANCE            | SUPPORT      | TRIP_DESK | VENDOR         | CUSTOMER        |
+| ------------------------------------------------------------------------- | ------ | ------ | ------------------ | ------------ | --------- | -------------- | --------------- |
+| `vendors:approve` / `vendors:suspend`                                     | ✓      | ✓      |                    |              |           |                |                 |
+| `bookings:read:all` / `bookings:intervene` (force-cancel, extend)         | ✓      | ✓      | ✓(read)            | ✓(read)      |           |                |                 |
+| `payments:verify-bank` / `refunds:approve` / `settlements:manage`         | ✓      |        | ✓                  |              |           |                |                 |
+| `customers:manage` / `corporate:kyc`                                      | ✓      | ✓      |                    | ✓            |           |                |                 |
+| `content:manage` / `geo:manage` / `destinations:manage`                   | ✓      | ✓      |                    | ✓(help only) |           |                |                 |
+| `disputes:manage`                                                         | ✓      | ✓      | ✓(finance outcome) | ✓(case work) |           |                |                 |
+| `reports:finance` / `reports:ops`                                         | ✓      | ✓(ops) | ✓(finance)         |              |           |                |                 |
+| `settings:write` (commission, SLAs, flags, fx)                            | ✓ only |        |                    |              |           |                |                 |
+| `audit:read`                                                              | ✓      | ✓      | ✓                  |              |           |                |                 |
+| `tripsdesk:work` (quote routing, offer threads, custom-trip coordination) |        |        |                    |              | ✓         |                |                 |
+| `vendor:*` (own org)                                                      |        |        |                    |              |           | ✓ (org-scoped) |                 |
+| `customer:*` (own)                                                        |        |        |                    |              |           |                | ✓ (self-scoped) |
 
 ### 6.2 Enforcement layers (all required, fail-closed)
 
@@ -481,19 +481,18 @@ checkout (web, CSR)
 - Provider outage: intent creation retried with backoff; bookings remain `AWAITING_PAYMENT` with countdown; runbook (PRD §19.4/§19.7); circuit breaker per provider op (§17.3).
 - Multi-currency: intent in NPR (domestic) or provider FX (intl cards): `pay_charge` stores charged amount + currency + provider FX rate; ledger in NPR-normalized entries (dual record, PRD §19.5 PY-07).
 
-
 ---
 
 ## 8. File Storage
 
 ### 8.1 Buckets & access
 
-| Bucket | Content | Access |
-|---|---|---|
-| `etn-private` | Vendor documents, PII-adjacent files, internal | API service role only; presigned GET (15 min, access-logged, single-use flag for sensitive) |
-| `etn-media` | Public service/guide/review images (derivatives), OG images | Public read via **CDN**; invalidation on replace |
-| `etn-media-orig` | Originals (preserved, private) | API service role; retained per retention policy |
-| `etn-uploads-tmp` | Presigned upload landing zone | Presigned PUT (15 min); lifecycle delete 24 h |
+| Bucket            | Content                                                     | Access                                                                                      |
+| ----------------- | ----------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| `etn-private`     | Vendor documents, PII-adjacent files, internal              | API service role only; presigned GET (15 min, access-logged, single-use flag for sensitive) |
+| `etn-media`       | Public service/guide/review images (derivatives), OG images | Public read via **CDN**; invalidation on replace                                            |
+| `etn-media-orig`  | Originals (preserved, private)                              | API service role; retained per retention policy                                             |
+| `etn-uploads-tmp` | Presigned upload landing zone                               | Presigned PUT (15 min); lifecycle delete 24 h                                               |
 
 - Object keys: `{domain}/{entity}/{id}/{uuid}[.{variant}].{ext}` (media derivatives: `…/{uuid}-{w}x{h}.avif`); random names, never user-supplied.
 - No public write, ever; bucket policies deny non-service principals; CDN origin-authenticated.
@@ -572,17 +571,17 @@ Localized content table (`cms_localized` / per-line title/desc per locale) + per
 
 ### 11.1 Redis roles (single compose instance + AOF; optional second-host replica §20.8)
 
-| Role | Data | Persistence | Failure behavior |
-|---|---|---|---|
-| Rate limiting | sliding-window counters (per IP/user/tier, §3.6) | AOF everysec | **fail-closed** for auth/payment tiers (503), fail-open with alert for read tiers |
-| Idempotency fast path | key → response ref (24 h) | AOF | fallback: DB `idempotency_key` (source of truth) |
-| Webhook replay | seen event ids (48 h) | AOF | fallback: DB `webhook_seen` (source of truth) |
-| Facet cache | filter-set → counts (5 min) | none (cache) | bypass to DB (breaker: 500 ms timeout → skip facets, keep results) |
-| Config/geo cache | geo tree, lines, settings, capability matrix (10 min + flag invalidation) | none | read-through to DB |
-| Feature flags | flag state (10 s) | none | read-through; env kill-switch always checked directly |
-| Distributed locks | single-flight (timer sweep, reindex, settlement, OG gen) | none | lock loss ⇒ at-most-once risk bounded by idempotent jobs |
-| OTP counters | attempt counts (short TTL) | AOF | fail-closed (reject, rate-limit default) |
-| Queues (BullMQ) | job data + acks | AOF everysec | jobs pause + page (SEV2: lag; SEV1: payment-fallback queue) |
+| Role                  | Data                                                                      | Persistence  | Failure behavior                                                                  |
+| --------------------- | ------------------------------------------------------------------------- | ------------ | --------------------------------------------------------------------------------- |
+| Rate limiting         | sliding-window counters (per IP/user/tier, §3.6)                          | AOF everysec | **fail-closed** for auth/payment tiers (503), fail-open with alert for read tiers |
+| Idempotency fast path | key → response ref (24 h)                                                 | AOF          | fallback: DB `idempotency_key` (source of truth)                                  |
+| Webhook replay        | seen event ids (48 h)                                                     | AOF          | fallback: DB `webhook_seen` (source of truth)                                     |
+| Facet cache           | filter-set → counts (5 min)                                               | none (cache) | bypass to DB (breaker: 500 ms timeout → skip facets, keep results)                |
+| Config/geo cache      | geo tree, lines, settings, capability matrix (10 min + flag invalidation) | none         | read-through to DB                                                                |
+| Feature flags         | flag state (10 s)                                                         | none         | read-through; env kill-switch always checked directly                             |
+| Distributed locks     | single-flight (timer sweep, reindex, settlement, OG gen)                  | none         | lock loss ⇒ at-most-once risk bounded by idempotent jobs                          |
+| OTP counters          | attempt counts (short TTL)                                                | AOF          | fail-closed (reject, rate-limit default)                                          |
+| Queues (BullMQ)       | job data + acks                                                           | AOF everysec | jobs pause + page (SEV2: lag; SEV1: payment-fallback queue)                       |
 
 - Policy: `all-lru`; maxmemory set with headroom; **never cache money-critical computed values** (prices computed per request from DB; booking price locks live in `bk_booking`/draft rows) — GC-4.
 - Invalidation: event-driven (service published/suspended, price changed, availability changed, settings change) + TTL backstop; versioned keys.
@@ -597,19 +596,19 @@ Localized content table (`cms_localized` / per-line title/desc per locale) + per
 
 ### 12.1 Queue inventory (BullMQ)
 
-| Queue | Consumers | Concurrency | Retry/backoff | DLQ | Latency target |
-|---|---|---|---|---|---|
-| `media` (image pipeline, OG) | worker | 4 | 3× exp | ✓ | < 30 s typical |
-| `email-txn` | worker | 8 | 5× exp | ✓ | < 60 s |
-| `email-bulk` (newsletter [V1.5]) | worker | 2 (rate-capped) | 3× | ✓ | < 10 min |
-| `search-reindex` (bulk, backfill) | worker | 1 (lock) | 2× | ✓ | off-peak window |
-| `payments-fallback` (status query, orphan cleanup, recon [V1.5]) | worker | 4 | 5× exp | ✓ (**SEV1 if lagging > 10 min**) | < 5 min |
-| `timers` (sweep dispatcher, §12.3) | worker | 2 | n/a (claims rows) | n/a | 30 s cadence |
-| `analytics-batch` | worker | 2 | 3× | ✓ | < 60 s (flush 10 s/5 ev) |
-| `rollups` (daily KPI, aggregate recompute [V1.5]) | worker | 2 | 3× | ✓ | nightly 02:00 KTM |
-| `exports` (CSV/XLSX async) | worker | 2 | 2× | ✓ | < 5 min / 100k rows |
-| `cleanup` (purges, orphan intents, GC of tmp uploads) | worker | 1 (lock) | 2× | ✓ | daily |
-| `settlement` (weekly batch) | worker | 1 (lock) | 2× | ✓ | Monday 06:00 KTM |
+| Queue                                                            | Consumers | Concurrency     | Retry/backoff     | DLQ                              | Latency target           |
+| ---------------------------------------------------------------- | --------- | --------------- | ----------------- | -------------------------------- | ------------------------ |
+| `media` (image pipeline, OG)                                     | worker    | 4               | 3× exp            | ✓                                | < 30 s typical           |
+| `email-txn`                                                      | worker    | 8               | 5× exp            | ✓                                | < 60 s                   |
+| `email-bulk` (newsletter [V1.5])                                 | worker    | 2 (rate-capped) | 3×                | ✓                                | < 10 min                 |
+| `search-reindex` (bulk, backfill)                                | worker    | 1 (lock)        | 2×                | ✓                                | off-peak window          |
+| `payments-fallback` (status query, orphan cleanup, recon [V1.5]) | worker    | 4               | 5× exp            | ✓ (**SEV1 if lagging > 10 min**) | < 5 min                  |
+| `timers` (sweep dispatcher, §12.3)                               | worker    | 2               | n/a (claims rows) | n/a                              | 30 s cadence             |
+| `analytics-batch`                                                | worker    | 2               | 3×                | ✓                                | < 60 s (flush 10 s/5 ev) |
+| `rollups` (daily KPI, aggregate recompute [V1.5])                | worker    | 2               | 3×                | ✓                                | nightly 02:00 KTM        |
+| `exports` (CSV/XLSX async)                                       | worker    | 2               | 2×                | ✓                                | < 5 min / 100k rows      |
+| `cleanup` (purges, orphan intents, GC of tmp uploads)            | worker    | 1 (lock)        | 2×                | ✓                                | daily                    |
+| `settlement` (weekly batch)                                      | worker    | 1 (lock)        | 2×                | ✓                                | Monday 06:00 KTM         |
 
 - Job contract: **idempotent handlers**, versioned payloads `{v, …}`, attempts ≤ max then DLQ (admin-visible: list, inspect, manual requeue, poison-pill cap); per-queue metrics (depth, lag, fail rate) → dashboards + alerts (§15).
 - Worker deployment: separate container (same image, `worker` entrypoint), scaled by adding replicas/hosts when queue depth demands (threshold script or manual — §20.8), versioned with API (no long-lived queue payload compatibility concerns — deploys are minutes; payloads are versioned regardless).
@@ -624,21 +623,21 @@ Webhook processing (payment success) is **synchronous inline** in the API (criti
 
 Timer types (defaults per PRD §10.7/§8, all admin-configurable in `adm_setting`):
 
-| Type | Due | Effect (command) |
-|---|---|---|
-| `DRAFT_EXPIRY` | +7 d | booking → CANCELLED (abandoned) |
-| `PRICE_LOCK` | +15 min | invalidate cart lock (re-price) |
-| `QUOTE_ESCALATION` | +24 h | trip-desk/vendor escalation + customer reassurance |
-| `QUOTE_CLOSE` | +72 h | quote → CANCELLED (no response) |
-| `OFFER_VALIDITY` | valid_until | offer expired → booking CANCELLED (OFFER_EXPIRED) |
-| `PAYMENT_EXPIRY` (bank) | +48 h | intent CANCELED → booking CANCELLED (PAYMENT_EXPIRED) |
-| `VENDOR_CONFIRM_REMINDER` | +12 h / +24 h | reminder; at 24 h customer may cancel penalty-free (PRD §8 SLA) |
-| `TICKET_ISSUANCE_ESCALATION` | +24 h / +48 h | escalation; at 48 h auto-refund option (PRD §8) |
-| `AUTO_START` | start + grace | CONFIRMED → IN_PROGRESS (line rules) |
-| `AUTO_COMPLETE` | end + grace (line: 24 h hotel, 30 min transfer, final day trek) | → COMPLETED → review invite |
-| `REVIEW_INVITE` | +1 d / +7 d post-completion | review invitation (window per PRD, default 365 d) |
-| `DOCUMENT_EXPIRY` | T-30 / T-7 | vendor + admin reminders (PRD VA-06) |
-| `CORP_APPROVAL_REMINDER` | +24 h | approver nudge (PRD CO-02) |
+| Type                         | Due                                                             | Effect (command)                                                |
+| ---------------------------- | --------------------------------------------------------------- | --------------------------------------------------------------- |
+| `DRAFT_EXPIRY`               | +7 d                                                            | booking → CANCELLED (abandoned)                                 |
+| `PRICE_LOCK`                 | +15 min                                                         | invalidate cart lock (re-price)                                 |
+| `QUOTE_ESCALATION`           | +24 h                                                           | trip-desk/vendor escalation + customer reassurance              |
+| `QUOTE_CLOSE`                | +72 h                                                           | quote → CANCELLED (no response)                                 |
+| `OFFER_VALIDITY`             | valid_until                                                     | offer expired → booking CANCELLED (OFFER_EXPIRED)               |
+| `PAYMENT_EXPIRY` (bank)      | +48 h                                                           | intent CANCELED → booking CANCELLED (PAYMENT_EXPIRED)           |
+| `VENDOR_CONFIRM_REMINDER`    | +12 h / +24 h                                                   | reminder; at 24 h customer may cancel penalty-free (PRD §8 SLA) |
+| `TICKET_ISSUANCE_ESCALATION` | +24 h / +48 h                                                   | escalation; at 48 h auto-refund option (PRD §8)                 |
+| `AUTO_START`                 | start + grace                                                   | CONFIRMED → IN_PROGRESS (line rules)                            |
+| `AUTO_COMPLETE`              | end + grace (line: 24 h hotel, 30 min transfer, final day trek) | → COMPLETED → review invite                                     |
+| `REVIEW_INVITE`              | +1 d / +7 d post-completion                                     | review invitation (window per PRD, default 365 d)               |
+| `DOCUMENT_EXPIRY`            | T-30 / T-7                                                      | vendor + admin reminders (PRD VA-06)                            |
+| `CORP_APPROVAL_REMINDER`     | +24 h                                                           | approver nudge (PRD CO-02)                                      |
 
 - Timers are **cancellable** (e.g., offer accepted cancels `OFFER_VALIDITY`), **adjustable by admin** (extend deadline — audited), and **durable across restarts** (the reason this beats in-memory timeouts — T-5).
 
@@ -679,7 +678,6 @@ domain command (outbox event)
 - Real-time: MVP = polling (app refresh on mount + tab-focus; badge count query). SSE for vendor booking inbox `[V2]` (no WebSocket infra in MVP — cost/complexity not justified at scale).
 - Vendor/admin alerts (SLA breaches, webhook failures, document expiry) ride the same pipeline with role-scoped templates (PRD §18.2/§8 SLA table).
 
-
 ---
 
 ## 14. Logging
@@ -694,13 +692,13 @@ domain command (outbox event)
 
 ### 14.2 Audit log (distinct from operational logs)
 
-| | Operational logs | Audit log (`audit_log`) |
-|---|---|---|
-| Purpose | Debugging, observability | Business accountability (PRD §33.4) |
-| Store | Log service (30 d hot) | Postgres (append-only, 1 yr, legal-confirmable) |
-| Written by | everywhere | permission-exercising actions: auth events, state transitions, admin actions, config changes, exports, file access, refunds, suspensions |
-| Fields | §14.1 | actor (id+role), action, entity, before/after hash (+ diff for admin actions), IP, UA class, ts, correlation id |
-| Integrity | best-effort | no UPDATE/DELETE grants; hash chain `[V1.5]`; SIEM export `[V1.5]` |
+|            | Operational logs         | Audit log (`audit_log`)                                                                                                                  |
+| ---------- | ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| Purpose    | Debugging, observability | Business accountability (PRD §33.4)                                                                                                      |
+| Store      | Log service (30 d hot)   | Postgres (append-only, 1 yr, legal-confirmable)                                                                                          |
+| Written by | everywhere               | permission-exercising actions: auth events, state transitions, admin actions, config changes, exports, file access, refunds, suspensions |
+| Fields     | §14.1                    | actor (id+role), action, entity, before/after hash (+ diff for admin actions), IP, UA class, ts, correlation id                          |
+| Integrity  | best-effort              | no UPDATE/DELETE grants; hash chain `[V1.5]`; SIEM export `[V1.5]`                                                                       |
 
 ### 14.3 Shipping & retention
 
@@ -723,13 +721,13 @@ domain command (outbox event)
 
 ### 15.3 SLOs & alerts
 
-| SLO (monthly) | Target | Error budget policy |
-|---|---|---|
-| API availability | 99.5 % | budget burn > 5 % in 30 min ⇒ SEV1 + freeze non-critical deploys |
-| API p95 latency (excl. search) | < 500 ms | 1 h degradation ⇒ SEV2 |
-| Search p95 | < 300 ms | 1 h ⇒ SEV2 |
-| Checkout pipeline p95 (intent → confirmed or failed) | < 2 s | per-payment tracing always on |
-| Payment webhook processing p99 | < 5 s | breach ⇒ SEV2; payment **success-rate drop > 10 % vs 24 h baseline** ⇒ SEV1 |
+| SLO (monthly)                                        | Target   | Error budget policy                                                         |
+| ---------------------------------------------------- | -------- | --------------------------------------------------------------------------- |
+| API availability                                     | 99.5 %   | budget burn > 5 % in 30 min ⇒ SEV1 + freeze non-critical deploys            |
+| API p95 latency (excl. search)                       | < 500 ms | 1 h degradation ⇒ SEV2                                                      |
+| Search p95                                           | < 300 ms | 1 h ⇒ SEV2                                                                  |
+| Checkout pipeline p95 (intent → confirmed or failed) | < 2 s    | per-payment tracing always on                                               |
+| Payment webhook processing p99                       | < 5 s    | breach ⇒ SEV2; payment **success-rate drop > 10 % vs 24 h baseline** ⇒ SEV1 |
 
 **Alert catalog (abridged):** SEV1 (page): API 5xx > 1 %/5 min; `/readyz` failing; DB down; Redis down (money tiers); payment webhook failure rate > 5 %; `payments-fallback` queue lag > 10 min; DLQ growth > 50; backup failure (2 consecutive). SEV2 (ticket): p95 degradation; cert expiry 14 d; disk > 75 %; queue lag (email > 10 min); provider quota > 80 %; restore-drill overdue; dependency critical vuln > 7 d.
 
@@ -748,10 +746,10 @@ System (RED per service + deps) · Payments (funnel by method, webhook health, c
 
 ### 16.1 Ingestion (two paths, one table)
 
-| Source | Path | Consent |
-|---|---|---|
-| Client (web) | batched beacons (10 s / 5 events) → `POST /v1/track` (rate-limited, Zod schema-per-event-name, PII blocklist validation, dedup by client `event_id`) | **required** (non-essential events; consent state in payload + cookie) |
-| Server (authoritative) | direct insert on domain events (booking transitions, payment outcomes, offers, search) | n/a (first-party, product-necessary) |
+| Source                 | Path                                                                                                                                                 | Consent                                                                |
+| ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| Client (web)           | batched beacons (10 s / 5 events) → `POST /v1/track` (rate-limited, Zod schema-per-event-name, PII blocklist validation, dedup by client `event_id`) | **required** (non-essential events; consent state in payload + cookie) |
+| Server (authoritative) | direct insert on domain events (booking transitions, payment outcomes, offers, search)                                                               | n/a (first-party, product-necessary)                                   |
 
 - `ana_event` (monthly partitioned): `ts, name, version, session_id, user_id? (internal id), src, consent, props jsonb, event_id`; unknown schema ⇒ rejected + counter (no silent bad data).
 - **PII blocklist (hard):** email/phone/passport/card patterns in props ⇒ event rejected + alert (PRD §34.5); amounts as bands only (PC rule: no raw amounts in events — revenue truth is the ledger, PRD §31 RP-06).
@@ -777,26 +775,26 @@ System (RED per service + deps) · Payments (funnel by method, webhook health, c
 
 Format `ETN-{DOMAIN}-{NNN}`; HTTP mapping + user-safe message (Phase 02 Appendix C copy rules); **every error body carries `requestId`** (copyable → support; Phase 02 ER-01).
 
-| Code | HTTP | Meaning (user-facing gist) |
-|---|---|---|
-| `ETN-VAL-001` | 422 | field validation failed (`details.fields` map) |
-| `ETN-AUTH-101/102/103` | 401 | token expired (silent refresh) / invalid / MFA required |
-| `ETN-AUTHZ-101` | 403 | not permitted (audited) |
-| `ETN-BK-101` | 409 | booking state transition not allowed (state shown) |
-| `ETN-BK-102` | 422 | price lock expired — re-confirm shown price |
-| `ETN-BK-103` | 409 | availability lost for selected dates (alternates offered) |
-| `ETN-QT-101` | 409 | offer expired/withdrawn — re-request available |
-| `ETN-QT-102` | 422 | offer revision limit reached (3) |
-| `ETN-PY-101` | 409 | amount mismatch (server-authoritative; request rejected) |
-| `ETN-PY-102` | 402 | payment failed (provider reason mapped to plain text) |
-| `ETN-PY-103` | 409 | payment session expired — new attempt |
-| `ETN-PY-104` | 502 | payment provider unreachable (retry offered) |
-| `ETN-RF-101` | 409 | refund cap exceeded (paid − refunded) |
-| `ETN-VEN-101` | 403 | line capability not approved |
-| `ETN-REV-101` | 403 | review not eligible (reason: state/window/ownership) |
-| `ETN-CORP-101` | 409 | approval required before payment |
-| `ETN-UP-101/102` | 413/415 | upload quota / type+size rejected |
-| `ETN-SYS-500/502/503` | 500/502/503 | unexpected (reference id) / upstream / maintenance |
+| Code                   | HTTP        | Meaning (user-facing gist)                                |
+| ---------------------- | ----------- | --------------------------------------------------------- |
+| `ETN-VAL-001`          | 422         | field validation failed (`details.fields` map)            |
+| `ETN-AUTH-101/102/103` | 401         | token expired (silent refresh) / invalid / MFA required   |
+| `ETN-AUTHZ-101`        | 403         | not permitted (audited)                                   |
+| `ETN-BK-101`           | 409         | booking state transition not allowed (state shown)        |
+| `ETN-BK-102`           | 422         | price lock expired — re-confirm shown price               |
+| `ETN-BK-103`           | 409         | availability lost for selected dates (alternates offered) |
+| `ETN-QT-101`           | 409         | offer expired/withdrawn — re-request available            |
+| `ETN-QT-102`           | 422         | offer revision limit reached (3)                          |
+| `ETN-PY-101`           | 409         | amount mismatch (server-authoritative; request rejected)  |
+| `ETN-PY-102`           | 402         | payment failed (provider reason mapped to plain text)     |
+| `ETN-PY-103`           | 409         | payment session expired — new attempt                     |
+| `ETN-PY-104`           | 502         | payment provider unreachable (retry offered)              |
+| `ETN-RF-101`           | 409         | refund cap exceeded (paid − refunded)                     |
+| `ETN-VEN-101`          | 403         | line capability not approved                              |
+| `ETN-REV-101`          | 403         | review not eligible (reason: state/window/ownership)      |
+| `ETN-CORP-101`         | 409         | approval required before payment                          |
+| `ETN-UP-101/102`       | 413/415     | upload quota / type+size rejected                         |
+| `ETN-SYS-500/502/503`  | 500/502/503 | unexpected (reference id) / upstream / maintenance        |
 
 (Extended catalog in contracts package with localized copy keys `[V1.5]`.)
 
@@ -808,15 +806,15 @@ Format `ETN-{DOMAIN}-{NNN}`; HTTP mapping + user-safe message (Phase 02 Appendix
 
 ### 17.3 Resilience
 
-| Mechanism | Config |
-|---|---|
-| Timeouts (provider) | intent create 10 s; status query 2 s; email 5 s |
-| Circuit breaker (per provider op) | open after 5 fails/30 s; half-open 1 probe/30 s; open ⇒ mapped 503 + runbook hint |
-| Retries | idempotent ops only (GET, webhook reprocess, provider queries); exponential + jitter; max 3 |
-| Bulkheads | payment provider pool isolated (promise-pool cap 32) — a stalled PSP cannot exhaust the API |
-| Degradation matrix | Redis down ⇒ §11.1 behaviors; search slow ⇒ facet-skip + stale-while-revalidate; analytics down ⇒ no-op (never blocks domain); email down ⇒ queue backlog (alert); DB replica down ⇒ primary reads |
-| Compensation | payment-after-cancel race ⇒ auto-refund job + alert; orphan intent cleanup (provider-side success w/o our record ⇒ recon → credit); double-charge guard (provider ref unique per intent) |
-| Chaos (staging) | provider timeout injection, webhook replay/duplicate, Redis kill, DB failover drill — per release train |
+| Mechanism                         | Config                                                                                                                                                                                             |
+| --------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Timeouts (provider)               | intent create 10 s; status query 2 s; email 5 s                                                                                                                                                    |
+| Circuit breaker (per provider op) | open after 5 fails/30 s; half-open 1 probe/30 s; open ⇒ mapped 503 + runbook hint                                                                                                                  |
+| Retries                           | idempotent ops only (GET, webhook reprocess, provider queries); exponential + jitter; max 3                                                                                                        |
+| Bulkheads                         | payment provider pool isolated (promise-pool cap 32) — a stalled PSP cannot exhaust the API                                                                                                        |
+| Degradation matrix                | Redis down ⇒ §11.1 behaviors; search slow ⇒ facet-skip + stale-while-revalidate; analytics down ⇒ no-op (never blocks domain); email down ⇒ queue backlog (alert); DB replica down ⇒ primary reads |
+| Compensation                      | payment-after-cancel race ⇒ auto-refund job + alert; orphan intent cleanup (provider-side success w/o our record ⇒ recon → credit); double-charge guard (provider ref unique per intent)           |
+| Chaos (staging)                   | provider timeout injection, webhook replay/duplicate, Redis kill, DB failover drill — per release train                                                                                            |
 
 ---
 
@@ -830,27 +828,27 @@ Format `ETN-{DOMAIN}-{NNN}`; HTTP mapping + user-safe message (Phase 02 Appendix
 
 ### 18.2 Inventory
 
-| # | Integration | Purpose | Version | Type | Provider candidates | Failure impact |
-|---|---|---|---|---|---|---|
-| 1 | Payment — domestic wallets | card-less checkout | MVP | outbound + webhook | eSewa, Khalti | checkout blocked (other methods) |
-| 2 | Payment — domestic cards | NP cards | MVP | outbound + webhook | NCH ConnectIPS/ConnectIPSe-class | checkout blocked (other methods) |
-| 3 | Payment — international cards | intl customers (D2) | MVP-if-validated, else V1.5 | outbound + webhook | partner acquirer / foreign-entity route | honest UI gap (PRD §3.3) |
-| 4 | Bank transfer (manual) | all (corporate esp.) | MVP | internal process | — (bank account config) | verification delay (48 h window) |
-| 5 | Email (transactional) | notifications | MVP | outbound + deliverability webhook | managed transactional provider (C-3) | notifications delayed (queue) |
-| 6 | SMS | notifications | V1.5 | outbound | local aggregator (C-4) | channel reduced |
-| 7 | WhatsApp (official, via BSP) | notifications | V1.5 | outbound + webhook | official Business API only | channel reduced |
-| 8 | Maps/tiles | geo display | MVP | client-side (OSM via CDN, D10) | OSM/Leaflet | detail pages degrade (addresses shown) |
-| 9 | FX reference rates | display conversion | MVP manual table; feed V2 | data (admin or licensed) | admin-managed (MVP) | ≈ rows hidden (NPR-only, PR-02) |
-| 10 | Google OAuth | login | V1.5 | outbound (OAuth) | Google | login method unavailable |
-| 11 | Push (web/app) | notifications | V2 | outbound | web push / app vendor | channel reduced |
-| 12 | LLM (AI planner) | V2 planner | V2 (C-9, provider-gated) | outbound (API key) | decision at V2 planning | planner off (rule-based remains) |
-| 13 | GDS/NDC airline APIs | live air inventory | V2 pilot (separate PRD) | outbound + webhook | provider decision | air stays quote-only (by design) |
-| 14 | Hotel channel manager | hotel feed | FUT | inbound/outbound | provider decision | hotels stay direct-vendor (by design) |
-| 15 | Object storage + CDN | files/media | MVP (infra) | outbound | S3-compatible + CDN (C-5) | uploads blocked (SEV1) |
-| 16 | Observability | logs/metrics/traces | MVP (infra, self-hosted) | internal (`obs` profile) | self-hosted Grafana stack (E-2) | monitoring degraded (SEV1) |
-| 17 | Breach-password list | auth hardening | MVP | outbound (k-anonymity) or local list | HIBP range API vs local (E-3) | check skipped (logged) |
-| 18 | AV scanning | private doc safety | V1.5 | outbound or self-hosted | provider AV / ClamAV-class | uploads held for manual scan (alert) |
-| 19 | 3P web analytics | traffic insights | V1.5 (optional, D9) | client-side | self-hosted Plausible-class | none (first-party analytics unaffected) |
+| #   | Integration                   | Purpose              | Version                     | Type                                 | Provider candidates                     | Failure impact                          |
+| --- | ----------------------------- | -------------------- | --------------------------- | ------------------------------------ | --------------------------------------- | --------------------------------------- |
+| 1   | Payment — domestic wallets    | card-less checkout   | MVP                         | outbound + webhook                   | eSewa, Khalti                           | checkout blocked (other methods)        |
+| 2   | Payment — domestic cards      | NP cards             | MVP                         | outbound + webhook                   | NCH ConnectIPS/ConnectIPSe-class        | checkout blocked (other methods)        |
+| 3   | Payment — international cards | intl customers (D2)  | MVP-if-validated, else V1.5 | outbound + webhook                   | partner acquirer / foreign-entity route | honest UI gap (PRD §3.3)                |
+| 4   | Bank transfer (manual)        | all (corporate esp.) | MVP                         | internal process                     | — (bank account config)                 | verification delay (48 h window)        |
+| 5   | Email (transactional)         | notifications        | MVP                         | outbound + deliverability webhook    | managed transactional provider (C-3)    | notifications delayed (queue)           |
+| 6   | SMS                           | notifications        | V1.5                        | outbound                             | local aggregator (C-4)                  | channel reduced                         |
+| 7   | WhatsApp (official, via BSP)  | notifications        | V1.5                        | outbound + webhook                   | official Business API only              | channel reduced                         |
+| 8   | Maps/tiles                    | geo display          | MVP                         | client-side (OSM via CDN, D10)       | OSM/Leaflet                             | detail pages degrade (addresses shown)  |
+| 9   | FX reference rates            | display conversion   | MVP manual table; feed V2   | data (admin or licensed)             | admin-managed (MVP)                     | ≈ rows hidden (NPR-only, PR-02)         |
+| 10  | Google OAuth                  | login                | V1.5                        | outbound (OAuth)                     | Google                                  | login method unavailable                |
+| 11  | Push (web/app)                | notifications        | V2                          | outbound                             | web push / app vendor                   | channel reduced                         |
+| 12  | LLM (AI planner)              | V2 planner           | V2 (C-9, provider-gated)    | outbound (API key)                   | decision at V2 planning                 | planner off (rule-based remains)        |
+| 13  | GDS/NDC airline APIs          | live air inventory   | V2 pilot (separate PRD)     | outbound + webhook                   | provider decision                       | air stays quote-only (by design)        |
+| 14  | Hotel channel manager         | hotel feed           | FUT                         | inbound/outbound                     | provider decision                       | hotels stay direct-vendor (by design)   |
+| 15  | Object storage + CDN          | files/media          | MVP (infra)                 | outbound                             | S3-compatible + CDN (C-5)               | uploads blocked (SEV1)                  |
+| 16  | Observability                 | logs/metrics/traces  | MVP (infra, self-hosted)    | internal (`obs` profile)             | self-hosted Grafana stack (E-2)         | monitoring degraded (SEV1)              |
+| 17  | Breach-password list          | auth hardening       | MVP                         | outbound (k-anonymity) or local list | HIBP range API vs local (E-3)           | check skipped (logged)                  |
+| 18  | AV scanning                   | private doc safety   | V1.5                        | outbound or self-hosted              | provider AV / ClamAV-class              | uploads held for manual scan (alert)    |
+| 19  | 3P web analytics              | traffic insights     | V1.5 (optional, D9)         | client-side                          | self-hosted Plausible-class             | none (first-party analytics unaffected) |
 
 ### 18.3 Notes
 
@@ -863,12 +861,12 @@ Format `ETN-{DOMAIN}-{NNN}`; HTTP mapping + user-safe message (Phase 02 Appendix
 
 ### 19.1 Phasing (PRD §25 — capability-honest)
 
-| Version | What exists technically |
-|---|---|
-| MVP | **No AI.** Build-Your-Trip is conventional (quotes module + trip desk). |
-| V1.5 | `SuggestionService` (module `ai-planner`): **deterministic, Postgres-only** rule-based suggestions — popular combos (destination × season from completed bookings), budget-fit scoring (published prices), similar trips (tags/geo/duration similarity). No external calls, fully unit-testable, no model. |
-| V2 | LLM-assisted planner (below) — **conditional on provider selection** (PRD C-9); if none passes evaluation, feature defers (GC-2). |
-| FUT | Agentic booking (payments in-loop) — separate PRD + trust/audit work; **not** in any current plan. |
+| Version | What exists technically                                                                                                                                                                                                                                                                                    |
+| ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| MVP     | **No AI.** Build-Your-Trip is conventional (quotes module + trip desk).                                                                                                                                                                                                                                    |
+| V1.5    | `SuggestionService` (module `ai-planner`): **deterministic, Postgres-only** rule-based suggestions — popular combos (destination × season from completed bookings), budget-fit scoring (published prices), similar trips (tags/geo/duration similarity). No external calls, fully unit-testable, no model. |
+| V2      | LLM-assisted planner (below) — **conditional on provider selection** (PRD C-9); if none passes evaluation, feature defers (GC-2).                                                                                                                                                                          |
+| FUT     | Agentic booking (payments in-loop) — separate PRD + trust/audit work; **not** in any current plan.                                                                                                                                                                                                         |
 
 ### 19.2 V2 component design (feature-flagged, kill-switchable)
 
@@ -907,7 +905,6 @@ Observability  session log (anonymized, 30 d) · cost dashboard · quality sampl
 - Deployment: same API container (stateless) initially; separate service only on documented scale/cost trigger.
 - Evaluation gate before enable: golden set (≥ 20 itineraries, offline regression on every prompt/model change) + online A/B (PRD AI-06) with handoff-rate guardrail.
 
-
 ---
 
 ## 20. Deployment Architecture
@@ -944,16 +941,16 @@ Observability  session log (anonymized, 30 d) · cost dashboard · quality sampl
 
 **Service resource budgets (MVP baseline)**
 
-| Service | Memory budget | Notes |
-|---|---|---|
-| Caddy (proxy) | 128 MB | TLS, routing, media cache headers |
-| web (Next.js standalone) | 512 MB – 1 GB | SSR/ISR; `output: 'standalone'` |
-| api (NestJS) | 1 – 1.5 GB | stateless; ≥ 2 replicas optional |
-| worker (BullMQ) | 512 MB – 1 GB | media/email/timers/payments-fallback |
-| postgres 16 | 3 – 4 GB | `shared_buffers` sized to budget |
-| redis 7 | 512 MB | AOF everysec (money-adjacent keys, §11.1) |
-| minio | 512 MB | media + private + orig + tmp buckets |
-| OS + headroom | ~2 GB | |
+| Service                  | Memory budget | Notes                                     |
+| ------------------------ | ------------- | ----------------------------------------- |
+| Caddy (proxy)            | 128 MB        | TLS, routing, media cache headers         |
+| web (Next.js standalone) | 512 MB – 1 GB | SSR/ISR; `output: 'standalone'`           |
+| api (NestJS)             | 1 – 1.5 GB    | stateless; ≥ 2 replicas optional          |
+| worker (BullMQ)          | 512 MB – 1 GB | media/email/timers/payments-fallback      |
+| postgres 16              | 3 – 4 GB      | `shared_buffers` sized to budget          |
+| redis 7                  | 512 MB        | AOF everysec (money-adjacent keys, §11.1) |
+| minio                    | 512 MB        | media + private + orig + tmp buckets      |
+| OS + headroom            | ~2 GB         |                                           |
 
 **Recommended host: 8 vCPU / 16 GB RAM / 200 GB NVMe** (soft-launch minimum: 4 vCPU / 8 GB / 100 GB). Right-size after first monitoring month.
 
@@ -993,12 +990,12 @@ push/PR → CI (GitHub Actions — build/test infrastructure only; self-hosted r
 
 ### 20.5 Backups & DR (self-hosted, honest numbers)
 
-| Asset | Mechanism | Retention |
-|---|---|---|
-| Postgres | daily `pg_dump` (custom format, gzip); **optional WAL archiving** ⇒ PITR-lite (RPO 5 min vs 24 h) | 14 daily + 4 weekly + 12 monthly (local) + same set offsite |
-| Redis | BGSAVE copies (queues/dedup are reconstructable — low criticality) | 7 daily |
-| MinIO | `mc mirror` / rclone to offsite target | full + incremental daily |
-| `.env`/secrets | encrypted copy offsite (age/gpg) | per rotation |
+| Asset          | Mechanism                                                                                         | Retention                                                   |
+| -------------- | ------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
+| Postgres       | daily `pg_dump` (custom format, gzip); **optional WAL archiving** ⇒ PITR-lite (RPO 5 min vs 24 h) | 14 daily + 4 weekly + 12 monthly (local) + same set offsite |
+| Redis          | BGSAVE copies (queues/dedup are reconstructable — low criticality)                                | 7 daily                                                     |
+| MinIO          | `mc mirror` / rclone to offsite target                                                            | full + incremental daily                                    |
+| `.env`/secrets | encrypted copy offsite (age/gpg)                                                                  | per rotation                                                |
 
 - **Offsite backup is a launch gate** (PRD A8 addendum): single-disk loss must not be data loss. Target = any storage you control (second disk, NAS, second server, any S3-compatible bucket on another host).
 - **RPO:** 24 h (daily dump) or 5 min (WAL archiving on) · **RTO:** ~1 h (restore on the same/standby host: clone volumes + `compose up`).
@@ -1020,13 +1017,13 @@ push/PR → CI (GitHub Actions — build/test infrastructure only; self-hosted r
 
 ### 20.8 Scaling path (host-first, no cloud assumption)
 
-| Stage | Trigger | Change (compose/infra only — app unchanged) |
-|---|---|---|
-| 1. Vertical | MVP | bigger vCPU/RAM/disk on the same host |
-| 2. Split | DB CPU > 70 % sustained or storage I/O contention | move postgres + redis + minio to **host B** (WireGuard between hosts; only env URLs change) |
-| 3. Workers | peak queue depth (seasonal, PRD R-5) | second worker replica (same host or host B); pre-scale before Mar–May / Sep–Nov peaks |
-| 4. HA (optional) | SLA/budget decision | Postgres streaming replica on host B + failover runbook; optional HAProxy fronting two app hosts |
-| 5. Beyond | multi-region / far larger scale | any larger self-hosted setup — or any cloud — without app changes (12-factor) |
+| Stage            | Trigger                                           | Change (compose/infra only — app unchanged)                                                      |
+| ---------------- | ------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| 1. Vertical      | MVP                                               | bigger vCPU/RAM/disk on the same host                                                            |
+| 2. Split         | DB CPU > 70 % sustained or storage I/O contention | move postgres + redis + minio to **host B** (WireGuard between hosts; only env URLs change)      |
+| 3. Workers       | peak queue depth (seasonal, PRD R-5)              | second worker replica (same host or host B); pre-scale before Mar–May / Sep–Nov peaks            |
+| 4. HA (optional) | SLA/budget decision                               | Postgres streaming replica on host B + failover runbook; optional HAProxy fronting two app hosts |
+| 5. Beyond        | multi-region / far larger scale                   | any larger self-hosted setup — or any cloud — without app changes (12-factor)                    |
 
 - Load-test gate unchanged (2× projected peak, PRD §33.5) — executed against staging on a host of production-like spec.
 
@@ -1056,55 +1053,56 @@ L2  vendors
 L1  auth · users
 L0  foundation: events(outbox) · jobs · storage · media · config · telemetry
 ```
+
 (Edges point downward only; horizontal edges only via facade/events. `admin` orchestrates via facades; `reports` reads rollups + ledger queries, never domain tables directly (BR-7).)
 
 ### 21.3 Boundary rules
 
-| Rule | Text |
-|---|---|
-| BR-1 | No cross-module table access (ownership map CI-enforced) |
-| BR-2 | Money writes (`pay_*`, ledger) only via `payments`; `refunds` writes its own tables + ledger entries through payments facade |
-| BR-3 | Booking state changes only via `bookings` commands (any module may *request*, none may *write*) |
-| BR-4 | Catalog publishability = `catalog-core` gate ∧ `vendors` capability check (both, atomically at publish command) |
-| BR-5 | Inbound provider webhooks only in `payments` (and notification deliverability in `notifications`) |
-| BR-6 | PII columns only readable by owning module + explicitly granted facades (access review quarterly `[V1.5]`) |
-| BR-7 | `reports` reads rollups/ledger/own tables only; no ad-hoc domain table scans (bounded ad-hoc queries on partitions allowed for admin analytics, timeboxed) |
+| Rule | Text                                                                                                                                                                                                                                        |
+| ---- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| BR-1 | No cross-module table access (ownership map CI-enforced)                                                                                                                                                                                    |
+| BR-2 | Money writes (`pay_*`, ledger) only via `payments`; `refunds` writes its own tables + ledger entries through payments facade                                                                                                                |
+| BR-3 | Booking state changes only via `bookings` commands (any module may _request_, none may _write_)                                                                                                                                             |
+| BR-4 | Catalog publishability = `catalog-core` gate ∧ `vendors` capability check (both, atomically at publish command)                                                                                                                             |
+| BR-5 | Inbound provider webhooks only in `payments` (and notification deliverability in `notifications`)                                                                                                                                           |
+| BR-6 | PII columns only readable by owning module + explicitly granted facades (access review quarterly `[V1.5]`)                                                                                                                                  |
+| BR-7 | `reports` reads rollups/ledger/own tables only; no ad-hoc domain table scans (bounded ad-hoc queries on partitions allowed for admin analytics, timeboxed)                                                                                  |
 | BR-8 | Line modules (L3) share `catalog-core` base `Service` but own their extension tables, availability semantics, and line rules; **no business logic duplicated across lines** (shared pricing/surcharge/add-on logic lives in `catalog-core`) |
 
 ### 21.4 Module matrix (25 mandated + foundation)
 
-| Module | Layer | Owns (prefix) | Public facade (key capabilities) | Emits (key events) | Consumes (key events) | Depends on |
-|---|---|---|---|---|---|---|
-| **auth** | L1 | auth_session, mfa, otp, idp, audit, idem, outbox | login/logout/refresh, MFA, OTP, sessions, audit write | auth events | — | L0 |
-| **users** | L1 | user, user_verification_event | account CRUD, verification levels, dedup | user.registered/verified | auth events | auth, L0 |
-| **customers** | L5 | cust_* (profile, guest, wishlist) | profile, guest contact + tokens, wishlist | wishlist.changed (internal) | user.*, booking.* | users, bookings (facade), L0 |
-| **vendors** | L2 | ven_* | org/capability/document lifecycle, approval commands, bank (finance-scoped) | vendor.submitted/approved/rejected/suspended | user.* | auth, users, L0 |
-| **vehicles** | L3 | veh_* | vehicle/rate CRUD, availability (per-vehicle days) | service.* (via catalog), availability.changed | vendor.approved | catalog-core, vendors, L0 |
-| **transfers** | L3 | trf_* | routes/services, window capacity, scheduled departures | service.*, availability.changed | vendor.approved | catalog-core, destinations, L0 |
-| **transportation** | L3 | trp_* | charter services + capacity | service.* | vendor.approved | catalog-core, destinations, L0 |
-| **hotels** | L3 | htl_* | property/room/rate-plan CRUD, date availability | service.*, availability.changed | vendor.approved | catalog-core, destinations, L0 |
-| **tours** | L3 | tour_* | itineraries, inclusions, departures | service.*, availability.changed | vendor.approved | catalog-core, destinations, L0 |
-| **treks** | L3 | trek_* | trek attrs, permits flags, departures | service.*, availability.changed | vendor.approved | catalog-core, destinations, L0 |
-| **packages** | L3 | pkg_* | package components, family/corporate flags | service.* | vendor.approved, tour/hotel facades (component refs) | catalog-core, destinations, L0 |
-| **flights** | L3 | flt_route | curated route catalog, quote inputs validation | (no service events — quote-only, PRD §26) | quote.* | destinations, L0 |
-| **catalog-core** | L3 | srv_*, price_surcharge, tax_config, fx_rate | base service lifecycle, media, SEO, publish gate, shared pricing/surcharge/add-on logic | service.published/suspended/retired, price.changed | vendor.approved | vendors, destinations, media, L0 |
-| **quotes** | L4 | qtr_* | quote requests, offers (versions, validity), routing to vendors, custom-trip draft orchestration | quote.requested, offer.* | service.*, availability.*, booking.* | catalog-core facades, vendors, bookings, destinations, L0 |
-| **bookings** | L4 | bk_*, bk_group, bk_timer | **booking state machine** (all commands), travelers, documents, vouchers, timers emission | booking.* | payment.succeeded/failed, offer.accepted, refund.*, corporate.approval.* | payments (facade), refunds (facade), quotes, catalog-core, notifications (facade), L0 |
-| **payments** | L4 | pay_* | intents, charges, **ledger**, settlement, reconciliation, provider SPI host | payment.succeeded/failed, chargeback, settlement.state | booking.created (payable), refund.created | bookings (facade), refunds (facade), vendors (bank), L0 |
-| **refunds** | L4 | ref_* | refund lifecycle, vendor-mediated cases (air) | refund.* | payment.*, booking.cancelled, dispute.* | payments (facade), bookings (facade), L0 |
-| **reviews** | L5 | rev_* | eligibility, moderation, aggregates, replies, reports | review.visible/rejected | booking.completed | bookings (facade), catalog-core, users, L0 |
-| **notifications** | L5 | ntf_* | event→channel dispatch, preferences, suppression, delivery logs | notification.delivered | **all** domain events (consumer) | all facades (event-driven; no table reads), L0 |
-| **corporate** | L5 | corp_* | org/members/policy, approval workflow, expense exports | corporate.approval.* | booking.created (corporate), user.* | users, vendors (KYC docs), bookings (facade), payments (facade), L0 |
-| **destinations** | L3 | geo_*, dst_* | geo tree CRUD, destinations, airports, aliases | geo.changed, destination.published | — | content (facade), L0 |
-| **content** | L3 | cms_* | guides/banners/help, localized content `[V1.5]`, SEO config | content.published | — | destinations (facade), media, L0 |
-| **search** | L3 | srch_* | SearchService (query/facets/reindex), alias ops | search.reindex-requested | service.*, availability.*, price.changed | catalog-core (read path), destinations, L0 |
-| **ai-planner** | L5 | ai_* (V2) | suggestions (V1.5), planner sessions (V2), draft → custom-trip handoff | ai.draft-created | search (facade), quotes (facade, build_draft) | search, quotes, catalog-core, L0 |
-| **reports** | L6 | rpt_* | KPI dashboards, funnel, exports (CSV/XLSX `[V1.5]`), rollup jobs | — | domain events (rollup feed) | payments (ledger queries), all (read facades for admin views), L0 |
-| **admin** | L6 | adm_* | approvals orchestration (via facades), interventions, disputes, settings (commission/SLA/fx/flags/templates), audit explorer | settings.changed | vendor.*, booking.*, payment.*, dispute.* | **all** facades (orchestration only; owns no business tables), L0 |
-| foundation: **events** | L0 | outbox | bus, dispatcher, event registry | — | — | L0 |
-| foundation: **jobs** | L0 | (queue config) | queue registry, timer sweep, maintenance | — | outbox events | L0 |
-| foundation: **storage / media** | L0 | — | presigned upload flow, buckets, image pipeline | media.ready | — | L0 |
-| foundation: **config / telemetry** | L0 | — | env validation, settings facade, OTel, logging | — | — | L0 |
+| Module                             | Layer | Owns (prefix)                                    | Public facade (key capabilities)                                                                                             | Emits (key events)                                     | Consumes (key events)                                                    | Depends on                                                                            |
+| ---------------------------------- | ----- | ------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------ | ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------- |
+| **auth**                           | L1    | auth_session, mfa, otp, idp, audit, idem, outbox | login/logout/refresh, MFA, OTP, sessions, audit write                                                                        | auth events                                            | —                                                                        | L0                                                                                    |
+| **users**                          | L1    | user, user_verification_event                    | account CRUD, verification levels, dedup                                                                                     | user.registered/verified                               | auth events                                                              | auth, L0                                                                              |
+| **customers**                      | L5    | cust_* (profile, guest, wishlist)                | profile, guest contact + tokens, wishlist                                                                                    | wishlist.changed (internal)                            | user._, booking._                                                        | users, bookings (facade), L0                                                          |
+| **vendors**                        | L2    | ven_*                                            | org/capability/document lifecycle, approval commands, bank (finance-scoped)                                                  | vendor.submitted/approved/rejected/suspended           | user.*                                                                   | auth, users, L0                                                                       |
+| **vehicles**                       | L3    | veh_*                                            | vehicle/rate CRUD, availability (per-vehicle days)                                                                           | service.* (via catalog), availability.changed          | vendor.approved                                                          | catalog-core, vendors, L0                                                             |
+| **transfers**                      | L3    | trf_*                                            | routes/services, window capacity, scheduled departures                                                                       | service.*, availability.changed                        | vendor.approved                                                          | catalog-core, destinations, L0                                                        |
+| **transportation**                 | L3    | trp_*                                            | charter services + capacity                                                                                                  | service.*                                              | vendor.approved                                                          | catalog-core, destinations, L0                                                        |
+| **hotels**                         | L3    | htl_*                                            | property/room/rate-plan CRUD, date availability                                                                              | service.*, availability.changed                        | vendor.approved                                                          | catalog-core, destinations, L0                                                        |
+| **tours**                          | L3    | tour_*                                           | itineraries, inclusions, departures                                                                                          | service.*, availability.changed                        | vendor.approved                                                          | catalog-core, destinations, L0                                                        |
+| **treks**                          | L3    | trek_*                                           | trek attrs, permits flags, departures                                                                                        | service.*, availability.changed                        | vendor.approved                                                          | catalog-core, destinations, L0                                                        |
+| **packages**                       | L3    | pkg_*                                            | package components, family/corporate flags                                                                                   | service.*                                              | vendor.approved, tour/hotel facades (component refs)                     | catalog-core, destinations, L0                                                        |
+| **flights**                        | L3    | flt_route                                        | curated route catalog, quote inputs validation                                                                               | (no service events — quote-only, PRD §26)              | quote.*                                                                  | destinations, L0                                                                      |
+| **catalog-core**                   | L3    | srv_*, price_surcharge, tax_config, fx_rate      | base service lifecycle, media, SEO, publish gate, shared pricing/surcharge/add-on logic                                      | service.published/suspended/retired, price.changed     | vendor.approved                                                          | vendors, destinations, media, L0                                                      |
+| **quotes**                         | L4    | qtr_*                                            | quote requests, offers (versions, validity), routing to vendors, custom-trip draft orchestration                             | quote.requested, offer.*                               | service._, availability._, booking.*                                     | catalog-core facades, vendors, bookings, destinations, L0                             |
+| **bookings**                       | L4    | bk_*, bk_group, bk_timer                         | **booking state machine** (all commands), travelers, documents, vouchers, timers emission                                    | booking.*                                              | payment.succeeded/failed, offer.accepted, refund._, corporate.approval._ | payments (facade), refunds (facade), quotes, catalog-core, notifications (facade), L0 |
+| **payments**                       | L4    | pay_*                                            | intents, charges, **ledger**, settlement, reconciliation, provider SPI host                                                  | payment.succeeded/failed, chargeback, settlement.state | booking.created (payable), refund.created                                | bookings (facade), refunds (facade), vendors (bank), L0                               |
+| **refunds**                        | L4    | ref_*                                            | refund lifecycle, vendor-mediated cases (air)                                                                                | refund.*                                               | payment._, booking.cancelled, dispute._                                  | payments (facade), bookings (facade), L0                                              |
+| **reviews**                        | L5    | rev_*                                            | eligibility, moderation, aggregates, replies, reports                                                                        | review.visible/rejected                                | booking.completed                                                        | bookings (facade), catalog-core, users, L0                                            |
+| **notifications**                  | L5    | ntf_*                                            | event→channel dispatch, preferences, suppression, delivery logs                                                              | notification.delivered                                 | **all** domain events (consumer)                                         | all facades (event-driven; no table reads), L0                                        |
+| **corporate**                      | L5    | corp_*                                           | org/members/policy, approval workflow, expense exports                                                                       | corporate.approval.*                                   | booking.created (corporate), user.*                                      | users, vendors (KYC docs), bookings (facade), payments (facade), L0                   |
+| **destinations**                   | L3    | geo__, dst__                                     | geo tree CRUD, destinations, airports, aliases                                                                               | geo.changed, destination.published                     | —                                                                        | content (facade), L0                                                                  |
+| **content**                        | L3    | cms_*                                            | guides/banners/help, localized content `[V1.5]`, SEO config                                                                  | content.published                                      | —                                                                        | destinations (facade), media, L0                                                      |
+| **search**                         | L3    | srch_*                                           | SearchService (query/facets/reindex), alias ops                                                                              | search.reindex-requested                               | service._, availability._, price.changed                                 | catalog-core (read path), destinations, L0                                            |
+| **ai-planner**                     | L5    | ai_* (V2)                                        | suggestions (V1.5), planner sessions (V2), draft → custom-trip handoff                                                       | ai.draft-created                                       | search (facade), quotes (facade, build_draft)                            | search, quotes, catalog-core, L0                                                      |
+| **reports**                        | L6    | rpt_*                                            | KPI dashboards, funnel, exports (CSV/XLSX `[V1.5]`), rollup jobs                                                             | —                                                      | domain events (rollup feed)                                              | payments (ledger queries), all (read facades for admin views), L0                     |
+| **admin**                          | L6    | adm_*                                            | approvals orchestration (via facades), interventions, disputes, settings (commission/SLA/fx/flags/templates), audit explorer | settings.changed                                       | vendor._, booking._, payment._, dispute._                                | **all** facades (orchestration only; owns no business tables), L0                     |
+| foundation: **events**             | L0    | outbox                                           | bus, dispatcher, event registry                                                                                              | —                                                      | —                                                                        | L0                                                                                    |
+| foundation: **jobs**               | L0    | (queue config)                                   | queue registry, timer sweep, maintenance                                                                                     | —                                                      | outbox events                                                            | L0                                                                                    |
+| foundation: **storage / media**    | L0    | —                                                | presigned upload flow, buckets, image pipeline                                                                               | media.ready                                            | —                                                                        | L0                                                                                    |
+| foundation: **config / telemetry** | L0    | —                                                | env validation, settings facade, OTel, logging                                                                               | —                                                      | —                                                                        | L0                                                                                    |
 
 > Notes: `disputes` tables live with `admin` (operational domain, admin-owned workflow; cases reference bookings/payments read-only). `flights` intentionally has **no** service catalog (quote-only line, PRD §26 AT-01) — its "catalog" is `flt_route` (routes) + agency offers in `quotes`.
 
@@ -1261,31 +1259,31 @@ apps/api/
 
 ### 25.1 Configuration tiers (separation of concerns)
 
-| Tier | Lives in | Change cadence | Examples |
-|---|---|---|---|
-| Code constants | source | release | tokens (Phase 02), defaults, state catalogs, error catalog |
-| **Env** (deploy-time, per environment) | env vars / secret manager; **zod-validated at boot (fail fast on missing/invalid)**; no defaults for secrets | deploy | URLs, credentials, provider keys, mode flags |
-| **Runtime settings** (operational) | Postgres `adm_setting` (+ `adm_feature_flag`) | runtime (admin UI, audited) | commission per line, SLA defaults, capability matrix, fx rates, notification template config, upload quotas |
+| Tier                                   | Lives in                                                                                                     | Change cadence              | Examples                                                                                                    |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------------------ | --------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| Code constants                         | source                                                                                                       | release                     | tokens (Phase 02), defaults, state catalogs, error catalog                                                  |
+| **Env** (deploy-time, per environment) | env vars / secret manager; **zod-validated at boot (fail fast on missing/invalid)**; no defaults for secrets | deploy                      | URLs, credentials, provider keys, mode flags                                                                |
+| **Runtime settings** (operational)     | Postgres `adm_setting` (+ `adm_feature_flag`)                                                                | runtime (admin UI, audited) | commission per line, SLA defaults, capability matrix, fx rates, notification template config, upload quotas |
 
 Rule: **anything an operator may tune without a deploy is in the DB, never env** (and vice versa: env never holds business data).
 
 ### 25.2 Env variable catalog (names — no values; required/optional per environment)
 
-| Group | Variables | Notes |
-|---|---|---|
-| App | `APP_ENV` (dev/staging/prod), `APP_URL`, `API_URL`, `WEB_ORIGIN`, `ALLOWED_ORIGINS` (CORS), `LOG_LEVEL`, `TZ_DEFAULT=Asia/Katmandu` | CORS strict allowlist |
-| DB | `DATABASE_URL`, `DB_POOL_MAX`, `DB_STATEMENT_TIMEOUT_MS` | compose Postgres; optional PgBouncer container for many small services later |
-| Redis | `REDIS_URL`, `REDIS_PREFIX` | per-env prefix isolation |
-| Storage | `S3_ENDPOINT` (internal: `http://minio:9000`), `S3_REGION`, `S3_BUCKET_PRIVATE/MEDIA/ORIG/TMP`, `CDN_URL` (public media origin = Caddy → minio, §8.4), `S3_ACCESS_KEY`/`S3_SECRET_KEY` (env/Docker secret) | backend network only (§20.1); no raw creds in env outside `.env` |
-| Auth | `JWT_SECRET_REF`, `JWT_ACCESS_TTL_S=900`, `REFRESH_TTL_DAYS=30`, `ARGON2_{M,K,P}`, `MFA_ISSUER`, `COOKIE_DOMAIN`, `AUTH_MOCK_ENABLED` (dev-only; staging/prod boot-assert false) | §5 |
-| Payments | per provider: `{PSP}_MODE` (sandbox/production), `{PSP}_CRED_REF`, `{PSP}_WEBHOOK_SECRET_REF`, `{PSP}_ENABLED` (kill-switch) | capability matrix in DB (§7.1) |
-| Notifications | `EMAIL_FROM`, `EMAIL_PROVIDER_CRED_REF`, `SMS_*` `[V1.5]`, `WA_*` `[V1.5]` | |
-| Media | `MEDIA_CONCURRENCY`, `MEDIA_MAX_PER_ORG_GB` (default; DB-overridable) | |
-| Telemetry | `OTEL_ENDPOINT` (local OTel collector, e.g. `http://otel-collector:4317`), `OTEL_EXPORTER`, `OTEL_SAMPLE_RATE`, `OTEL_SERVICE_NAME` | |
-| Analytics | `TRACK_RATE_LIMIT_PER_MIN` | schema registry in code |
-| Jobs | `TIMER_SWEEP_INTERVAL_S=30`, `WORKER_CONCURRENCY_{QUEUE}` overrides | |
-| Rate limits | `RL_TIER_{ANON/AUTH/STRICT/PAYMENT}_RPM` | §3.6 |
-| Web (build-time, allowlisted) | `NEXT_PUBLIC_API_URL`, `NEXT_PUBLIC_SITE_NAME`, `NEXT_PUBLIC_TRACK_ENABLED`, `NEXT_PUBLIC_FF_*` (public-safe flags) | CI allowlist check — anything else is a build error |
+| Group                         | Variables                                                                                                                                                                                                  | Notes                                                                        |
+| ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| App                           | `APP_ENV` (dev/staging/prod), `APP_URL`, `API_URL`, `WEB_ORIGIN`, `ALLOWED_ORIGINS` (CORS), `LOG_LEVEL`, `TZ_DEFAULT=Asia/Katmandu`                                                                        | CORS strict allowlist                                                        |
+| DB                            | `DATABASE_URL`, `DB_POOL_MAX`, `DB_STATEMENT_TIMEOUT_MS`                                                                                                                                                   | compose Postgres; optional PgBouncer container for many small services later |
+| Redis                         | `REDIS_URL`, `REDIS_PREFIX`                                                                                                                                                                                | per-env prefix isolation                                                     |
+| Storage                       | `S3_ENDPOINT` (internal: `http://minio:9000`), `S3_REGION`, `S3_BUCKET_PRIVATE/MEDIA/ORIG/TMP`, `CDN_URL` (public media origin = Caddy → minio, §8.4), `S3_ACCESS_KEY`/`S3_SECRET_KEY` (env/Docker secret) | backend network only (§20.1); no raw creds in env outside `.env`             |
+| Auth                          | `JWT_SECRET_REF`, `JWT_ACCESS_TTL_S=900`, `REFRESH_TTL_DAYS=30`, `ARGON2_{M,K,P}`, `MFA_ISSUER`, `COOKIE_DOMAIN`, `AUTH_MOCK_ENABLED` (dev-only; staging/prod boot-assert false)                           | §5                                                                           |
+| Payments                      | per provider: `{PSP}_MODE` (sandbox/production), `{PSP}_CRED_REF`, `{PSP}_WEBHOOK_SECRET_REF`, `{PSP}_ENABLED` (kill-switch)                                                                               | capability matrix in DB (§7.1)                                               |
+| Notifications                 | `EMAIL_FROM`, `EMAIL_PROVIDER_CRED_REF`, `SMS_*` `[V1.5]`, `WA_*` `[V1.5]`                                                                                                                                 |                                                                              |
+| Media                         | `MEDIA_CONCURRENCY`, `MEDIA_MAX_PER_ORG_GB` (default; DB-overridable)                                                                                                                                      |                                                                              |
+| Telemetry                     | `OTEL_ENDPOINT` (local OTel collector, e.g. `http://otel-collector:4317`), `OTEL_EXPORTER`, `OTEL_SAMPLE_RATE`, `OTEL_SERVICE_NAME`                                                                        |                                                                              |
+| Analytics                     | `TRACK_RATE_LIMIT_PER_MIN`                                                                                                                                                                                 | schema registry in code                                                      |
+| Jobs                          | `TIMER_SWEEP_INTERVAL_S=30`, `WORKER_CONCURRENCY_{QUEUE}` overrides                                                                                                                                        |                                                                              |
+| Rate limits                   | `RL_TIER_{ANON/AUTH/STRICT/PAYMENT}_RPM`                                                                                                                                                                   | §3.6                                                                         |
+| Web (build-time, allowlisted) | `NEXT_PUBLIC_API_URL`, `NEXT_PUBLIC_SITE_NAME`, `NEXT_PUBLIC_TRACK_ENABLED`, `NEXT_PUBLIC_FF_*` (public-safe flags)                                                                                        | CI allowlist check — anything else is a build error                          |
 
 ### 25.3 Secrets hygiene
 
@@ -1300,18 +1298,18 @@ Rule: **anything an operator may tune without a deploy is in the DB, never env**
 
 ## 26. Environments (dev / staging / production)
 
-| Dimension | **Local (dev)** | **Staging** | **Production** |
-|---|---|---|---|
-| Stack | `docker compose` dev profile (Postgres 16, Redis 7, MinIO, Mailpit, mock providers) + `pnpm dev` for hot reload — **same compose files as production** | Same host: second compose project on `staging.` domains (or a small second server); same images as production | Web server: main domains, full stack + optional `obs` profile |
-| Data | **Dev fixtures** (explicitly synthetic, labeled; GC-3 applies to production surfaces — fixtures are a dev tool, never a data source) | Synthetic seed + **anonymized production export** `[V1.5]`; scripted weekly reset | Real data only |
-| Providers | **Mock adapters** (payment mock via SPI; email → local sink; OTP to logs) — hard-disabled outside dev | **Real providers in sandbox/test mode** (payment test mode, email test mode or allow-listed real sends) | Real providers, production mode |
-| Auth | Same flows; OTP printed to logs (dev-only); no MFA enrollment friction (dev factor) | Real MFA required (admin); test users | Real |
-| Vendors | Fixture vendors | Pilot onboarding exercises; **vendor production onboarding happens in production** (real documents), with booking flows dry-runnable on staging via synthetic vendors (decision E-4) | Real vendors (launch floor PRD A8) |
-| Observability | Local pretty logs + optional local Grafana | Self-hosted observability stack, separate compose project; ticket-only alerts | Self-hosted observability stack; full SLO alerts + paging (notify channel) |
-| CI/E2E | Unit + integration (Testcontainers) | Integration + **E2E (Playwright incl. sandbox payment)** + load tests + pen-test target | Synthetic checks (read-only), no E2E against prod |
-| Secrets | Local `.env` (gitignored), mock creds | Staging secrets (sandbox creds; **never production secrets**) | Production secrets (server `.env` chmod 600 / Docker secrets, §25.3) |
-| Who | Engineers (personal) | Eng + QA + ops + **pilot vendors** (scoped) | End users + scoped admins |
-| Purpose | Fast loop, safe experimentation | Pre-release verification, release gate, debugging with realistic data | Service |
+| Dimension     | **Local (dev)**                                                                                                                                        | **Staging**                                                                                                                                                                          | **Production**                                                             |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------- |
+| Stack         | `docker compose` dev profile (Postgres 16, Redis 7, MinIO, Mailpit, mock providers) + `pnpm dev` for hot reload — **same compose files as production** | Same host: second compose project on `staging.` domains (or a small second server); same images as production                                                                        | Web server: main domains, full stack + optional `obs` profile              |
+| Data          | **Dev fixtures** (explicitly synthetic, labeled; GC-3 applies to production surfaces — fixtures are a dev tool, never a data source)                   | Synthetic seed + **anonymized production export** `[V1.5]`; scripted weekly reset                                                                                                    | Real data only                                                             |
+| Providers     | **Mock adapters** (payment mock via SPI; email → local sink; OTP to logs) — hard-disabled outside dev                                                  | **Real providers in sandbox/test mode** (payment test mode, email test mode or allow-listed real sends)                                                                              | Real providers, production mode                                            |
+| Auth          | Same flows; OTP printed to logs (dev-only); no MFA enrollment friction (dev factor)                                                                    | Real MFA required (admin); test users                                                                                                                                                | Real                                                                       |
+| Vendors       | Fixture vendors                                                                                                                                        | Pilot onboarding exercises; **vendor production onboarding happens in production** (real documents), with booking flows dry-runnable on staging via synthetic vendors (decision E-4) | Real vendors (launch floor PRD A8)                                         |
+| Observability | Local pretty logs + optional local Grafana                                                                                                             | Self-hosted observability stack, separate compose project; ticket-only alerts                                                                                                        | Self-hosted observability stack; full SLO alerts + paging (notify channel) |
+| CI/E2E        | Unit + integration (Testcontainers)                                                                                                                    | Integration + **E2E (Playwright incl. sandbox payment)** + load tests + pen-test target                                                                                              | Synthetic checks (read-only), no E2E against prod                          |
+| Secrets       | Local `.env` (gitignored), mock creds                                                                                                                  | Staging secrets (sandbox creds; **never production secrets**)                                                                                                                        | Production secrets (server `.env` chmod 600 / Docker secrets, §25.3)       |
+| Who           | Engineers (personal)                                                                                                                                   | Eng + QA + ops + **pilot vendors** (scoped)                                                                                                                                          | End users + scoped admins                                                  |
+| Purpose       | Fast loop, safe experimentation                                                                                                                        | Pre-release verification, release gate, debugging with realistic data                                                                                                                | Service                                                                    |
 
 - **Data movement:** prod → staging only via anonymized export tool `[V1.5]` (PII masked, PII fields dropped); staging → prod: never; migrations rehearsed on staging (fresh + N-1 upgrade).
 - **Previews:** no per-PR web preview (no Vercel) — PR verification runs against **staging** (shared); optional branch-tagged deploy to staging for team review (E-6); team-only views via DB feature flags (percentage/role scope) — never ad-hoc env hacks.
@@ -1327,20 +1325,20 @@ GC-1 made geography, currency, timezone, locale, tax, pricing, vendor, service, 
 
 ### 27.2 Dimension-by-dimension scaling plan
 
-| Dimension | Today (MVP, Nepal) | V1.5 | V2 | Change type |
-|---|---|---|---|---|
-| **Geo** | 7 provinces / 77 districts / cities / airports (NP seed) on `geo_node` (type + parent, arbitrary depth, nullable levels — countries without districts still fit) | add countries as needed (e.g., India for cross-border vehicle context) | full multi-country trees | **data** (schema already generic) |
-| **Currency** | NPR base + settlement; ≈ display (admin fx table, PR-02) | more display currencies; per-country base currency config | **multi-currency settlement** (per-vendor settlement currency column already exists) | config + settlement-engine extension (code, bounded) |
-| **Timezone** | UTC storage; Asia/Katmandu display | — | per-geo display tz; cross-tz booking windows (tz labels everywhere, PRD TF-08) | code (display layer) + config |
-| **Locale** | English (i18n structure, Devanagari fallback ready) | **Nepali UI + content** (hreflang, PRD SO-06) | per-country locales; `cms_localized` content pipeline | code (pipeline) + data (human-authored) |
-| **Tax** | `tax_config` (jurisdiction × line): Nepal 13 % VAT example | — | per-country rates + cross-border rules (OSS/VAT on intl sales) | **config** + legal |
-| **Payment** | NP wallets + domestic cards + bank transfer (+ intl cards if D2 validated) | int'l card path finalized (D2); per-country method enablement via capability matrix | new-country PSP adapters (local acquirers) — SPI already provider-agnostic | **adapters** (SPI ready) + config |
-| **Vendors** | NP KYC doc matrix (per-line checklists) | — | non-NP entities: country field on `ven_org` (exists), per-country document checklists, settlement currency | config + data + vendor BD |
-| **Services** | NP destinations across 10 lines | — | **first non-NP destination pilot** — agency-fulfilled via existing QUOTE flow (`INTL_TRAVEL`/`V-9`); then direct intl vendors | **data + supply** (engine unchanged) |
-| **Search** | English FTS + trigram | — | multilingual index (per-locale config / engine swap §10.2) | code (provider-swap path documented) |
-| **Site** | single domain, EN | hreflang (ne/en) | country subdomain/site (locale + currency + payment + support per country) | code + ops (V2 decision) |
-| **Data/privacy** | NP data practices; DPA with sub-processors; **server location under our control — data sovereignty from day one** | GDPR-class DPA review | residency needs ⇒ relocate/replicate the self-hosted stack (region = host choice), GDPR compliance pass | infra (host move) + legal |
-| **Ops** | KTM support + trip desk | — | per-region support SLAs; localized vendor onboarding | ops |
+| Dimension        | Today (MVP, Nepal)                                                                                                                                               | V1.5                                                                                | V2                                                                                                                            | Change type                                          |
+| ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| **Geo**          | 7 provinces / 77 districts / cities / airports (NP seed) on `geo_node` (type + parent, arbitrary depth, nullable levels — countries without districts still fit) | add countries as needed (e.g., India for cross-border vehicle context)              | full multi-country trees                                                                                                      | **data** (schema already generic)                    |
+| **Currency**     | NPR base + settlement; ≈ display (admin fx table, PR-02)                                                                                                         | more display currencies; per-country base currency config                           | **multi-currency settlement** (per-vendor settlement currency column already exists)                                          | config + settlement-engine extension (code, bounded) |
+| **Timezone**     | UTC storage; Asia/Katmandu display                                                                                                                               | —                                                                                   | per-geo display tz; cross-tz booking windows (tz labels everywhere, PRD TF-08)                                                | code (display layer) + config                        |
+| **Locale**       | English (i18n structure, Devanagari fallback ready)                                                                                                              | **Nepali UI + content** (hreflang, PRD SO-06)                                       | per-country locales; `cms_localized` content pipeline                                                                         | code (pipeline) + data (human-authored)              |
+| **Tax**          | `tax_config` (jurisdiction × line): Nepal 13 % VAT example                                                                                                       | —                                                                                   | per-country rates + cross-border rules (OSS/VAT on intl sales)                                                                | **config** + legal                                   |
+| **Payment**      | NP wallets + domestic cards + bank transfer (+ intl cards if D2 validated)                                                                                       | int'l card path finalized (D2); per-country method enablement via capability matrix | new-country PSP adapters (local acquirers) — SPI already provider-agnostic                                                    | **adapters** (SPI ready) + config                    |
+| **Vendors**      | NP KYC doc matrix (per-line checklists)                                                                                                                          | —                                                                                   | non-NP entities: country field on `ven_org` (exists), per-country document checklists, settlement currency                    | config + data + vendor BD                            |
+| **Services**     | NP destinations across 10 lines                                                                                                                                  | —                                                                                   | **first non-NP destination pilot** — agency-fulfilled via existing QUOTE flow (`INTL_TRAVEL`/`V-9`); then direct intl vendors | **data + supply** (engine unchanged)                 |
+| **Search**       | English FTS + trigram                                                                                                                                            | —                                                                                   | multilingual index (per-locale config / engine swap §10.2)                                                                    | code (provider-swap path documented)                 |
+| **Site**         | single domain, EN                                                                                                                                                | hreflang (ne/en)                                                                    | country subdomain/site (locale + currency + payment + support per country)                                                    | code + ops (V2 decision)                             |
+| **Data/privacy** | NP data practices; DPA with sub-processors; **server location under our control — data sovereignty from day one**                                                | GDPR-class DPA review                                                               | residency needs ⇒ relocate/replicate the self-hosted stack (region = host choice), GDPR compliance pass                       | infra (host move) + legal                            |
+| **Ops**          | KTM support + trip desk                                                                                                                                          | —                                                                                   | per-region support SLAs; localized vendor onboarding                                                                          | ops                                                  |
 
 ### 27.3 Sequencing
 
@@ -1360,42 +1358,42 @@ FX accounting (dual-record already, §7.6) · per-market legal variance (country
 
 ## Appendix A — Cross-reference index (Phase 01/02 hooks)
 
-| This document | PRD hook | UX hook |
-|---|---|---|
-| §5 auth | §16, §33.1, CV-*, AR-* | §8.2/8.3 (auth forms), §8.7 |
-| §6 authz | §5, §24, AR-*, CO-* | §5.2 (portal/admin tiers) |
-| §7 payments | §19, §12, §14, PY-*, CM-*, RF-* | §8.5 (PaymentState/Picker), §8.18 |
-| §10 search | §20, §21, SE-* | §8.5 (search components) |
-| §12 timers | §10.7, §8 SLA, §26–30 | — (drives UX countdowns honestly) |
-| §13 notifications | §18, NF-* | §8.10 (notification center) |
-| §17 errors | GC-4/GC-5, §33 | §8.18 (error states, ER-*) |
-| §19 AI | §25, AI-* | §7.2 S11 (dual-state section) |
-| §27 international | GC-1, §35.3, R-9 | §3.1 (Devanagari), §8.14 (≈ price) |
+| This document     | PRD hook                        | UX hook                            |
+| ----------------- | ------------------------------- | ---------------------------------- |
+| §5 auth           | §16, §33.1, CV-_, AR-_          | §8.2/8.3 (auth forms), §8.7        |
+| §6 authz          | §5, §24, AR-_, CO-_             | §5.2 (portal/admin tiers)          |
+| §7 payments       | §19, §12, §14, PY-_, CM-_, RF-* | §8.5 (PaymentState/Picker), §8.18  |
+| §10 search        | §20, §21, SE-*                  | §8.5 (search components)           |
+| §12 timers        | §10.7, §8 SLA, §26–30           | — (drives UX countdowns honestly)  |
+| §13 notifications | §18, NF-*                       | §8.10 (notification center)        |
+| §17 errors        | GC-4/GC-5, §33                  | §8.18 (error states, ER-*)         |
+| §19 AI            | §25, AI-*                       | §7.2 S11 (dual-state section)      |
+| §27 international | GC-1, §35.3, R-9                | §3.1 (Devanagari), §8.14 (≈ price) |
 
 ## Appendix B — Key decisions (full list)
 
-| ID | Decision | Alternatives considered | Why |
-|---|---|---|---|
-| T-1 | Modular monolith API | Microservices; single flat app | Team size/ops; boundaries keep extraction viable (payments/search/notifications first candidates) |
-| T-2 | Next 15 App Router (SSG/ISR/SSR/CSR split) | MPA + SPA; pure SSR | SEO + perf + interactivity in one stack; `output: 'standalone'` fits self-hosted container deployment |
-| T-3 | Single DB, table prefixes | Per-domain schemas; polyglot | Ops simplicity; code-enforced boundaries (CI) |
-| T-4 | Drizzle ORM | Prisma; TypeORM | Typed + migration-first + SQL escape for FTS |
-| T-5 | BullMQ + DB timer sweep | In-memory timers; dedicated scheduler service | Durable, inspectable, admin-adjustable SLAs |
-| T-6 | Transactional outbox | Direct queue publish on change | No lost/duplicate cross-module events |
-| T-7 | Self-hosted web server / local environments, no managed cloud | Managed cloud (previously proposed); PaaS; Vercel | Stakeholder direction 2026-09-10; containers keep all exit paths open (§20.8) |
-| T-8 | Provider SPI + capability matrix | Hard-coded provider integrations | GC-2: no invented capabilities; UI driven by verified matrix |
-| T-9 | BIGINT minor units | NUMERIC(14,2) | No float/rounding drift; integer math app-side |
-| T-10 | Postgres FTS behind SPI | Meilisearch day 1; external SaaS | Zero new infra; documented swap trigger (T-10.2) |
-| T-11 | OTel from day 1 | Vendor-locked APM agents | Vendor-neutral telemetry; business + system in one |
-| T-12 | Trunk-based + expand/contract + flags | Release branches | Small safe fast deploys; kill switches |
-| E-1 | Self-hosted web server confirmed (stakeholder, 2026-09-10) | Managed cloud (rejected for now) | T-7; host specs / domain / offsite backup target = Appendix C item 1 |
-| E-2 | Self-hosted observability (MVP tier: Prometheus + Grafana + Uptime Kuma; full tier via `obs` profile) | Managed observability SaaS | Deployment is self-hosted — no managed SaaS; OTel keeps options open |
-| E-3 | HIBP k-anonymity range API (or local list) | Full-hash lookup | Privacy + practicality |
-| E-4 | Vendor onboarding in production; staging dry-runs with synthetic vendors | Staging-first onboarding | Real documents in real system; staging parity for flows |
-| E-5 | JWT HS256 + 180 d rotation runbook (MVP) | RS256/JWKS from day 1 | Single service today; upgrade path documented |
-| E-6 | PR previews point at staging API | Ephemeral per-PR API | Cost; staging is the gate anyway |
-| E-7 | sharp in worker (not API) | S3 image transforms | CPU isolation; full control of derivatives |
-| E-8 | Postgres RLS deferred to `[V2]` evaluation | RLS at MVP | App-level scoping + tests sufficient now; clean org columns make RLS cheap later |
+| ID   | Decision                                                                                              | Alternatives considered                           | Why                                                                                                   |
+| ---- | ----------------------------------------------------------------------------------------------------- | ------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| T-1  | Modular monolith API                                                                                  | Microservices; single flat app                    | Team size/ops; boundaries keep extraction viable (payments/search/notifications first candidates)     |
+| T-2  | Next 15 App Router (SSG/ISR/SSR/CSR split)                                                            | MPA + SPA; pure SSR                               | SEO + perf + interactivity in one stack; `output: 'standalone'` fits self-hosted container deployment |
+| T-3  | Single DB, table prefixes                                                                             | Per-domain schemas; polyglot                      | Ops simplicity; code-enforced boundaries (CI)                                                         |
+| T-4  | Drizzle ORM                                                                                           | Prisma; TypeORM                                   | Typed + migration-first + SQL escape for FTS                                                          |
+| T-5  | BullMQ + DB timer sweep                                                                               | In-memory timers; dedicated scheduler service     | Durable, inspectable, admin-adjustable SLAs                                                           |
+| T-6  | Transactional outbox                                                                                  | Direct queue publish on change                    | No lost/duplicate cross-module events                                                                 |
+| T-7  | Self-hosted web server / local environments, no managed cloud                                         | Managed cloud (previously proposed); PaaS; Vercel | Stakeholder direction 2026-09-10; containers keep all exit paths open (§20.8)                         |
+| T-8  | Provider SPI + capability matrix                                                                      | Hard-coded provider integrations                  | GC-2: no invented capabilities; UI driven by verified matrix                                          |
+| T-9  | BIGINT minor units                                                                                    | NUMERIC(14,2)                                     | No float/rounding drift; integer math app-side                                                        |
+| T-10 | Postgres FTS behind SPI                                                                               | Meilisearch day 1; external SaaS                  | Zero new infra; documented swap trigger (T-10.2)                                                      |
+| T-11 | OTel from day 1                                                                                       | Vendor-locked APM agents                          | Vendor-neutral telemetry; business + system in one                                                    |
+| T-12 | Trunk-based + expand/contract + flags                                                                 | Release branches                                  | Small safe fast deploys; kill switches                                                                |
+| E-1  | Self-hosted web server confirmed (stakeholder, 2026-09-10)                                            | Managed cloud (rejected for now)                  | T-7; host specs / domain / offsite backup target = Appendix C item 1                                  |
+| E-2  | Self-hosted observability (MVP tier: Prometheus + Grafana + Uptime Kuma; full tier via `obs` profile) | Managed observability SaaS                        | Deployment is self-hosted — no managed SaaS; OTel keeps options open                                  |
+| E-3  | HIBP k-anonymity range API (or local list)                                                            | Full-hash lookup                                  | Privacy + practicality                                                                                |
+| E-4  | Vendor onboarding in production; staging dry-runs with synthetic vendors                              | Staging-first onboarding                          | Real documents in real system; staging parity for flows                                               |
+| E-5  | JWT HS256 + 180 d rotation runbook (MVP)                                                              | RS256/JWKS from day 1                             | Single service today; upgrade path documented                                                         |
+| E-6  | PR previews point at staging API                                                                      | Ephemeral per-PR API                              | Cost; staging is the gate anyway                                                                      |
+| E-7  | sharp in worker (not API)                                                                             | S3 image transforms                               | CPU isolation; full control of derivatives                                                            |
+| E-8  | Postgres RLS deferred to `[V2]` evaluation                                                            | RLS at MVP                                        | App-level scoping + tests sufficient now; clean org columns make RLS cheap later                      |
 
 ## Appendix C — Sign-off items (before Phase 04 scaffold)
 
@@ -1410,4 +1408,4 @@ FX accounting (dual-record already, §7.6) · per-market legal variance (country
 
 ---
 
-*End of Phase 03 document v0.1. This architecture is the contract for Phase 04 (scaffold + foundations) and all subsequent build phases. Any deviation requires a version bump, change-log entry, and note in the affected PRD/UX sections.*
+_End of Phase 03 document v0.1. This architecture is the contract for Phase 04 (scaffold + foundations) and all subsequent build phases. Any deviation requires a version bump, change-log entry, and note in the affected PRD/UX sections._

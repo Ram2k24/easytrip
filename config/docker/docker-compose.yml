@@ -1,0 +1,144 @@
+# Easy Trip Nepal — self-hosted stack (Arch §20.1, T-7).
+#
+# Profiles:
+#   infra  postgres + redis + minio + mailpit   (local dependencies only)
+#   app    api + web + caddy                    (containerised application)
+#
+#   docker compose --profile infra up -d      # deps, then `pnpm dev` on the host
+#   docker compose --profile app up -d --build
+#
+# The observability profile (otel-collector, prometheus, grafana, loki, tempo)
+# lands with the monitoring phase; OTEL_* env vars are already wired for it.
+name: easytrip
+
+x-api-env: &api-env
+  APP_ENV: ${APP_ENV:-development}
+  APP_VERSION: ${APP_VERSION:-0.5.0}
+  LOG_LEVEL: ${LOG_LEVEL:-info}
+  LOG_PRETTY: 'false'
+  HOST: 0.0.0.0
+  PORT: '4000'
+  DATABASE_URL: postgresql://easytrip:easytrip@postgres:5432/easytrip
+  DB_POOL_MAX: ${DB_POOL_MAX:-10}
+  DB_STATEMENT_TIMEOUT_MS: ${DB_STATEMENT_TIMEOUT_MS:-10000}
+  DB_SCHEMA_TABLES: outbox
+  REDIS_URL: redis://redis:6379
+  REDIS_PREFIX: easytrip
+  REDIS_REQUIRED: 'false'
+  REDIS_CONNECT_TIMEOUT_MS: '1500'
+  ALLOWED_ORIGINS: ${WEB_ORIGIN:-http://localhost:3000}
+  OTEL_ENABLED: ${OTEL_ENABLED:-false}
+  OTEL_EXPORTER: ${OTEL_EXPORTER:-none}
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    profiles: [infra, app]
+    environment:
+      POSTGRES_USER: easytrip
+      POSTGRES_PASSWORD: easytrip
+      POSTGRES_DB: easytrip
+    ports:
+      - '${POSTGRES_PORT:-5432}:5432'
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U easytrip -d easytrip']
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  redis:
+    image: redis:7-alpine
+    profiles: [infra, app]
+    command: ['redis-server', '/usr/local/etc/redis/redis.conf']
+    volumes:
+      - ./redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
+      - redis-data:/data
+    ports:
+      - '${REDIS_PORT:-6379}:6379'
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 3s
+      retries: 12
+
+  # S3-compatible object storage for the three buckets (Arch §8).
+  minio:
+    image: minio/minio:latest
+    profiles: [infra]
+    command: server /data --console-address ':9001'
+    environment:
+      MINIO_ROOT_USER: easytrip
+      MINIO_ROOT_PASSWORD: easytrip-dev-secret
+    ports:
+      - '${MINIO_PORT:-9000}:9000'
+      - '${MINIO_CONSOLE_PORT:-9001}:9001'
+    volumes:
+      - minio-data:/data
+
+  # Local email sink so notifications never leave the machine (Arch §26).
+  mailpit:
+    image: axllent/mailpit:latest
+    profiles: [infra]
+    ports:
+      - '${MAILPIT_PORT:-8025}:8025'
+      - '${MAILPIT_SMTP_PORT:-1025}:1025'
+
+  api:
+    build:
+      context: ../..
+      dockerfile: apps/api/Dockerfile
+    profiles: [app]
+    environment:
+      <<: *api-env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    expose:
+      - '4000'
+    ports:
+      - '${API_PORT:-4000}:4000'
+
+  web:
+    build:
+      context: ../..
+      dockerfile: apps/web/Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:4000}
+        NEXT_PUBLIC_SITE_NAME: ${NEXT_PUBLIC_SITE_NAME:-Easy Trip Nepal}
+    profiles: [app]
+    environment:
+      API_URL: http://api:4000
+      PORT: '3000'
+    depends_on:
+      - api
+    expose:
+      - '3000'
+    ports:
+      - '${WEB_PORT:-3000}:3000'
+
+  # Reverse proxy + automatic TLS (Arch §20.2). Disabled for local development.
+  caddy:
+    image: caddy:2-alpine
+    profiles: [edge]
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      - api
+      - web
+
+volumes:
+  postgres-data:
+  redis-data:
+  minio-data:
+  caddy-data:
+  caddy-config:

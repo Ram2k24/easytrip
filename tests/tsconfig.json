@@ -1,0 +1,17 @@
+{
+  "extends": "../config/tsconfig/base.json",
+  "compilerOptions": {
+    "rootDir": ".",
+    // NodeNext (not classic Node) so the `exports` maps of ESM-only packages such
+    // as `embedded-postgres` resolve. Files are transpiled by Vitest at run time.
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "verbatimModuleSyntax": false,
+    "noEmit": true,
+    // `vitest/globals` because vitest.config.ts sets `globals: true`; that is a
+    // runtime setting, so tsc needs the types to see describe/it/expect.
+    "types": ["node", "vitest/globals"]
+  },
+  "include": ["**/*.ts"],
+  "exclude": ["node_modules"]
+}

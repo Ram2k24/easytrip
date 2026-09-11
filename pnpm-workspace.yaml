@@ -1,0 +1,29 @@
+packages:
+  - 'apps/*'
+  - 'packages/*'
+  - 'tests'
+
+# pnpm 10+ blocks dependency lifecycle scripts unless explicitly allowed.
+allowBuilds:
+  # Ships real PostgreSQL binaries and hydrates its lib/share symlinks on install.
+  '@embedded-postgres/linux-x64': true
+  esbuild: true
+  unrs-resolver: true
+  '@swc/core': true
+  sharp: true
+
+# `embedded-postgres` declares one optional package per platform. Only linux-x64
+# is ever installed here; the rest must not gate the install on their scripts.
+ignoredBuiltDependencies:
+  - '@embedded-postgres/darwin-arm64'
+  - '@embedded-postgres/darwin-x64'
+  - '@embedded-postgres/linux-arm'
+  - '@embedded-postgres/linux-arm64'
+  - '@embedded-postgres/linux-ia32'
+  - '@embedded-postgres/linux-ppc64'
+  - '@embedded-postgres/windows-x64'
+
+# zod@4.6.2 is newer than pnpm's default minimum-release-age window; it is pinned
+# deliberately (single validation source, Arch §0.1).
+minimumReleaseAgeExclude:
+  - zod@4.6.2

@@ -1,0 +1,12 @@
+node_modules
+dist
+.next
+.turbo
+coverage
+out
+build
+pnpm-lock.yaml
+packages/database/migrations
+apps/web/next-env.d.ts
+*.tsbuildinfo
+docs/ux/assets

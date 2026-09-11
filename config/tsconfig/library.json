@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "display": "Easy Trip Nepal — shared library package (CommonJS output, consumable by the NestJS API and the Next.js web app)",
+  "extends": "./base.json",
+  "compilerOptions": {
+    "module": "CommonJS",
+    "moduleResolution": "Node",
+    "target": "ES2023",
+    "lib": ["ES2023"],
+    // CommonJS emit cannot preserve ESM syntax verbatim, so this is disabled here.
+    "verbatimModuleSyntax": false,
+    "types": ["node"]
+  }
+}
