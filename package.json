@@ -1,0 +1,57 @@
+{
+  "name": "easytrip",
+  "version": "0.5.0",
+  "private": true,
+  "description": "Easy Trip Nepal \u2014 Nepal-first travel marketplace (monorepo root).",
+  "license": "UNLICENSED",
+  "packageManager": "pnpm@12.3.4",
+  "engines": {
+    "node": ">=22.11.0",
+    "pnpm": ">=12.0.0"
+  },
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "typecheck": "turbo run typecheck",
+    "lint": "turbo run lint",
+    "lint:fix": "turbo run lint:fix",
+    "test": "turbo run test",
+    "test:integration": "turbo run test:integration",
+    "format": "prettier --write \"**/*.{ts,tsx,js,mjs,cjs,json,md,yml,yaml,css}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,mjs,cjs,json,md,yml,yaml,css}\"",
+    "check": "pnpm run typecheck && pnpm run lint && pnpm run test && pnpm run build",
+    "check:env": "tsx src/cli.ts check:env",
+    "db:generate": "pnpm --filter @easytrip/database generate",
+    "db:migrate": "tsx src/cli.ts db:migrate",
+    "db:seed": "tsx src/cli.ts db:seed",
+    "db:reset": "tsx src/cli.ts db:reset",
+    "db:status": "tsx src/cli.ts db:status",
+    "infra:up": "docker compose -f config/docker/docker-compose.yml --profile infra up -d",
+    "infra:down": "docker compose -f config/docker/docker-compose.yml --profile infra down",
+    "stack:up": "docker compose -f config/docker/docker-compose.yml --profile app up -d --build",
+    "stack:down": "docker compose -f config/docker/docker-compose.yml down",
+    "db:serve": "tsx src/cli.ts db:serve"
+  },
+  "devDependencies": {
+    "@easytrip/contracts": "workspace:*",
+    "@easytrip/database": "workspace:*",
+    "@embedded-postgres/linux-x64": "16.14.0-beta.17",
+    "@eslint/eslintrc": "3.3.7",
+    "@eslint/js": "9.39.5",
+    "@types/node": "22.20.2",
+    "@types/pg": "8.23.1",
+    "dotenv": "17.4.2",
+    "embedded-postgres": "16.14.0-beta.17",
+    "eslint": "9.39.5",
+    "eslint-config-next": "15.5.25",
+    "eslint-config-prettier": "10.1.8",
+    "prettier": "3.9.6",
+    "tsx": "4.23.13",
+    "turbo": "2.10.12",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.70.0"
+  },
+  "dependencies": {
+    "pg": "8.23.0"
+  }
+}

@@ -1,0 +1,14 @@
+**/node_modules
+**/dist
+**/.next
+**/.turbo
+**/coverage
+.git
+.tmp-pg
+docs/ux/assets
+*.log
+.env
+config/env/.env
+config/env/.env.local
+config/env/.env.staging
+config/env/.env.production

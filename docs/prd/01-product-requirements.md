@@ -1,29 +1,29 @@
 # Easy Trip Nepal — Product Requirements Document (PRD)
 
-| Field | Value |
-|---|---|
-| Document ID | ETN-PRD-001 |
-| Phase | 01 — Product Requirements |
-| Version | 0.2 (DRAFT — pending product sign-off) |
-| Date | 2026-09-09 |
-| Status | Awaiting stakeholder review (see Appendix G: Open Decisions) |
-| Supersedes | — |
+| Field       | Value                                                        |
+| ----------- | ------------------------------------------------------------ |
+| Document ID | ETN-PRD-001                                                  |
+| Phase       | 01 — Product Requirements                                    |
+| Version     | 0.2 (DRAFT — pending product sign-off)                       |
+| Date        | 2026-09-09                                                   |
+| Status      | Awaiting stakeholder review (see Appendix G: Open Decisions) |
+| Supersedes  | —                                                            |
 
 **Change log**
 
-| Version | Date | Author | Summary |
-|---|---|---|---|
-| 0.1 | 2026-09-09 | Product/Engineering (Arena agent) | Initial full PRD covering all 35 mandated sections + scope classification + appendices. |
-| 0.2 | 2026-09-10 | Product/Engineering (Arena agent) | Deployment target changed per stakeholder direction: **self-hosted web server (Docker Compose) / local environment — no managed cloud**. Added D14 (Appendix G); updated C-5, C-6 (external dependencies) and the Secrets row. Third-party provider APIs (payments/email) remain internet services; "no cloud" applies to our infrastructure hosting only. |
+| Version | Date       | Author                            | Summary                                                                                                                                                                                                                                                                                                                                                    |
+| ------- | ---------- | --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 0.1     | 2026-09-09 | Product/Engineering (Arena agent) | Initial full PRD covering all 35 mandated sections + scope classification + appendices.                                                                                                                                                                                                                                                                    |
+| 0.2     | 2026-09-10 | Product/Engineering (Arena agent) | Deployment target changed per stakeholder direction: **self-hosted web server (Docker Compose) / local environment — no managed cloud**. Added D14 (Appendix G); updated C-5, C-6 (external dependencies) and the Secrets row. Third-party provider APIs (payments/email) remain internet services; "no cloud" applies to our infrastructure hosting only. |
 
 **Scope legend used throughout this document**
 
-| Tag | Meaning |
-|---|---|
-| `[MVP]` | Shipped at launch. Gated by Appendix A checklist. |
-| `[V1.5]` | 0–6 months post-launch. |
-| `[V2]` | 6–12 months post-launch. |
-| `[FUT]` | 12+ months / conditional on provider or market decision. |
+| Tag      | Meaning                                                  |
+| -------- | -------------------------------------------------------- |
+| `[MVP]`  | Shipped at launch. Gated by Appendix A checklist.        |
+| `[V1.5]` | 0–6 months post-launch.                                  |
+| `[V2]`   | 6–12 months post-launch.                                 |
+| `[FUT]`  | 12+ months / conditional on provider or market decision. |
 
 **Global constraints (binding on every section)**
 
@@ -61,15 +61,15 @@ Quality bar: production-oriented from the start — typed API-first architecture
 
 > All numeric values below are **planning targets to be validated**, not promises or invented facts.
 
-| ID | Objective | Measure (working target) | Version |
-|---|---|---|---|
-| BO-1 | Launch a trusted Nepal domestic travel marketplace covering all 10 service lines | First real end-to-end paid booking in production; launch gate = Appendix A | MVP |
-| BO-2 | Establish credible supply | ≥ 50 approved vendors and ≥ 300 published bookable/quoteable services by month 3 post-launch | MVP→V1.5 |
-| BO-3 | Build recurring, commission-based revenue | GMV run-rate NPR 25M/month by month 6 (planning assumption, review at month 3) | V1.5 |
-| BO-4 | Deliver a premium, trustworthy experience | LCP < 2.5s on 4G mobile (p75); NPS ≥ 50 by month 6; ≥ 95% of bookings confirmed within vendor SLA | MVP |
-| BO-5 | Operate with zero payment or data integrity incidents | 100% webhook-verified payments; 0 unexplained ledger variances; 0 PII incidents; clean pen-test gate before launch | MVP |
-| BO-6 | Prove international readiness without international launch | Geo/currency/locale/tax abstractions exercised in production with Nepal data; one non-Nepal destination pilot scoped in V2 | V2 |
-| BO-7 | Supportable operations | Support first response < 4 business hours; quote response SLA < 24h (vendor) with escalation path; dispute resolution < 5 business days | MVP |
+| ID   | Objective                                                                        | Measure (working target)                                                                                                                | Version  |
+| ---- | -------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- | -------- |
+| BO-1 | Launch a trusted Nepal domestic travel marketplace covering all 10 service lines | First real end-to-end paid booking in production; launch gate = Appendix A                                                              | MVP      |
+| BO-2 | Establish credible supply                                                        | ≥ 50 approved vendors and ≥ 300 published bookable/quoteable services by month 3 post-launch                                            | MVP→V1.5 |
+| BO-3 | Build recurring, commission-based revenue                                        | GMV run-rate NPR 25M/month by month 6 (planning assumption, review at month 3)                                                          | V1.5     |
+| BO-4 | Deliver a premium, trustworthy experience                                        | LCP < 2.5s on 4G mobile (p75); NPS ≥ 50 by month 6; ≥ 95% of bookings confirmed within vendor SLA                                       | MVP      |
+| BO-5 | Operate with zero payment or data integrity incidents                            | 100% webhook-verified payments; 0 unexplained ledger variances; 0 PII incidents; clean pen-test gate before launch                      | MVP      |
+| BO-6 | Prove international readiness without international launch                       | Geo/currency/locale/tax abstractions exercised in production with Nepal data; one non-Nepal destination pilot scoped in V2              | V2       |
+| BO-7 | Supportable operations                                                           | Support first response < 4 business hours; quote response SLA < 24h (vendor) with escalation path; dispute resolution < 5 business days | MVP      |
 
 **Non-goals (MVP):** native mobile apps; live airline inventory / instant air booking; hotel channel-manager/OTA feeds; dynamic pricing; loyalty/points; machine-translated content; multi-country operations; B2B open API; LLM-powered planning (see §25).
 
@@ -79,16 +79,16 @@ Quality bar: production-oriented from the start — typed API-first architecture
 
 ### 3.1 Customer personas
 
-| ID | Persona | Description | Primary lines | Booking-mode affinity | Notes |
-|---|---|---|---|---|---|
-| P1 | Domestic leisure traveler (Nepali family/couple) | Weekend/getaway trips within Nepal: Pokhara, Chitwan, Bhairahawa, hill stations | Transfers, hotels, tours, vehicle rental | Instant | Price transparency, flexible cancellation, NPR payments (wallets/cards) |
-| P2 | International tourist visiting Nepal | Arrival to departure: airport transfer, trekking/tours, hotels, onward domestic flights | Transfers, treks, tours, hotels, air tickets | Quote + Instant mix | English UI, international card payment, permit guidance |
-| P3 | Adventure / trekking traveler | Everest, Annapurna, Langtang, Manaslu; gear-aware, group or solo | Treks, tours, vehicles | Quote (group departures) + Instant (fixed dates) | Difficulty, season, inclusions/exclusions clarity, guide quality |
-| P4 | Pilgrim | Temple/circuit routes (e.g., Muktinath, Pashupatinath circuits, Janaki Janaki-dham) | Tours, transfers, vehicles | Quote | Group comfort, dietary considerations, respectful content |
-| P5 | Students & groups | Budget-conscious groups (schools, clubs, university) | Packages, transfers, tours | Quote | Group pricing, single invoice, flexible dates |
-| P6 | Corporate traveler | Business trips Kathmandu ↔ region, meetings, events | Air tickets, hotels, transfers | Quote + Instant | Policy, approvals, consolidated billing (§24) |
-| P7 | Family / leisure premium | Multi-day curated family holidays; occasional luxury stays | Family tours, hotels, packages | Custom trip + Quote | One-stop itinerary, trusted vendors, child-friendly detail |
-| P8 | Group / event organizer (corporate tours, incentive trips) | Company outings, retreats, incentive travel | Corporate tours, packages | Custom trip | Dedicated handling, volume, invoicing |
+| ID  | Persona                                                    | Description                                                                             | Primary lines                                | Booking-mode affinity                            | Notes                                                                   |
+| --- | ---------------------------------------------------------- | --------------------------------------------------------------------------------------- | -------------------------------------------- | ------------------------------------------------ | ----------------------------------------------------------------------- |
+| P1  | Domestic leisure traveler (Nepali family/couple)           | Weekend/getaway trips within Nepal: Pokhara, Chitwan, Bhairahawa, hill stations         | Transfers, hotels, tours, vehicle rental     | Instant                                          | Price transparency, flexible cancellation, NPR payments (wallets/cards) |
+| P2  | International tourist visiting Nepal                       | Arrival to departure: airport transfer, trekking/tours, hotels, onward domestic flights | Transfers, treks, tours, hotels, air tickets | Quote + Instant mix                              | English UI, international card payment, permit guidance                 |
+| P3  | Adventure / trekking traveler                              | Everest, Annapurna, Langtang, Manaslu; gear-aware, group or solo                        | Treks, tours, vehicles                       | Quote (group departures) + Instant (fixed dates) | Difficulty, season, inclusions/exclusions clarity, guide quality        |
+| P4  | Pilgrim                                                    | Temple/circuit routes (e.g., Muktinath, Pashupatinath circuits, Janaki Janaki-dham)     | Tours, transfers, vehicles                   | Quote                                            | Group comfort, dietary considerations, respectful content               |
+| P5  | Students & groups                                          | Budget-conscious groups (schools, clubs, university)                                    | Packages, transfers, tours                   | Quote                                            | Group pricing, single invoice, flexible dates                           |
+| P6  | Corporate traveler                                         | Business trips Kathmandu ↔ region, meetings, events                                     | Air tickets, hotels, transfers               | Quote + Instant                                  | Policy, approvals, consolidated billing (§24)                           |
+| P7  | Family / leisure premium                                   | Multi-day curated family holidays; occasional luxury stays                              | Family tours, hotels, packages               | Custom trip + Quote                              | One-stop itinerary, trusted vendors, child-friendly detail              |
+| P8  | Group / event organizer (corporate tours, incentive trips) | Company outings, retreats, incentive travel                                             | Corporate tours, packages                    | Custom trip                                      | Dedicated handling, volume, invoicing                                   |
 
 ### 3.2 Account types
 
@@ -108,17 +108,17 @@ Quality bar: production-oriented from the start — typed API-first architecture
 
 ### 4.1 Vendor archetypes
 
-| ID | Archetype | Lines | Inventory model (MVP) | Booking modes | Notes |
-|---|---|---|---|---|---|
-| V-1 | Vehicle operator | Vehicle rental | Fleet + per-vehicle daily calendar, vendor-managed | Instant (with-driver); self-drive with vendor-collected deposit (documented exception, §28) | Driver names provided by vendor (vendor-reported, displayed as such) |
-| V-2 | Airport/city transfer operator | Transfers | Route services; capacity per time window (vendor-managed) or on-request | Instant (published) / Quote | Fixed-route departures modeled as dated services |
-| V-3 | Tour operator | Tours, family tours, corporate tours, packages, (experiences `[V1.5]`) | Dated departures with seat counts, or custom-departure on-request | Instant (fixed departures) / Quote (custom) | Structured inclusions/exclusions required |
-| V-4 | Trekking operator | Trekking | Dated departures with seat counts; restricted-area lead time | Quote-first (default), Instant where published | Permits handled by vendor; see PII handling §30.4 |
-| V-5 | Hotel / resort (direct) | Hotels & resorts | Room types + rate plans + daily availability counts, vendor-managed | Instant (published) / Quote (group/long stay) | No channel-manager feeds in MVP (GC-2) |
-| V-6 | Travel agency / ticketing agent | Air tickets, international travel, custom-trip fulfillment | Quote-only (no live inventory) | Quote only | Licensed agency; issues tickets post-payment; §26 |
-| V-7 | Intercity/tourist transportation operator | Tourist transportation | Charter-capacity per route/date (vendor-managed) or on-request | Instant (published) / Quote | Charter-style; public-ticketed buses are out of scope |
-| V-8 | Experience/activity provider `[V1.5]` | Experiences (sub-type of tour) | Dated slots with capacity | Instant / Quote | Paragliding, rafting, etc. — same engine |
-| V-9 | International destination vendor `[V2/FUT]` | International lines | Quote (MVP-era pattern) | Quote | First non-Nepal destination pilot |
+| ID  | Archetype                                   | Lines                                                                  | Inventory model (MVP)                                                   | Booking modes                                                                               | Notes                                                                |
+| --- | ------------------------------------------- | ---------------------------------------------------------------------- | ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| V-1 | Vehicle operator                            | Vehicle rental                                                         | Fleet + per-vehicle daily calendar, vendor-managed                      | Instant (with-driver); self-drive with vendor-collected deposit (documented exception, §28) | Driver names provided by vendor (vendor-reported, displayed as such) |
+| V-2 | Airport/city transfer operator              | Transfers                                                              | Route services; capacity per time window (vendor-managed) or on-request | Instant (published) / Quote                                                                 | Fixed-route departures modeled as dated services                     |
+| V-3 | Tour operator                               | Tours, family tours, corporate tours, packages, (experiences `[V1.5]`) | Dated departures with seat counts, or custom-departure on-request       | Instant (fixed departures) / Quote (custom)                                                 | Structured inclusions/exclusions required                            |
+| V-4 | Trekking operator                           | Trekking                                                               | Dated departures with seat counts; restricted-area lead time            | Quote-first (default), Instant where published                                              | Permits handled by vendor; see PII handling §30.4                    |
+| V-5 | Hotel / resort (direct)                     | Hotels & resorts                                                       | Room types + rate plans + daily availability counts, vendor-managed     | Instant (published) / Quote (group/long stay)                                               | No channel-manager feeds in MVP (GC-2)                               |
+| V-6 | Travel agency / ticketing agent             | Air tickets, international travel, custom-trip fulfillment             | Quote-only (no live inventory)                                          | Quote only                                                                                  | Licensed agency; issues tickets post-payment; §26                    |
+| V-7 | Intercity/tourist transportation operator   | Tourist transportation                                                 | Charter-capacity per route/date (vendor-managed) or on-request          | Instant (published) / Quote                                                                 | Charter-style; public-ticketed buses are out of scope                |
+| V-8 | Experience/activity provider `[V1.5]`       | Experiences (sub-type of tour)                                         | Dated slots with capacity                                               | Instant / Quote                                                                             | Paragliding, rafting, etc. — same engine                             |
+| V-9 | International destination vendor `[V2/FUT]` | International lines                                                    | Quote (MVP-era pattern)                                                 | Quote                                                                                       | First non-Nepal destination pilot                                    |
 
 ### 4.2 Vendor profile & documentation (schema-level; exact documents finalized with legal)
 
@@ -126,11 +126,11 @@ Core (all lines): business registration/operating license, PAN/VAT registration 
 
 Line-specific (examples; admin checklist is configurable per line):
 
-| Line | Example additional documents |
-|---|---|
-| Vehicle rental / transfers / tourist transport | Vehicle registration certificates, insurance certificates, driver employment/qualification proof |
-| Tours / trekking / agency (air) | Tourism business license (e.g., Department of Tourism — to be verified per line), guide qualification proof (vendor-declared) |
-| Hotels / resorts | Fire safety / safety compliance certificate, food hygiene (if F&B), tax registration for lodging |
+| Line                                           | Example additional documents                                                                                                  |
+| ---------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| Vehicle rental / transfers / tourist transport | Vehicle registration certificates, insurance certificates, driver employment/qualification proof                              |
+| Tours / trekking / agency (air)                | Tourism business license (e.g., Department of Tourism — to be verified per line), guide qualification proof (vendor-declared) |
+| Hotels / resorts                               | Fire safety / safety compliance certificate, food hygiene (if F&B), tax registration for lodging                              |
 
 Rules: documents are stored privately in object storage; admin-only access; no OCR/auto-verification in MVP (GC-2); expiry tracking `[MVP basic]` + automated expiry handling `[V2]`.
 
@@ -140,13 +140,13 @@ Rules: documents are stored privately in object storage; admin-only access; no O
 
 ### 5.1 Roles
 
-| Role | Scope summary |
-|---|---|
-| `SUPER_ADMIN` | Everything, including settings, commission config, user management, feature flags |
-| `OPS_ADMIN` | Vendor approval, service moderation, bookings intervention, geo/destination/content management, disputes |
-| `FINANCE_ADMIN` | Payments verification (bank transfer), refunds approval, settlements, reconciliation, finance reports |
-| `SUPPORT_ADMIN` | Customer & vendor support, disputes (case work), notifications, content (help), no finance actions |
-| `TRIP_DESK` | Custom-trip coordination only: quote routing, offer threads, vendor coordination |
+| Role            | Scope summary                                                                                            |
+| --------------- | -------------------------------------------------------------------------------------------------------- |
+| `SUPER_ADMIN`   | Everything, including settings, commission config, user management, feature flags                        |
+| `OPS_ADMIN`     | Vendor approval, service moderation, bookings intervention, geo/destination/content management, disputes |
+| `FINANCE_ADMIN` | Payments verification (bank transfer), refunds approval, settlements, reconciliation, finance reports    |
+| `SUPPORT_ADMIN` | Customer & vendor support, disputes (case work), notifications, content (help), no finance actions       |
+| `TRIP_DESK`     | Custom-trip coordination only: quote routing, offer threads, vendor coordination                         |
 
 ### 5.2 Rules
 
@@ -172,34 +172,34 @@ Rules: documents are stored privately in object storage; admin-only access; no O
 
 ### 6.2 Service lines
 
-| Line ID | Line | MVP booking mode(s) | Inventory model | Key attributes (summary) |
-|---|---|---|---|---|
-| `VEHICLE_RENTAL` | Vehicle Rental | Instant (with-driver); self-drive (deposit exception §28) | Per-vehicle daily calendar | Vehicle type, seats, fuel, driver/self-drive, KM limit, daily rate |
-| `TRANSFER` | Airport & City Transfers | Instant (published) / Quote | Per route, per time-window capacity (optional) | Route, airport/local/intercity, vehicle class, time window, flight ref (informational) |
-| `TOURIST_TRANSPORT` | Tourist Transportation | Instant (published) / Quote | Per route/date charter capacity (optional) | Route, charter capacity, duration, schedule mode |
-| `TOUR` | Tours & day tours | Instant (fixed departures) / Quote (custom) | Dated departures with seats | Duration, inclusions/exclusions, group min/max, languages, meeting point |
-| `TREK` | Trekking | Quote (default) / Instant (published departures) | Dated departures with seats | Difficulty, nights/days, season, permits, accommodation type, guide/porter |
-| `AIR_TICKET` | Air Ticketing | **Quote only** (no live inventory, GC-2) | None (agency-mediated) | Route (airports), dates, pax, class, baggage preference, fare basis, refundability |
-| `HOTEL` | Hotel & Resort Booking | Instant (published) / Quote (group/long stay) | Room type × date availability counts | Star (vendor-declared), room types, rate plans, meal plan, check-in/out |
-| `DOMESTIC_TRAVEL` | Domestic travel packages | Quote / Instant (fixed published packages) | Dated departures (packages) | Multi-component itinerary, duration, inclusions |
-| `INTL_TRAVEL` | International travel (from Nepal) | Quote | None (agency-mediated) | Destination, duration, components, visa info (content), inclusions |
-| `FAMILY_TOUR` | Family Tours | Quote / Instant (published) | Dated departures (packages) | TOUR/PACKAGE with family attributes (age fit, child facilities) |
-| `CORPORATE_TOUR` | Corporate Tours | Quote | Dated departures (packages) | TOUR/PACKAGE with group/billing attributes |
-| `PACKAGE` | Packages (curated) | Quote / Instant (published) | Dated departures | Itinerary, components, per-person pricing |
-| `EXPERIENCE` `[V1.5]` | Activities & experiences | Instant / Quote | Dated slots with capacity | Duration, location, group size |
+| Line ID               | Line                              | MVP booking mode(s)                                       | Inventory model                                | Key attributes (summary)                                                               |
+| --------------------- | --------------------------------- | --------------------------------------------------------- | ---------------------------------------------- | -------------------------------------------------------------------------------------- |
+| `VEHICLE_RENTAL`      | Vehicle Rental                    | Instant (with-driver); self-drive (deposit exception §28) | Per-vehicle daily calendar                     | Vehicle type, seats, fuel, driver/self-drive, KM limit, daily rate                     |
+| `TRANSFER`            | Airport & City Transfers          | Instant (published) / Quote                               | Per route, per time-window capacity (optional) | Route, airport/local/intercity, vehicle class, time window, flight ref (informational) |
+| `TOURIST_TRANSPORT`   | Tourist Transportation            | Instant (published) / Quote                               | Per route/date charter capacity (optional)     | Route, charter capacity, duration, schedule mode                                       |
+| `TOUR`                | Tours & day tours                 | Instant (fixed departures) / Quote (custom)               | Dated departures with seats                    | Duration, inclusions/exclusions, group min/max, languages, meeting point               |
+| `TREK`                | Trekking                          | Quote (default) / Instant (published departures)          | Dated departures with seats                    | Difficulty, nights/days, season, permits, accommodation type, guide/porter             |
+| `AIR_TICKET`          | Air Ticketing                     | **Quote only** (no live inventory, GC-2)                  | None (agency-mediated)                         | Route (airports), dates, pax, class, baggage preference, fare basis, refundability     |
+| `HOTEL`               | Hotel & Resort Booking            | Instant (published) / Quote (group/long stay)             | Room type × date availability counts           | Star (vendor-declared), room types, rate plans, meal plan, check-in/out                |
+| `DOMESTIC_TRAVEL`     | Domestic travel packages          | Quote / Instant (fixed published packages)                | Dated departures (packages)                    | Multi-component itinerary, duration, inclusions                                        |
+| `INTL_TRAVEL`         | International travel (from Nepal) | Quote                                                     | None (agency-mediated)                         | Destination, duration, components, visa info (content), inclusions                     |
+| `FAMILY_TOUR`         | Family Tours                      | Quote / Instant (published)                               | Dated departures (packages)                    | TOUR/PACKAGE with family attributes (age fit, child facilities)                        |
+| `CORPORATE_TOUR`      | Corporate Tours                   | Quote                                                     | Dated departures (packages)                    | TOUR/PACKAGE with group/billing attributes                                             |
+| `PACKAGE`             | Packages (curated)                | Quote / Instant (published)                               | Dated departures                               | Itinerary, components, per-person pricing                                              |
+| `EXPERIENCE` `[V1.5]` | Activities & experiences          | Instant / Quote                                           | Dated slots with capacity                      | Duration, location, group size                                                         |
 
 > `FAMILY_TOUR` / `CORPORATE_TOUR` are merchandising categories of the same package/tour entity (flag + attributes), not separate engines. `DOMESTIC_TRAVEL` / `INTL_TRAVEL` are curated multi-component packages; `INTL_TRAVEL` destinations outside Nepal remain agency-fulfilled (quote) until V2 vendor expansion.
 
 ### 6.3 "Additional trending travel services" handling
 
-| Service | Treatment | Version |
-|---|---|---|
-| Travel insurance | Advisory content MVP; optional partner product at checkout (underwriter-provided, never underwritten by platform) | V1.5 (content MVP) |
-| eSIM | Partner-sold product (provider-dependent; no invented inventory) | V2 |
-| Visa assistance | Informational content + agency quote routing (same as `INTL_TRAVEL`) | MVP (content) / V1.5 (quote routing) |
-| Permits (trekking/national park) | Vendor-managed line item inside trek services; platform displays + collects minimal PII (§30.4) | MVP |
-| Helicopter / adventure fly-tours | Modeled as `EXPERIENCE`/`TOUR` services by qualified vendors | V1.5 |
-| Group events (weddings, retreats) | `CORPORATE_TOUR` / custom-trip | MVP |
+| Service                           | Treatment                                                                                                         | Version                              |
+| --------------------------------- | ----------------------------------------------------------------------------------------------------------------- | ------------------------------------ |
+| Travel insurance                  | Advisory content MVP; optional partner product at checkout (underwriter-provided, never underwritten by platform) | V1.5 (content MVP)                   |
+| eSIM                              | Partner-sold product (provider-dependent; no invented inventory)                                                  | V2                                   |
+| Visa assistance                   | Informational content + agency quote routing (same as `INTL_TRAVEL`)                                              | MVP (content) / V1.5 (quote routing) |
+| Permits (trekking/national park)  | Vendor-managed line item inside trek services; platform displays + collects minimal PII (§30.4)                   | MVP                                  |
+| Helicopter / adventure fly-tours  | Modeled as `EXPERIENCE`/`TOUR` services by qualified vendors                                                      | V1.5                                 |
+| Group events (weddings, retreats) | `CORPORATE_TOUR` / custom-trip                                                                                    | MVP                                  |
 
 ---
 
@@ -209,20 +209,20 @@ Rules: documents are stored privately in object storage; admin-only access; no O
 
 `Discover → Search → Filter → Compare → Select → Customize → Book → Pay → Receive confirmation → Manage trip → Complete trip → Review`
 
-| Step | Touchpoint | System behavior (MVP) | Exit / edge |
-|---|---|---|---|
-| Discover | Home, destination hubs, SEO pages, guides, wishlist re-engagement | SSG content + catalog merchandising (curated + rule-based) | Bounce → exit; re-engagement email `[V1.5]` |
-| Search | Search bar, category landing | FTS + structured filters (§20–21) | No results → suggestions/popular |
-| Filter | Results page | Facets, URL-shareable state | Empty set → relax hints |
-| Compare | Compare drawer (≤4) | Attribute tables (§22) | — |
-| Select | Detail page | Full pricing breakdown, policy, availability (instant) or "on request" (quote), reviews (verified only) | Sold out / off-season → alternate dates / quote CTA |
-| Customize | Wizard per line (dates, party, add-ons) | Server-side price recompute on every change | Price change → explicit re-confirmation |
-| Book | Cart/checkout | Idempotent booking creation (mode A/B/C, §10) | Draft auto-expire 7 days |
-| Pay | Payment page (provider redirect) | Webhook-verified success only (GC-4) | Failure → retry ×3 in session; expiry → auto-cancel |
-| Confirmation | Email + in-app | Itinerary, voucher, vendor/driver contact, policy, emergency contacts | Vendor can't honor → full-refund path (§10.5) |
-| Manage | My trips | Status timeline, reschedule request (quote flow), cancellation (§13), documents, add-on requests | — |
-| Complete | — | Vendor marks complete (or auto-complete rule per line) | Dispute window opens |
-| Review | Post-completion | Verified-review flow (§17) | Ineligible → explained |
+| Step         | Touchpoint                                                        | System behavior (MVP)                                                                                   | Exit / edge                                         |
+| ------------ | ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- | --------------------------------------------------- |
+| Discover     | Home, destination hubs, SEO pages, guides, wishlist re-engagement | SSG content + catalog merchandising (curated + rule-based)                                              | Bounce → exit; re-engagement email `[V1.5]`         |
+| Search       | Search bar, category landing                                      | FTS + structured filters (§20–21)                                                                       | No results → suggestions/popular                    |
+| Filter       | Results page                                                      | Facets, URL-shareable state                                                                             | Empty set → relax hints                             |
+| Compare      | Compare drawer (≤4)                                               | Attribute tables (§22)                                                                                  | —                                                   |
+| Select       | Detail page                                                       | Full pricing breakdown, policy, availability (instant) or "on request" (quote), reviews (verified only) | Sold out / off-season → alternate dates / quote CTA |
+| Customize    | Wizard per line (dates, party, add-ons)                           | Server-side price recompute on every change                                                             | Price change → explicit re-confirmation             |
+| Book         | Cart/checkout                                                     | Idempotent booking creation (mode A/B/C, §10)                                                           | Draft auto-expire 7 days                            |
+| Pay          | Payment page (provider redirect)                                  | Webhook-verified success only (GC-4)                                                                    | Failure → retry ×3 in session; expiry → auto-cancel |
+| Confirmation | Email + in-app                                                    | Itinerary, voucher, vendor/driver contact, policy, emergency contacts                                   | Vendor can't honor → full-refund path (§10.5)       |
+| Manage       | My trips                                                          | Status timeline, reschedule request (quote flow), cancellation (§13), documents, add-on requests        | —                                                   |
+| Complete     | —                                                                 | Vendor marks complete (or auto-complete rule per line)                                                  | Dispute window opens                                |
+| Review       | Post-completion                                                   | Verified-review flow (§17)                                                                              | Ineligible → explained                              |
 
 ### 7.2 Variant A — Instant booking (detailed)
 
@@ -256,62 +256,62 @@ See §23 for the full flow.
 
 ### 7.6 Guest vs account
 
-| Capability | Guest | Account (email-verified) |
-|---|---|---|
-| Browse/search/detail | ✓ | ✓ |
-| Quote request | ✓ (contact required) | ✓ |
-| Instant booking | ✗ (account required — needed for management, payment verification, reviews) | ✓ |
-| Wishlist / compare persistence | Session only | ✓ |
-| Reviews | ✗ | ✓ (on completed bookings) |
-| Corporate features | ✗ | ✓ (org roles) |
+| Capability                     | Guest                                                                       | Account (email-verified)  |
+| ------------------------------ | --------------------------------------------------------------------------- | ------------------------- |
+| Browse/search/detail           | ✓                                                                           | ✓                         |
+| Quote request                  | ✓ (contact required)                                                        | ✓                         |
+| Instant booking                | ✗ (account required — needed for management, payment verification, reviews) | ✓                         |
+| Wishlist / compare persistence | Session only                                                                | ✓                         |
+| Reviews                        | ✗                                                                           | ✓ (on completed bookings) |
+| Corporate features             | ✗                                                                           | ✓ (org roles)             |
 
 ---
 
 ## 8. Vendor Journeys
 
-| Step | System behavior | Rules / edges |
-|---|---|---|
-| Register | Vendor signup (business identity, primary contact, requested lines) | One business per account (dedup by business ID, best-effort); account is separate from customer accounts |
-| Submit profile | Complete profile + upload documents (§4.2) | Status `SUBMITTED`; editable until `IN_REVIEW` |
-| Verification (manual) | Admin queue: document checklist per line, side-by-side review | Target SLA 3 business days; no OCR in MVP (GC-2) |
-| Admin approval | Per-line capabilities granted; decision with mandatory reason on reject/suspend | Rejection → 30-day reapplication cooldown (configurable); suspension → existing bookings continue, new bookings blocked |
-| Add services | Create service (line-specific forms), media, structured attributes | Must pass validation + content rules; services of an approved line auto-publish after validation; admin moderation (suspend/hold) available as safety valve |
-| Add pricing | Price types per §11 + per-line rules | No negative prices; changes never affect existing bookings |
-| Add availability | Per-line availability editors (calendars, departures, time windows) | Published availability = bookable availability (GC-3); "on request" when not published |
-| Receive booking | In-app + email notification; inbox with SLA countdown | SLA: quote response 24h; confirm after payment 12h |
-| Confirm / Reject | Instant: confirm/decline (decline ⇒ full refund + case); Quote: submit offer (≤3 revisions) | Decline after payment is a vendor-fault event: counted in vendor metrics, refund auto-processed |
-| Deliver service | Mark start/complete; upload deliverables (e-ticket, final itinerary) | Auto-complete rules per line (§26–30) with vendor override |
-| Receive earnings | Earnings ledger (gross, commission, refunds, holds, settlements) | Settlement weekly (manual verification MVP); hold periods per line (air 30 days) |
-| Reports | Vendor dashboards + CSV export (§31) | Permissions scoped to vendor org |
-| Maintain | Update documents, availability, prices, respond to reviews | Document expiry reminders (MVP basic) |
+| Step                  | System behavior                                                                             | Rules / edges                                                                                                                                               |
+| --------------------- | ------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Register              | Vendor signup (business identity, primary contact, requested lines)                         | One business per account (dedup by business ID, best-effort); account is separate from customer accounts                                                    |
+| Submit profile        | Complete profile + upload documents (§4.2)                                                  | Status `SUBMITTED`; editable until `IN_REVIEW`                                                                                                              |
+| Verification (manual) | Admin queue: document checklist per line, side-by-side review                               | Target SLA 3 business days; no OCR in MVP (GC-2)                                                                                                            |
+| Admin approval        | Per-line capabilities granted; decision with mandatory reason on reject/suspend             | Rejection → 30-day reapplication cooldown (configurable); suspension → existing bookings continue, new bookings blocked                                     |
+| Add services          | Create service (line-specific forms), media, structured attributes                          | Must pass validation + content rules; services of an approved line auto-publish after validation; admin moderation (suspend/hold) available as safety valve |
+| Add pricing           | Price types per §11 + per-line rules                                                        | No negative prices; changes never affect existing bookings                                                                                                  |
+| Add availability      | Per-line availability editors (calendars, departures, time windows)                         | Published availability = bookable availability (GC-3); "on request" when not published                                                                      |
+| Receive booking       | In-app + email notification; inbox with SLA countdown                                       | SLA: quote response 24h; confirm after payment 12h                                                                                                          |
+| Confirm / Reject      | Instant: confirm/decline (decline ⇒ full refund + case); Quote: submit offer (≤3 revisions) | Decline after payment is a vendor-fault event: counted in vendor metrics, refund auto-processed                                                             |
+| Deliver service       | Mark start/complete; upload deliverables (e-ticket, final itinerary)                        | Auto-complete rules per line (§26–30) with vendor override                                                                                                  |
+| Receive earnings      | Earnings ledger (gross, commission, refunds, holds, settlements)                            | Settlement weekly (manual verification MVP); hold periods per line (air 30 days)                                                                            |
+| Reports               | Vendor dashboards + CSV export (§31)                                                        | Permissions scoped to vendor org                                                                                                                            |
+| Maintain              | Update documents, availability, prices, respond to reviews                                  | Document expiry reminders (MVP basic)                                                                                                                       |
 
 **Vendor SLA table (defaults, admin-configurable):**
 
-| Event | SLA | Consequence of miss |
-|---|---|---|
-| Quote response | 24h | Escalation to trip desk; customer notified "we are getting your best offer"; quote auto-closed at 72h |
-| Offer validity | 48h (vendor-set within 24–96h) | Auto-expire → booking `CANCELLED` (reason: offer expired) |
-| Confirm after payment (instant) | 12h | Reminder → 24h: customer option to cancel with full refund (no penalty) |
-| Ticket issuance (air) | 24h | Escalation; >48h: auto-refund option to customer |
-| Service start mark | Day of service | Auto `IN_PROGRESS` at scheduled start + grace (line-specific) |
+| Event                           | SLA                            | Consequence of miss                                                                                   |
+| ------------------------------- | ------------------------------ | ----------------------------------------------------------------------------------------------------- |
+| Quote response                  | 24h                            | Escalation to trip desk; customer notified "we are getting your best offer"; quote auto-closed at 72h |
+| Offer validity                  | 48h (vendor-set within 24–96h) | Auto-expire → booking `CANCELLED` (reason: offer expired)                                             |
+| Confirm after payment (instant) | 12h                            | Reminder → 24h: customer option to cancel with full refund (no penalty)                               |
+| Ticket issuance (air)           | 24h                            | Escalation; >48h: auto-refund option to customer                                                      |
+| Service start mark              | Day of service                 | Auto `IN_PROGRESS` at scheduled start + grace (line-specific)                                         |
 
 ---
 
 ## 9. Admin Journeys
 
-| Area | Capability (MVP) | Rules |
-|---|---|---|
-| Monitor | KPI home: GMV, revenue, bookings by status/line, quote pipeline, SLA breaches, webhooks/queue health | Read-only; audit-safe |
-| Approve vendors | Queue, documents, per-line checklists, approve/reject/suspend with reason | AR-3 audit; SLA target 3 business days |
-| Manage inventory | Service moderation (hold/suspend/restore), geo tree & destination management, destination content | Suspension hides service everywhere incl. search; URL 301s handled |
-| Manage bookings | Search/filter all bookings; timeline view; intervene: force-cancel (reason), reassign trip desk, extend deadlines | Force-cancel triggers refund policy review (manual) |
-| Manage payments | Verify bank-transfer payments (reference match), approve manual/partial refunds, settlement batches, reconciliation view | Two-person rule for settlements `[V1.5]`; MVP single FINANCE_ADMIN with audit |
-| Manage customers | Search, profile, verification status, flags, support notes; corporate KYC review | PII masked by default |
-| Manage content | Destinations, guides, banners, static pages (help/FAQ) | Original-content policy enforced by checklist |
-| Manage promotions | Coupon/campaign engine | `[V1.5]` |
-| Resolve disputes | Case queue: evidence from both sides, decision (refund/compensation/reject), SLA 5 business days | Compensatory credits `[V1.5]`; every decision audited |
-| Reports | Admin dashboards + CSV (§31) | Export audit (who/when/rows) |
-| System settings | Service lines, commission config, geo seeds, display-currency rate table, notification templates, feature flags, SLA defaults | Config changes audited; require SUPER_ADMIN |
+| Area              | Capability (MVP)                                                                                                              | Rules                                                                         |
+| ----------------- | ----------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| Monitor           | KPI home: GMV, revenue, bookings by status/line, quote pipeline, SLA breaches, webhooks/queue health                          | Read-only; audit-safe                                                         |
+| Approve vendors   | Queue, documents, per-line checklists, approve/reject/suspend with reason                                                     | AR-3 audit; SLA target 3 business days                                        |
+| Manage inventory  | Service moderation (hold/suspend/restore), geo tree & destination management, destination content                             | Suspension hides service everywhere incl. search; URL 301s handled            |
+| Manage bookings   | Search/filter all bookings; timeline view; intervene: force-cancel (reason), reassign trip desk, extend deadlines             | Force-cancel triggers refund policy review (manual)                           |
+| Manage payments   | Verify bank-transfer payments (reference match), approve manual/partial refunds, settlement batches, reconciliation view      | Two-person rule for settlements `[V1.5]`; MVP single FINANCE_ADMIN with audit |
+| Manage customers  | Search, profile, verification status, flags, support notes; corporate KYC review                                              | PII masked by default                                                         |
+| Manage content    | Destinations, guides, banners, static pages (help/FAQ)                                                                        | Original-content policy enforced by checklist                                 |
+| Manage promotions | Coupon/campaign engine                                                                                                        | `[V1.5]`                                                                      |
+| Resolve disputes  | Case queue: evidence from both sides, decision (refund/compensation/reject), SLA 5 business days                              | Compensatory credits `[V1.5]`; every decision audited                         |
+| Reports           | Admin dashboards + CSV (§31)                                                                                                  | Export audit (who/when/rows)                                                  |
+| System settings   | Service lines, commission config, geo seeds, display-currency rate table, notification templates, feature flags, SLA defaults | Config changes audited; require SUPER_ADMIN                                   |
 
 ---
 
@@ -319,14 +319,14 @@ See §23 for the full flow.
 
 ### 10.1 Modes
 
-| | INSTANT | QUOTE | CUSTOM (Build-Your-Trip) |
-|---|---|---|---|
-| Trigger | Published price + availability | Price/availability on request, or customer needs flexibility | Wizard assembles multi-component trip |
-| Price source | Vendor-published pricing, locked at cart creation (15 min) | Vendor offer (versioned, valid 24–96h) | Per-component (instant components locked; quote components via offers) |
-| Payment timing | Before vendor confirmation (pay-first) | After offer acceptance | After consolidated offer acceptance (per-booking in MVP) |
-| Confirmation | Vendor confirms ≤12h (or auto-confirm policy) | Vendor confirms after payment | Per-vendor confirmations grouped under one trip |
-| Typical lines | Transfers, hotels, vehicles, fixed-departure tours/treks | Air tickets, custom departures, international, groups | Any mix |
-| Guest access | No (account required) | Yes | Account required (multi-step) |
+|                | INSTANT                                                    | QUOTE                                                        | CUSTOM (Build-Your-Trip)                                               |
+| -------------- | ---------------------------------------------------------- | ------------------------------------------------------------ | ---------------------------------------------------------------------- |
+| Trigger        | Published price + availability                             | Price/availability on request, or customer needs flexibility | Wizard assembles multi-component trip                                  |
+| Price source   | Vendor-published pricing, locked at cart creation (15 min) | Vendor offer (versioned, valid 24–96h)                       | Per-component (instant components locked; quote components via offers) |
+| Payment timing | Before vendor confirmation (pay-first)                     | After offer acceptance                                       | After consolidated offer acceptance (per-booking in MVP)               |
+| Confirmation   | Vendor confirms ≤12h (or auto-confirm policy)              | Vendor confirms after payment                                | Per-vendor confirmations grouped under one trip                        |
+| Typical lines  | Transfers, hotels, vehicles, fixed-departure tours/treks   | Air tickets, custom departures, international, groups        | Any mix                                                                |
+| Guest access   | No (account required)                                      | Yes                                                          | Account required (multi-step)                                          |
 
 ### 10.2 Trip grouping
 
@@ -366,14 +366,14 @@ stateDiagram-v2
 
 **Transition rules**
 
-| Rule | Text |
-|---|---|
-| BK-1 | Every transition is an idempotent command (idempotency key = actor+entity+action+clientKey), validated server-side, with allowed-actor check (customer / vendor / admin / system). |
-| BK-2 | Every transition writes an audit record: actor, role, from→to, reason code, context hash, timestamp (UTC). |
-| BK-3 | Customer-visible transitions always enqueue notifications (§18). |
-| BK-4 | `CANCELLED` always carries a reason code (`CUSTOMER_REQUEST, VENDOR_DECLINED, PAYMENT_EXPIRED, OFFER_EXPIRED, NO_RESPONSE_TIMEOUT, VENDOR_CANNOT_HONOR, ADMIN, SAFETY, NO_SHOW, SYSTEM`). |
-| BK-5 | Terminal states (`COMPLETED, CANCELLED→(REFUNDED when refund owed), REFUNDED, FAILED`) are immutable; corrections are admin-journal entries, never state rewrites. |
-| BK-6 | Partial refunds never change booking state; they are refund records on `CANCELLED`/`COMPLETED` bookings. `REFUNDED` = terminal only when the full paid amount is refunded after cancellation. |
+| Rule | Text                                                                                                                                                                                                    |
+| ---- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| BK-1 | Every transition is an idempotent command (idempotency key = actor+entity+action+clientKey), validated server-side, with allowed-actor check (customer / vendor / admin / system).                      |
+| BK-2 | Every transition writes an audit record: actor, role, from→to, reason code, context hash, timestamp (UTC).                                                                                              |
+| BK-3 | Customer-visible transitions always enqueue notifications (§18).                                                                                                                                        |
+| BK-4 | `CANCELLED` always carries a reason code (`CUSTOMER_REQUEST, VENDOR_DECLINED, PAYMENT_EXPIRED, OFFER_EXPIRED, NO_RESPONSE_TIMEOUT, VENDOR_CANNOT_HONOR, ADMIN, SAFETY, NO_SHOW, SYSTEM`).               |
+| BK-5 | Terminal states (`COMPLETED, CANCELLED→(REFUNDED when refund owed), REFUNDED, FAILED`) are immutable; corrections are admin-journal entries, never state rewrites.                                      |
+| BK-6 | Partial refunds never change booking state; they are refund records on `CANCELLED`/`COMPLETED` bookings. `REFUNDED` = terminal only when the full paid amount is refunded after cancellation.           |
 | BK-7 | Concurrency: availability decrements use optimistic locking/version check; on oversell the system must never silently succeed — it triggers vendor alert + compensating full-refund offer (§27.4/28.4). |
 
 ### 10.4 Offers (quote mode)
@@ -397,17 +397,17 @@ stateDiagram-v2
 
 ### 10.7 SLA & timing defaults (admin-configurable)
 
-| Parameter | Default |
-|---|---|
-| Draft auto-expire | 7 days |
-| Price lock (instant cart) | 15 minutes |
-| Quote response | 24h (vendor), quote closed 72h |
-| Offer validity | 48h (24–96h allowed) |
-| Payment session expiry (card/wallet) | 15 min + 3 retries |
-| Payment expiry (bank transfer, manual verify) | 48h → auto-cancel |
-| Vendor confirmation after payment | 12h |
-| Ticket issuance (air) | 24h |
-| Review window after completion | 365 days (Open Decision D8) |
+| Parameter                                     | Default                        |
+| --------------------------------------------- | ------------------------------ |
+| Draft auto-expire                             | 7 days                         |
+| Price lock (instant cart)                     | 15 minutes                     |
+| Quote response                                | 24h (vendor), quote closed 72h |
+| Offer validity                                | 48h (24–96h allowed)           |
+| Payment session expiry (card/wallet)          | 15 min + 3 retries             |
+| Payment expiry (bank transfer, manual verify) | 48h → auto-cancel              |
+| Vendor confirmation after payment             | 12h                            |
+| Ticket issuance (air)                         | 24h                            |
+| Review window after completion                | 365 days (Open Decision D8)    |
 
 ### 10.8 Party & traveler data
 
@@ -427,13 +427,13 @@ stateDiagram-v2
 
 ### 11.2 Price types
 
-| Type | Use |
-|---|---|
-| `FIXED` | Package price, transfer per-vehicle, custom offer total |
-| `PER_DAY` | Vehicle rental, some tours |
-| `PER_PERSON` | Tours, treks, experiences |
-| `PER_NIGHT` | Hotels (rate plan) |
-| `PER_ITEM` | Add-ons (child seat, extra permit fee, single supplement) |
+| Type         | Use                                                       |
+| ------------ | --------------------------------------------------------- |
+| `FIXED`      | Package price, transfer per-vehicle, custom offer total   |
+| `PER_DAY`    | Vehicle rental, some tours                                |
+| `PER_PERSON` | Tours, treks, experiences                                 |
+| `PER_NIGHT`  | Hotels (rate plan)                                        |
+| `PER_ITEM`   | Add-ons (child seat, extra permit fee, single supplement) |
 
 ### 11.3 Price components (checkout breakdown, always itemized)
 
@@ -457,13 +457,13 @@ stateDiagram-v2
 
 ### 11.6 Edge cases
 
-| Edge | Rule |
-|---|---|
-| Surcharge calendar overlap | Highest applicable wins; both shown itemized |
-| Long-stay (hotel >30n, vehicle >7d) | Vendor may define long-stay rates; else linear (no invented discount) |
-| Child pricing missing for a line | Block per-person cart completion until vendor sets bands (validation) |
-| Display-currency rounding | Round display only; charge always in NPR (or provider card currency with disclosed FX — §19.5) |
-| Peak-date selection after off-peak quote | Re-quote required; delta shown explicitly |
+| Edge                                     | Rule                                                                                           |
+| ---------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| Surcharge calendar overlap               | Highest applicable wins; both shown itemized                                                   |
+| Long-stay (hotel >30n, vehicle >7d)      | Vendor may define long-stay rates; else linear (no invented discount)                          |
+| Child pricing missing for a line         | Block per-person cart completion until vendor sets bands (validation)                          |
+| Display-currency rounding                | Round display only; charge always in NPR (or provider card currency with disclosed FX — §19.5) |
+| Peak-date selection after off-peak quote | Re-quote required; delta shown explicitly                                                      |
 
 ---
 
@@ -474,14 +474,14 @@ stateDiagram-v2
 - CM-01 Commission = configured **% of (customer-paid amount − platform-collected taxes)**, per service line. Record computed once at successful payment, written to ledger. Never recomputed later.
 - CM-02 Seed proposal (admin-configurable; **final values = Open Decision D3**):
 
-| Line | Proposed commission |
-|---|---|
-| Tours / Treks / Packages / Family / Corporate | 10% |
-| Hotels | 10% |
-| Transfers / Tourist transport | 8% |
-| Vehicle rental | 8% |
-| Air ticketing (agency) | 3% |
-| International travel (agency) | 5% |
+| Line                                          | Proposed commission |
+| --------------------------------------------- | ------------------- |
+| Tours / Treks / Packages / Family / Corporate | 10%                 |
+| Hotels                                        | 10%                 |
+| Transfers / Tourist transport                 | 8%                  |
+| Vehicle rental                                | 8%                  |
+| Air ticketing (agency)                        | 3%                  |
+| International travel (agency)                 | 5%                  |
 
 - CM-03 Customer-side fees: none in MVP (§11.5 PR-05).
 - CM-04 Commission on quote bookings uses the **accepted offer** amount. Custom trip: per-item booking, per-line rate.
@@ -505,13 +505,13 @@ stateDiagram-v2
 
 ### 12.4 Edge cases
 
-| Edge | Rule |
-|---|---|
-| Discounted booking (V1.5) | Commission on actual customer-paid amount |
-| Platform-funded campaign discount | Platform absorbs; vendor paid on net customer-paid; commission recomputed on net (recorded at campaign config, not at payment drift) |
-| Vendor-initiated full refund | Commission reversed; vendor revenue −0 |
-| Multi-line one vendor (custom trip) | Each item booking carries its own line's rate |
-| FX display vs settlement | Settlement always NPR (MVP); reports show NPR |
+| Edge                                | Rule                                                                                                                                 |
+| ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| Discounted booking (V1.5)           | Commission on actual customer-paid amount                                                                                            |
+| Platform-funded campaign discount   | Platform absorbs; vendor paid on net customer-paid; commission recomputed on net (recorded at campaign config, not at payment drift) |
+| Vendor-initiated full refund        | Commission reversed; vendor revenue −0                                                                                               |
+| Multi-line one vendor (custom trip) | Each item booking carries its own line's rate                                                                                        |
+| FX display vs settlement            | Settlement always NPR (MVP); reports show NPR                                                                                        |
 
 ---
 
@@ -530,12 +530,12 @@ stateDiagram-v2
 
 ### 13.2 Actors & rights
 
-| Actor | Right | Rules |
-|---|---|---|
-| Customer | Cancel any non-terminal booking | Charge per policy; refund auto-created if owed (original method); confirm + audit + notify |
-| Vendor | Decline unaccepted quotes; cancel paid bookings | Post-payment vendor cancel = **vendor-fault**: full refund regardless of policy, metrics impact, admin case (BK/§10.5) |
-| Admin | Force-cancel any booking | Mandatory reason; refund decision manual (can exceed policy for customer good); full audit |
-| System | Auto-cancel on: draft expiry, payment expiry, offer expiry, no-response timeout | Reason codes set; refunds auto (owed = full, pre-delivery) |
+| Actor    | Right                                                                           | Rules                                                                                                                  |
+| -------- | ------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| Customer | Cancel any non-terminal booking                                                 | Charge per policy; refund auto-created if owed (original method); confirm + audit + notify                             |
+| Vendor   | Decline unaccepted quotes; cancel paid bookings                                 | Post-payment vendor cancel = **vendor-fault**: full refund regardless of policy, metrics impact, admin case (BK/§10.5) |
+| Admin    | Force-cancel any booking                                                        | Mandatory reason; refund decision manual (can exceed policy for customer good); full audit                             |
+| System   | Auto-cancel on: draft expiry, payment expiry, offer expiry, no-response timeout | Reason codes set; refunds auto (owed = full, pre-delivery)                                                             |
 
 ### 13.3 Special cases
 
@@ -547,12 +547,12 @@ stateDiagram-v2
 
 ### 13.4 Effects & edge cases
 
-| Edge | Rule |
-|---|---|
-| Cancel while refund already processing | Second cancel rejected (idempotent no-op, state already `CANCELLED`) |
-| Cancel on `PAID` before vendor confirm | Full refund auto (policy tier = FREE pre-confirmation) |
-| Cancellation at service start moment | Vendor confirms actual start time; boundary uses confirmed time |
-| Vendor cancels, customer wants alternate | Trip desk offers substitutes (manual, logged) |
+| Edge                                           | Rule                                                                                                  |
+| ---------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| Cancel while refund already processing         | Second cancel rejected (idempotent no-op, state already `CANCELLED`)                                  |
+| Cancel on `PAID` before vendor confirm         | Full refund auto (policy tier = FREE pre-confirmation)                                                |
+| Cancellation at service start moment           | Vendor confirms actual start time; boundary uses confirmed time                                       |
+| Vendor cancels, customer wants alternate       | Trip desk offers substitutes (manual, logged)                                                         |
 | Payment method dead (wallet closed) for refund | Refund via admin-selected fallback (bank transfer to verified account) — recorded, customer-consented |
 
 ---
@@ -576,25 +576,25 @@ Fields: amount (minor units + currency), reason code, policy reference, origin (
 
 ### 14.3 Provider capability table (to be finalized at provider selection — Dependency C-1)
 
-| Method | Auto-refund expected | Manual fallback |
-|---|---|---|
-| eSewa / Khalti (candidate wallets) | Confirm during integration | Bank transfer |
-| Domestic cards via NCH (candidate) | Confirm during integration | Bank transfer |
-| International cards (partner acquirer — Dependency C-2) | Confirm | Bank transfer / provider dispute |
-| Bank transfer (inbound) | n/a (manual) | Manual transfer |
+| Method                                                  | Auto-refund expected       | Manual fallback                  |
+| ------------------------------------------------------- | -------------------------- | -------------------------------- |
+| eSewa / Khalti (candidate wallets)                      | Confirm during integration | Bank transfer                    |
+| Domestic cards via NCH (candidate)                      | Confirm during integration | Bank transfer                    |
+| International cards (partner acquirer — Dependency C-2) | Confirm                    | Bank transfer / provider dispute |
+| Bank transfer (inbound)                                 | n/a (manual)               | Manual transfer                  |
 
 > GC-2: exact capabilities, limits, and timelines are verified in sandbox before launch; UI copy is generated from the verified capability matrix, not assumptions.
 
 ### 14.4 Edge cases
 
-| Edge | Rule |
-|---|---|
-| Refund after vendor already settled | Clawback from next settlement (§12.3) |
-| Double partial refund attempt | Server cap (paid − refunded); UI + API both enforce |
-| Refund currency | Always original payment currency |
-| Chargeback vs platform refund race | Provider webhook for chargeback freezes further auto-refunds on that charge; admin resolves |
-| Vendor-suspended with pending refunds | Refunds proceed (customer protection); vendor debt handled separately |
-| Customer changes refund details mid-flight | Frozen at `APPROVED`; changes = new request |
+| Edge                                       | Rule                                                                                        |
+| ------------------------------------------ | ------------------------------------------------------------------------------------------- |
+| Refund after vendor already settled        | Clawback from next settlement (§12.3)                                                       |
+| Double partial refund attempt              | Server cap (paid − refunded); UI + API both enforce                                         |
+| Refund currency                            | Always original payment currency                                                            |
+| Chargeback vs platform refund race         | Provider webhook for chargeback freezes further auto-refunds on that charge; admin resolves |
+| Vendor-suspended with pending refunds      | Refunds proceed (customer protection); vendor debt handled separately                       |
+| Customer changes refund details mid-flight | Frozen at `APPROVED`; changes = new request                                                 |
 
 ---
 
@@ -612,12 +612,12 @@ Fields: amount (minor units + currency), reason code, policy reference, origin (
 
 ### 15.3 Admin workflow
 
-| Step | Behavior |
-|---|---|
-| Queue | SLA countdown (3 business days target), priority (launch-critical lines first), filterable |
-| Review | Document checklist per line (config), business-registry cross-check (manual, e.g., PAN verification via official portal — human, not OCR), references/contact sanity |
-| Decision | Approve (select lines) / Reject (mandatory reason, customer-facing summary) / Request more info (vendor notified; 7-day response window, else auto-close as REJECTED) |
-| Effects | Approve: portal live, services publishable, payout account enabled. Suspend: new bookings blocked, in-flight bookings continue, notice + appeal path, immediate or scheduled |
+| Step     | Behavior                                                                                                                                                                     |
+| -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Queue    | SLA countdown (3 business days target), priority (launch-critical lines first), filterable                                                                                   |
+| Review   | Document checklist per line (config), business-registry cross-check (manual, e.g., PAN verification via official portal — human, not OCR), references/contact sanity         |
+| Decision | Approve (select lines) / Reject (mandatory reason, customer-facing summary) / Request more info (vendor notified; 7-day response window, else auto-close as REJECTED)        |
+| Effects  | Approve: portal live, services publishable, payout account enabled. Suspend: new bookings blocked, in-flight bookings continue, notice + appeal path, immediate or scheduled |
 
 ### 15.4 Integrity rules
 
@@ -629,13 +629,13 @@ Fields: amount (minor units + currency), reason code, policy reference, origin (
 
 ### 15.5 Edge cases
 
-| Edge | Rule |
-|---|---|
-| Suspend one line of a multi-line vendor | Only that line blocked; others unaffected |
-| Documents expire mid-peak-season | Grace period 7 days (admin-set) with daily flags |
-| Vendor disputes suspension | Appeal → SUPER_ADMIN review, 5 business day target |
+| Edge                                          | Rule                                                    |
+| --------------------------------------------- | ------------------------------------------------------- |
+| Suspend one line of a multi-line vendor       | Only that line blocked; others unaffected               |
+| Documents expire mid-peak-season              | Grace period 7 days (admin-set) with daily flags        |
+| Vendor disputes suspension                    | Appeal → SUPER_ADMIN review, 5 business day target      |
 | Duplicate vendor (same business, new account) | Second account blocked on match; admin merges/keeps one |
-| Payout details changed fraudulently | Change is inert until admin re-verification (VA-07) |
+| Payout details changed fraudulently           | Change is inert until admin re-verification (VA-07)     |
 
 ---
 
@@ -643,24 +643,24 @@ Fields: amount (minor units + currency), reason code, policy reference, origin (
 
 ### 16.1 Levels
 
-| Level | Requires | Unlocks |
-|---|---|---|
-| `UNVERIFIED` (new) | — | Browse, guest quote submit |
-| `EMAIL_VERIFIED` `[MVP baseline]` | Email OTP confirmation | Full account, instant booking, wishlist, reviews (on completion) |
-| `PHONE_VERIFIED` `[V1.5]` | Phone OTP (E.164, intl codes) | Optional MFA, faster support verification, SMS channel |
-| `CORPORATE_VERIFIED` | Org account + business docs + admin review | Corporate features (§24) |
+| Level                             | Requires                                   | Unlocks                                                          |
+| --------------------------------- | ------------------------------------------ | ---------------------------------------------------------------- |
+| `UNVERIFIED` (new)                | —                                          | Browse, guest quote submit                                       |
+| `EMAIL_VERIFIED` `[MVP baseline]` | Email OTP confirmation                     | Full account, instant booking, wishlist, reviews (on completion) |
+| `PHONE_VERIFIED` `[V1.5]`         | Phone OTP (E.164, intl codes)              | Optional MFA, faster support verification, SMS channel           |
+| `CORPORATE_VERIFIED`              | Org account + business docs + admin review | Corporate features (§24)                                         |
 
 ### 16.2 Gates (MVP)
 
-| Action | Minimum |
-|---|---|
-| Browse/search/detail | none |
-| Quote request (guest) | valid contact (email or phone, no account) |
-| Instant booking | account + `EMAIL_VERIFIED` + payment |
-| Wishlist/compare persist | account |
-| Review | account owning a `COMPLETED` eligible booking (§17) |
-| Corporate booking | org roles + `CORPORATE_VERIFIED` |
-| Support identity check | account credentials + email/phone confirmation |
+| Action                   | Minimum                                             |
+| ------------------------ | --------------------------------------------------- |
+| Browse/search/detail     | none                                                |
+| Quote request (guest)    | valid contact (email or phone, no account)          |
+| Instant booking          | account + `EMAIL_VERIFIED` + payment                |
+| Wishlist/compare persist | account                                             |
+| Review                   | account owning a `COMPLETED` eligible booking (§17) |
+| Corporate booking        | org roles + `CORPORATE_VERIFIED`                    |
+| Support identity check   | account credentials + email/phone confirmation      |
 
 ### 16.3 Rules
 
@@ -674,12 +674,12 @@ Fields: amount (minor units + currency), reason code, policy reference, origin (
 
 ### 16.4 Edge cases
 
-| Edge | Rule |
-|---|---|
-| Booker ≠ traveler (corporate/family) | Travelers added by booker; no per-traveler accounts (MVP) |
-| Email change | Re-verification of new email; old address retains history |
-| OTP spam / SIM farming | Rate limits + anomaly flag (velocity); manual unblock via support |
-| International customer with no NP phone | Fully supported from day 1 (no NP-only validation) |
+| Edge                                                      | Rule                                                                                                                   |
+| --------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| Booker ≠ traveler (corporate/family)                      | Travelers added by booker; no per-traveler accounts (MVP)                                                              |
+| Email change                                              | Re-verification of new email; old address retains history                                                              |
+| OTP spam / SIM farming                                    | Rate limits + anomaly flag (velocity); manual unblock via support                                                      |
+| International customer with no NP phone                   | Fully supported from day 1 (no NP-only validation)                                                                     |
 | Account email verified but card/wallet belongs to another | Accepted risk MVP (wallet login itself is a strong factor); flagged for V2 (provider 3DS-like signals where available) |
 
 ---
@@ -703,6 +703,7 @@ Fields: amount (minor units + currency), reason code, policy reference, origin (
 ### 17.3 Moderation pipeline
 
 `PENDING_MODERATION → VISIBLE | REJECTED`
+
 - Auto-hold heuristics (MVP): profanity list, external links, near-duplicate text (basic similarity), PII patterns (phone/email in text).
 - Admin actions: approve / reject (mandatory reason) / remove-visible (reason); all audited.
 - Vendor replies: one per review, editable (change history kept), subject to same heuristics.
@@ -715,12 +716,12 @@ Fields: amount (minor units + currency), reason code, policy reference, origin (
 
 ### 17.5 Edge cases
 
-| Edge | Rule |
-|---|---|
-| Review after partial refund of item | Item completed ⇒ reviewable (policy CN-07/V1.5 nuance documented) |
-| Review text contains another customer's PII | Heuristic hold + admin redact |
-| Vendor reply after review rejected | Blocked (no replies on non-visible) |
-| Photo contains other persons | Vendor/customer responsibility; takedown path via support (abuse flow) |
+| Edge                                          | Rule                                                                                      |
+| --------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| Review after partial refund of item           | Item completed ⇒ reviewable (policy CN-07/V1.5 nuance documented)                         |
+| Review text contains another customer's PII   | Heuristic hold + admin redact                                                             |
+| Vendor reply after review rejected            | Blocked (no replies on non-visible)                                                       |
+| Photo contains other persons                  | Vendor/customer responsibility; takedown path via support (abuse flow)                    |
 | Same customer, multiple bookings same service | Multiple verified reviews allowed (each booking distinct) — histogram reflects recurrence |
 
 ---
@@ -729,36 +730,36 @@ Fields: amount (minor units + currency), reason code, policy reference, origin (
 
 ### 18.1 Channels
 
-| Channel | Version | Provider (decision) |
-|---|---|---|
-| In-app (web) | MVP | Built-in (notification center, unread count) |
-| Email (transactional + non-transactional) | MVP | Provider to be selected (e.g., transactional email service) — Dependency C-3 |
-| SMS (+977 first, intl later) | V1.5 | Provider decision (e.g., local aggregator) — Dependency C-4 |
-| WhatsApp (business) | V1.5 | Official Business API via BSP — provider decision; **no unofficial API** |
-| Push (PWA → app) | V2 | Web push MVP-optional; app push V2 |
+| Channel                                   | Version | Provider (decision)                                                          |
+| ----------------------------------------- | ------- | ---------------------------------------------------------------------------- |
+| In-app (web)                              | MVP     | Built-in (notification center, unread count)                                 |
+| Email (transactional + non-transactional) | MVP     | Provider to be selected (e.g., transactional email service) — Dependency C-3 |
+| SMS (+977 first, intl later)              | V1.5    | Provider decision (e.g., local aggregator) — Dependency C-4                  |
+| WhatsApp (business)                       | V1.5    | Official Business API via BSP — provider decision; **no unofficial API**     |
+| Push (PWA → app)                          | V2      | Web push MVP-optional; app push V2                                           |
 
 ### 18.2 Event catalog (MVP core set)
 
-| Event | Recipient(s) | Channel |
-|---|---|---|
-| Account created / email verification code / reset code | Customer | Email (+in-app) |
-| Vendor submitted / info requested / approved / rejected / suspended | Vendor (+admin ack) | Email + in-app |
-| Quote request received | Vendor | Email + in-app (+admin if stale) |
-| Offer submitted / revised / withdrawn | Customer | Email + in-app |
-| Offer expired | Customer | Email + in-app |
-| Payment pending (bank transfer) / payment link due | Customer (+admin) | Email + in-app |
-| Payment succeeded / failed | Customer (+vendor on success) | Email + in-app |
-| Booking confirmed (voucher + contacts) | Customer (+vendor) | Email + in-app |
-| Booking cancelled (any actor) + refund created/processed/completed | Customer (+vendor/admin) | Email + in-app |
-| Vendor decline after payment (fault) | Customer (+admin) | Email + in-app |
-| Service start / completed | Customer (+vendor) | In-app (+email) |
-| Review invitation | Customer | Email + in-app |
-| Review posted / vendor reply | Customer (+vendor) | In-app (+email) |
-| Dispute opened / decision | Customer, vendor | Email + in-app |
-| SLA breach alerts (quote, confirm, ticket issuance) | Vendor (+admin) | In-app + email |
-| Webhook/queue/health incidents | Admin | Email |
-| Document expiry warnings (T-30/T-7) | Vendor (+admin) | In-app + email |
-| Corporate: approval requested / decision | Approver, booker | In-app + email |
+| Event                                                               | Recipient(s)                  | Channel                          |
+| ------------------------------------------------------------------- | ----------------------------- | -------------------------------- |
+| Account created / email verification code / reset code              | Customer                      | Email (+in-app)                  |
+| Vendor submitted / info requested / approved / rejected / suspended | Vendor (+admin ack)           | Email + in-app                   |
+| Quote request received                                              | Vendor                        | Email + in-app (+admin if stale) |
+| Offer submitted / revised / withdrawn                               | Customer                      | Email + in-app                   |
+| Offer expired                                                       | Customer                      | Email + in-app                   |
+| Payment pending (bank transfer) / payment link due                  | Customer (+admin)             | Email + in-app                   |
+| Payment succeeded / failed                                          | Customer (+vendor on success) | Email + in-app                   |
+| Booking confirmed (voucher + contacts)                              | Customer (+vendor)            | Email + in-app                   |
+| Booking cancelled (any actor) + refund created/processed/completed  | Customer (+vendor/admin)      | Email + in-app                   |
+| Vendor decline after payment (fault)                                | Customer (+admin)             | Email + in-app                   |
+| Service start / completed                                           | Customer (+vendor)            | In-app (+email)                  |
+| Review invitation                                                   | Customer                      | Email + in-app                   |
+| Review posted / vendor reply                                        | Customer (+vendor)            | In-app (+email)                  |
+| Dispute opened / decision                                           | Customer, vendor              | Email + in-app                   |
+| SLA breach alerts (quote, confirm, ticket issuance)                 | Vendor (+admin)               | In-app + email                   |
+| Webhook/queue/health incidents                                      | Admin                         | Email                            |
+| Document expiry warnings (T-30/T-7)                                 | Vendor (+admin)               | In-app + email                   |
+| Corporate: approval requested / decision                            | Approver, booker              | In-app + email                   |
 
 ### 18.3 Infrastructure rules
 
@@ -772,13 +773,13 @@ Fields: amount (minor units + currency), reason code, policy reference, origin (
 
 ### 18.4 Edge cases
 
-| Edge | Rule |
-|---|---|
-| Customer preference off + critical state change | Transactional state changes always delivered (policy class, not preference class) |
-| Vendor stale quote (no offer 24h) | Escalation notification to trip desk; customer reassurance at 24h (no spam before) |
-| Duplicate webhook-driven events | Idempotency key suppresses duplicate notification |
-| International recipient, local SMS provider | Fallback to email + in-app (SMS intl `[V1.5]`) |
-| Vendor email bounce | Account flagged; phone/in-app emphasized; 2 consecutive bounces ⇒ vendor alert to complete contact update |
+| Edge                                            | Rule                                                                                                      |
+| ----------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| Customer preference off + critical state change | Transactional state changes always delivered (policy class, not preference class)                         |
+| Vendor stale quote (no offer 24h)               | Escalation notification to trip desk; customer reassurance at 24h (no spam before)                        |
+| Duplicate webhook-driven events                 | Idempotency key suppresses duplicate notification                                                         |
+| International recipient, local SMS provider     | Fallback to email + in-app (SMS intl `[V1.5]`)                                                            |
+| Vendor email bounce                             | Account flagged; phone/in-app emphasized; 2 consecutive bounces ⇒ vendor alert to complete contact update |
 
 ---
 
@@ -799,13 +800,13 @@ Fields: amount (minor units + currency), reason code, policy reference, origin (
 
 ### 19.3 Payment methods (MVP target — final at provider selection, Dependencies C-1/C-2)
 
-| Method | Audience | Flow | Status |
-|---|---|---|---|
-| Domestic wallets (eSewa, Khalti — candidates) | NP customers | Provider redirect/QR | MVP (verify sandbox) |
-| Domestic cards via NCH ecosystem (ConnectIPS/ConnectIPSe — candidates) | NP customers | Provider redirect/3DS | MVP (verify sandbox) |
-| International cards | Intl customers | Partner acquirer / foreign-entity route (**Decision D2 — see risk R-2**) | MVP **if** path validated; else launch gap surfaced honestly |
-| Bank transfer (manual) | All (corporate esp.) | Customer transfers with booking reference; FINANCE_ADMIN verifies (reference + amount match) → `SUCCEEDED`; 48h expiry → auto-cancel | MVP |
-| Vendor-collected | Limited: self-drive deposits (MVP exception §28), then general `[V1.5]` | Vendor attests (amount/method/time on booking); sampled audit; disputes resolved via cases | MVP-narrow → V1.5 |
+| Method                                                                 | Audience                                                                | Flow                                                                                                                                 | Status                                                       |
+| ---------------------------------------------------------------------- | ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------ |
+| Domestic wallets (eSewa, Khalti — candidates)                          | NP customers                                                            | Provider redirect/QR                                                                                                                 | MVP (verify sandbox)                                         |
+| Domestic cards via NCH ecosystem (ConnectIPS/ConnectIPSe — candidates) | NP customers                                                            | Provider redirect/3DS                                                                                                                | MVP (verify sandbox)                                         |
+| International cards                                                    | Intl customers                                                          | Partner acquirer / foreign-entity route (**Decision D2 — see risk R-2**)                                                             | MVP **if** path validated; else launch gap surfaced honestly |
+| Bank transfer (manual)                                                 | All (corporate esp.)                                                    | Customer transfers with booking reference; FINANCE_ADMIN verifies (reference + amount match) → `SUCCEEDED`; 48h expiry → auto-cancel | MVP                                                          |
+| Vendor-collected                                                       | Limited: self-drive deposits (MVP exception §28), then general `[V1.5]` | Vendor attests (amount/method/time on booking); sampled audit; disputes resolved via cases                                           | MVP-narrow → V1.5                                            |
 
 ### 19.4 Flow & failure handling
 
@@ -831,15 +832,15 @@ Fields: amount (minor units + currency), reason code, policy reference, origin (
 
 ### 19.7 Edge cases
 
-| Edge | Rule |
-|---|---|
-| Webhook replay after 48h | Rejected by seen-store; logged |
-| Provider reports success, ledger mismatch (amount) | Booking stays AWAITING_PAYMENT; admin + provider escalation; no partial credit |
-| Customer paid, provider auto-refund (their side) before webhook | Webhook refund event handled → our refund record (RF consistency) |
-| Bank transfer with split payments | Reject (single reference rule, documented in UI) |
-| Duplicate bank reference | Second verify attempt blocked (idempotent) |
-| Payment succeeds after booking auto-cancelled (race) | Refund auto-initiated (admin-visible) — customer never owes |
-| Card charged in USD, platform in NPR | Ledger stores both (charged amount/currency + NPR equivalent at provider rate) |
+| Edge                                                            | Rule                                                                           |
+| --------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| Webhook replay after 48h                                        | Rejected by seen-store; logged                                                 |
+| Provider reports success, ledger mismatch (amount)              | Booking stays AWAITING_PAYMENT; admin + provider escalation; no partial credit |
+| Customer paid, provider auto-refund (their side) before webhook | Webhook refund event handled → our refund record (RF consistency)              |
+| Bank transfer with split payments                               | Reject (single reference rule, documented in UI)                               |
+| Duplicate bank reference                                        | Second verify attempt blocked (idempotent)                                     |
+| Payment succeeds after booking auto-cancelled (race)            | Refund auto-initiated (admin-visible) — customer never owes                    |
+| Card charged in USD, platform in NPR                            | Ledger stores both (charged amount/currency + NPR equivalent at provider rate) |
 
 ---
 
@@ -874,13 +875,13 @@ Fields: amount (minor units + currency), reason code, policy reference, origin (
 
 ### 20.5 Edge cases
 
-| Edge | Rule |
-|---|---|
-| Query spans categories ("hotel pokhara" on trek page) | Global search across lines; category pinned in URL |
-| No results | Suggested destinations/typos + popular fallback (never fake results) |
-| Date filter excludes all of a popular service | Show "N dates available this month" hint `[V1.5]`; MVP: "No availability — request quote" CTA |
-| Vendor mass-publishes (index spike) | Batch reindex with rate limit; stale-while-revalidate |
-| Long tail Nepali spellings | Trigram + admin alias table (e.g., "phewa" ↔ "Phewa Lake") |
+| Edge                                                  | Rule                                                                                          |
+| ----------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| Query spans categories ("hotel pokhara" on trek page) | Global search across lines; category pinned in URL                                            |
+| No results                                            | Suggested destinations/typos + popular fallback (never fake results)                          |
+| Date filter excludes all of a popular service         | Show "N dates available this month" hint `[V1.5]`; MVP: "No availability — request quote" CTA |
+| Vendor mass-publishes (index spike)                   | Batch reindex with rate limit; stale-while-revalidate                                         |
+| Long tail Nepali spellings                            | Trigram + admin alias table (e.g., "phewa" ↔ "Phewa Lake")                                    |
 
 ---
 
@@ -892,14 +893,14 @@ Destination (geo tree: country → state/province → district → city; multi-s
 
 ### 21.2 Per-line filters `[MVP]`
 
-| Line | Filters |
-|---|---|
-| Hotel | star band (vendor-declared), meal plan, room capacity (adults/children), bed type, amenities (Wi-Fi, pool, parking, breakfast — vendor-declared) |
-| Vehicle | vehicle class (sedan/SUV/jeep/bus…), seats, fuel, with-driver/self-drive, AC |
-| Transfer | origin/destination (route endpoints incl. airports), time-of-day band, vehicle class, private |
-| Tour/Trek | duration (days/nights), difficulty (trek 1–5), group size fit, permits included, season tag, departure type (fixed/custom), private/group |
-| Package/Family/Corporate | duration, budget band (displayed "from" only), style tags (family, adventure, cultural) |
-| Air ticket | route, dates, direction (one-way/round), cabin preference, pax |
+| Line                     | Filters                                                                                                                                          |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Hotel                    | star band (vendor-declared), meal plan, room capacity (adults/children), bed type, amenities (Wi-Fi, pool, parking, breakfast — vendor-declared) |
+| Vehicle                  | vehicle class (sedan/SUV/jeep/bus…), seats, fuel, with-driver/self-drive, AC                                                                     |
+| Transfer                 | origin/destination (route endpoints incl. airports), time-of-day band, vehicle class, private                                                    |
+| Tour/Trek                | duration (days/nights), difficulty (trek 1–5), group size fit, permits included, season tag, departure type (fixed/custom), private/group        |
+| Package/Family/Corporate | duration, budget band (displayed "from" only), style tags (family, adventure, cultural)                                                          |
+| Air ticket               | route, dates, direction (one-way/round), cabin preference, pax                                                                                   |
 
 ### 21.3 UX & state
 
@@ -910,12 +911,12 @@ Destination (geo tree: country → state/province → district → city; multi-s
 
 ### 21.4 Edge cases
 
-| Edge | Rule |
-|---|---|
-| Filter value vendor-declared but stale | Displayed "as vendor-reported"; admin curation fixes (content ops) |
-| Empty result after filters | Progressive-relaxation suggestions (drop date → then price band), explicit, not automatic |
-| Multi-destination (itinerary) search | MVP: per-destination results; itinerary-aware ranking `[V1.5]` |
-| Party size 0 children edge | Validated (children ≥ 0, adults ≥ 1 per line rules) |
+| Edge                                   | Rule                                                                                      |
+| -------------------------------------- | ----------------------------------------------------------------------------------------- |
+| Filter value vendor-declared but stale | Displayed "as vendor-reported"; admin curation fixes (content ops)                        |
+| Empty result after filters             | Progressive-relaxation suggestions (drop date → then price band), explicit, not automatic |
+| Multi-destination (itinerary) search   | MVP: per-destination results; itinerary-aware ranking `[V1.5]`                            |
+| Party size 0 children edge             | Validated (children ≥ 0, adults ≥ 1 per line rules)                                       |
 
 ---
 
@@ -927,13 +928,13 @@ Destination (geo tree: country → state/province → district → city; multi-s
 
 ### 22.2 Spec
 
-| Item | MVP | V1.5 |
-|---|---|---|
-| Wishlist (auth) | Add/remove, order, cap 200, cross-device | Notes, shareable read-only expiring link |
-| Guest wishlist | Session-only, merge-on-login | — |
-| Price-change alert | — | On vendor price drop ≥ threshold, per-item opt-in (email) |
-| Compare | ≤4 items, per-line attribute table, side-by-side, "book" CTA | Print/share, availability check |
-| Cleanup | Auto-hide suspended/retired items (marked unavailable) | Purge job |
+| Item               | MVP                                                          | V1.5                                                      |
+| ------------------ | ------------------------------------------------------------ | --------------------------------------------------------- |
+| Wishlist (auth)    | Add/remove, order, cap 200, cross-device                     | Notes, shareable read-only expiring link                  |
+| Guest wishlist     | Session-only, merge-on-login                                 | —                                                         |
+| Price-change alert | —                                                            | On vendor price drop ≥ threshold, per-item opt-in (email) |
+| Compare            | ≤4 items, per-line attribute table, side-by-side, "book" CTA | Print/share, availability check                           |
+| Cleanup            | Auto-hide suspended/retired items (marked unavailable)       | Purge job                                                 |
 
 ### 22.3 Rules & edge cases
 
@@ -973,15 +974,15 @@ Destination (geo tree: country → state/province → district → city; multi-s
 
 ### 23.4 Edge cases
 
-| Edge | Rule |
-|---|---|
-| Vendor conflict of interest (vendor offers two components) | Allowed (CT-05); disclosed in breakdown |
-| Customer abandons wizard | Draft 7-day expiry; resume link via email `[V1.5]` |
-| Party size changes post-acceptance | Affects per-person items ⇒ re-quote (price delta shown) |
-| Two components same vendor, one confirmed, other declined | Independent outcomes; customer notified per item |
-| FX display for intl customer | All ≈ labels; NPR exact everywhere |
-| Impossible dates (past) | Wizard validation (from ≥ today) |
-| Vendor goes silent | 24h nudge → 48h trip-desk manual sourcing → customer notified with ETA |
+| Edge                                                       | Rule                                                                   |
+| ---------------------------------------------------------- | ---------------------------------------------------------------------- |
+| Vendor conflict of interest (vendor offers two components) | Allowed (CT-05); disclosed in breakdown                                |
+| Customer abandons wizard                                   | Draft 7-day expiry; resume link via email `[V1.5]`                     |
+| Party size changes post-acceptance                         | Affects per-person items ⇒ re-quote (price delta shown)                |
+| Two components same vendor, one confirmed, other declined  | Independent outcomes; customer notified per item                       |
+| FX display for intl customer                               | All ≈ labels; NPR exact everywhere                                     |
+| Impossible dates (past)                                    | Wizard validation (from ≥ today)                                       |
+| Vendor goes silent                                         | 24h nudge → 48h trip-desk manual sourcing → customer notified with ETA |
 
 ---
 
@@ -989,13 +990,13 @@ Destination (geo tree: country → state/province → district → city; multi-s
 
 ### 24.1 Scope split
 
-| Capability | Version |
-|---|---|
-| Org account, roles (OWNER / APPROVER / BOOKER / VIEWER), member management | MVP |
-| Approval workflow (booking requires approval before payment) | MVP |
-| Spend policy (per-traveler caps per line per month; class caps; advance-booking window) | MVP (basic rules) |
-| Consolidated monthly invoice + org payment methods | V1.5 (MVP: per-booking payment + monthly statement CSV) |
-| Traveler expense reports, dashboards, SSO, preferred vendors, dedicated AM | V2 |
+| Capability                                                                              | Version                                                 |
+| --------------------------------------------------------------------------------------- | ------------------------------------------------------- |
+| Org account, roles (OWNER / APPROVER / BOOKER / VIEWER), member management              | MVP                                                     |
+| Approval workflow (booking requires approval before payment)                            | MVP                                                     |
+| Spend policy (per-traveler caps per line per month; class caps; advance-booking window) | MVP (basic rules)                                       |
+| Consolidated monthly invoice + org payment methods                                      | V1.5 (MVP: per-booking payment + monthly statement CSV) |
+| Traveler expense reports, dashboards, SSO, preferred vendors, dedicated AM              | V2                                                      |
 
 ### 24.2 Rules
 
@@ -1010,13 +1011,13 @@ Destination (geo tree: country → state/province → district → city; multi-s
 
 ### 24.3 Edge cases
 
-| Edge | Rule |
-|---|---|
-| Approver = booker (self-approval) | Config option "require second approver for self-bookings" (default on) |
-| Traveler departs org mid-booking | Booking unaffected; future approvals stop |
-| Cap reset timing | Calendar month in org timezone |
-| Approved booking, price changes at payment | Re-approval if delta > threshold (org-config, default 10%) |
-| Org card declined | Booker notified; re-approval not required (same price) |
+| Edge                                       | Rule                                                                   |
+| ------------------------------------------ | ---------------------------------------------------------------------- |
+| Approver = booker (self-approval)          | Config option "require second approver for self-bookings" (default on) |
+| Traveler departs org mid-booking           | Booking unaffected; future approvals stop                              |
+| Cap reset timing                           | Calendar month in org timezone                                         |
+| Approved booking, price changes at payment | Re-approval if delta > threshold (org-config, default 10%)             |
+| Org card declined                          | Booker notified; re-approval not required (same price)                 |
 
 ---
 
@@ -1024,12 +1025,12 @@ Destination (geo tree: country → state/province → district → city; multi-s
 
 ### 25.1 Phasing & capability honesty
 
-| Version | What exists |
-|---|---|
-| MVP | **No LLM.** Build-Your-Trip (§23) + curated content + rule-based suggestions is the planner. |
-| V1.5 | Rule-based "smart suggestions": popular-combo ranking, budget-fit scoring, similar-trip discovery — all computed from catalog data (no model calls). |
-| V2 | LLM-assisted planner (chat) — **conditional on provider selection** (Dependency C-9). No invented capabilities (GC-2): if no acceptable provider, feature defers. |
-| FUT | Agentic booking (autonomous multi-step with payments) — separate PRD, requires deeper trust/audit work. |
+| Version | What exists                                                                                                                                                       |
+| ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| MVP     | **No LLM.** Build-Your-Trip (§23) + curated content + rule-based suggestions is the planner.                                                                      |
+| V1.5    | Rule-based "smart suggestions": popular-combo ranking, budget-fit scoring, similar-trip discovery — all computed from catalog data (no model calls).              |
+| V2      | LLM-assisted planner (chat) — **conditional on provider selection** (Dependency C-9). No invented capabilities (GC-2): if no acceptable provider, feature defers. |
+| FUT     | Agentic booking (autonomous multi-step with payments) — separate PRD, requires deeper trust/audit work.                                                           |
 
 ### 25.2 V2 specification (when activated)
 
@@ -1042,13 +1043,13 @@ Destination (geo tree: country → state/province → district → city; multi-s
 
 ### 25.3 Edge cases
 
-| Edge | Rule |
-|---|---|
-| Hallucinated departure date | Availability cross-check rejects; model re-asks |
-| User pastes passport/OTP | Redaction + warning |
-| Adversarial prompt in chat | System-prompt isolation + output filters; session can be terminated |
-| Cost runaway | Hard token/turn budget; polite stop + handoff |
-| Non-English query (Nepali) | V2: multilingual model capability required (provider gate) |
+| Edge                        | Rule                                                                |
+| --------------------------- | ------------------------------------------------------------------- |
+| Hallucinated departure date | Availability cross-check rejects; model re-asks                     |
+| User pastes passport/OTP    | Redaction + warning                                                 |
+| Adversarial prompt in chat  | System-prompt isolation + output filters; session can be terminated |
+| Cost runaway                | Hard token/turn budget; polite stop + handoff                       |
+| Non-English query (Nepali)  | V2: multilingual model capability required (provider gate)          |
 
 ---
 
@@ -1082,14 +1083,14 @@ Provider-dependent GDS/NDC/airline-direct integration: published fares with cond
 
 ### 26.5 Edge cases
 
-| Edge | Rule |
-|---|---|
+| Edge                                   | Rule                                                                                  |
+| -------------------------------------- | ------------------------------------------------------------------------------------- |
 | Fare changes between quote and payment | Offer version control; acceptance outside validity ⇒ re-quote (no silent price drift) |
-| Payment succeeded, issuance fails | Full refund + case + customer alternates (trip desk) |
-| Name misspoken at input | Pre-issuance vendor check; post-issuance ⇒ airline reissue fees (agency, itemized) |
-| Duplicate PNR across bookings | Vendor integrity check at upload (platform validates PNR format + cross-booking dup) |
-| Customer no-show | Airline rules via agency; platform records outcome |
-| Visa-required destination | Advisory content + agency confirmation field in offer (never platform visa advice) |
+| Payment succeeded, issuance fails      | Full refund + case + customer alternates (trip desk)                                  |
+| Name misspoken at input                | Pre-issuance vendor check; post-issuance ⇒ airline reissue fees (agency, itemized)    |
+| Duplicate PNR across bookings          | Vendor integrity check at upload (platform validates PNR format + cross-booking dup)  |
+| Customer no-show                       | Airline rules via agency; platform records outcome                                    |
+| Visa-required destination              | Advisory content + agency confirmation field in offer (never platform visa advice)    |
 
 ---
 
@@ -1120,14 +1121,14 @@ Provider-dependent GDS/NDC/airline-direct integration: published fares with cond
 
 ### 27.4 Edge cases
 
-| Edge | Rule |
-|---|---|
-| Check-in date in the past | Blocked (from = today or vendor cutoff) |
-| Vendor suspends mid-booking (PAID, unconfirmed) | Full refund + case (vendor-fault) |
-| Rate plan deleted after booking | Snapshot retained on booking (price/policy immutable per PR-08) |
-| Long-stay price gap (vendor adds 30-night rate later) | New bookings only |
-| Child in adult-only property | Vendor age policy flag ⇒ blocked/quote |
-| Two bookings same room type overlapping | Locking prevents; race ⇒ second customer offered next availability or quote |
+| Edge                                                  | Rule                                                                        |
+| ----------------------------------------------------- | --------------------------------------------------------------------------- |
+| Check-in date in the past                             | Blocked (from = today or vendor cutoff)                                     |
+| Vendor suspends mid-booking (PAID, unconfirmed)       | Full refund + case (vendor-fault)                                           |
+| Rate plan deleted after booking                       | Snapshot retained on booking (price/policy immutable per PR-08)             |
+| Long-stay price gap (vendor adds 30-night rate later) | New bookings only                                                           |
+| Child in adult-only property                          | Vendor age policy flag ⇒ blocked/quote                                      |
+| Two bookings same room type overlapping               | Locking prevents; race ⇒ second customer offered next availability or quote |
 
 ---
 
@@ -1156,13 +1157,13 @@ Provider-dependent GDS/NDC/airline-direct integration: published fares with cond
 
 ### 28.4 Edge cases
 
-| Edge | Rule |
-|---|---|
-| Late return | Overtime rate applied (vendor report); late > 24h ⇒ new rental day (policy) |
-| Vendor can't provide booked vehicle (fault) | Alternate ≥ same class offered; customer accepts or full refund + case |
-| Deposit refund delay (self-drive) | Vendor SLA 72h; platform tracks status; disputes via cases |
-| Holiday week sold out | Next-available suggestion + waitlist `[V1.5]` |
-| Partial-day request | Vendor hourly policy (else min-block applies, shown before booking) |
+| Edge                                        | Rule                                                                        |
+| ------------------------------------------- | --------------------------------------------------------------------------- |
+| Late return                                 | Overtime rate applied (vendor report); late > 24h ⇒ new rental day (policy) |
+| Vendor can't provide booked vehicle (fault) | Alternate ≥ same class offered; customer accepts or full refund + case      |
+| Deposit refund delay (self-drive)           | Vendor SLA 72h; platform tracks status; disputes via cases                  |
+| Holiday week sold out                       | Next-available suggestion + waitlist `[V1.5]`                               |
+| Partial-day request                         | Vendor hourly policy (else min-block applies, shown before booking)         |
 
 ---
 
@@ -1189,13 +1190,13 @@ Provider-dependent GDS/NDC/airline-direct integration: published fares with cond
 
 ### 29.4 Edge cases
 
-| Edge | Rule |
-|---|---|
+| Edge                     | Rule                                                                             |
+| ------------------------ | -------------------------------------------------------------------------------- |
 | Airport closure / curfew | Admin broadcast → affected bookings auto-cancelled FREE (system actor) + refunds |
-| Vehicle failure day-of | Vendor replacement ≤ 45 min target (vendor-attested); missed ⇒ vendor-fault path |
-| Wrong meeting point | Vendor SOP + support case; customer location share `[V1.5]` |
-| Timezone confusion | All displayed local (Asia/Katmandu MVP); multi-TZ `[V2]` with explicit tz labels |
-| Luggage over allowance | Vendor surcharge declared pre-booking (or quote) |
+| Vehicle failure day-of   | Vendor replacement ≤ 45 min target (vendor-attested); missed ⇒ vendor-fault path |
+| Wrong meeting point      | Vendor SOP + support case; customer location share `[V1.5]`                      |
+| Timezone confusion       | All displayed local (Asia/Katmandu MVP); multi-TZ `[V2]` with explicit tz labels |
+| Luggage over allowance   | Vendor surcharge declared pre-booking (or quote)                                 |
 
 ---
 
@@ -1230,14 +1231,14 @@ Custom departure: quote request (dates, group size, private/group, needs text) �
 
 ### 30.5 Edge cases
 
-| Edge | Rule |
-|---|---|
-| Season closure (route inaccessible) | Vendor seasonal availability calendar; closed period ⇒ service hidden or quote-only |
-| Solo traveler group min | Single supplement or auto-join rule (vendor-set) |
-| Permits not obtained (vendor fault) | Vendor-fault path: refund + case |
-| Restricted-area quota unavailable (govt) | Force-major: full refund, no penalty, documented |
-| Group split mid-trek | Per-group continuation; billing adjustments manual (admin) |
-| Weather-caused schedule slip (no stop) | Itinerary reordering by vendor; customer notified; no price change without consent |
+| Edge                                     | Rule                                                                                |
+| ---------------------------------------- | ----------------------------------------------------------------------------------- |
+| Season closure (route inaccessible)      | Vendor seasonal availability calendar; closed period ⇒ service hidden or quote-only |
+| Solo traveler group min                  | Single supplement or auto-join rule (vendor-set)                                    |
+| Permits not obtained (vendor fault)      | Vendor-fault path: refund + case                                                    |
+| Restricted-area quota unavailable (govt) | Force-major: full refund, no penalty, documented                                    |
+| Group split mid-trek                     | Per-group continuation; billing adjustments manual (admin)                          |
+| Weather-caused schedule slip (no stop)   | Itinerary reordering by vendor; customer notified; no price change without consent  |
 
 ---
 
@@ -1245,26 +1246,26 @@ Custom departure: quote request (dates, group size, private/group, needs text) �
 
 ### 31.1 Vendor reports `[MVP]`
 
-| Report | Contents | Access |
-|---|---|---|
-| Overview | Bookings by status, revenue (gross/net), upcoming services, response SLA stats, review summary (verified) | Vendor org |
-| Bookings detail | Filters (date/line/status), CSV export | Vendor org |
-| Earnings | Settlement cycles, per-booking commission, holds, payouts history | Vendor org |
-| Performance | Top services, cancellation/refund rate (own), confirmation times | Vendor org |
-| Availability gaps `[V1.5]` | Unpublished dates for popular routes | Vendor org |
+| Report                     | Contents                                                                                                  | Access     |
+| -------------------------- | --------------------------------------------------------------------------------------------------------- | ---------- |
+| Overview                   | Bookings by status, revenue (gross/net), upcoming services, response SLA stats, review summary (verified) | Vendor org |
+| Bookings detail            | Filters (date/line/status), CSV export                                                                    | Vendor org |
+| Earnings                   | Settlement cycles, per-booking commission, holds, payouts history                                         | Vendor org |
+| Performance                | Top services, cancellation/refund rate (own), confirmation times                                          | Vendor org |
+| Availability gaps `[V1.5]` | Unpublished dates for popular routes                                                                      | Vendor org |
 
 ### 31.2 Admin reports `[MVP]`
 
-| Report | Contents |
-|---|---|
-| Revenue | GMV, net revenue, commission by line/destination/vendor/month; FX-normalized NPR |
-| Funnel | Search→detail→booking-start, quote→offer→accept→paid, payment success rate, abandon points |
-| Bookings | Status pipeline, SLA breaches, by line/destination/vendor, seasonality |
-| Vendors | Onboarding funnel (registered→submitted→approved, time-in-stage), performance, holds |
-| Refunds & disputes | Refund rate by reason, dispute queue aging, outcomes |
-| Customers | New/active accounts, corporate vs individual, repeat booking rate |
-| System | Webhook health, queue depth, failed jobs, search latency |
-| Exports | CSV (MVP); XLSX + scheduled email delivery `[V1.5]`; data warehouse `[V2]` |
+| Report             | Contents                                                                                   |
+| ------------------ | ------------------------------------------------------------------------------------------ |
+| Revenue            | GMV, net revenue, commission by line/destination/vendor/month; FX-normalized NPR           |
+| Funnel             | Search→detail→booking-start, quote→offer→accept→paid, payment success rate, abandon points |
+| Bookings           | Status pipeline, SLA breaches, by line/destination/vendor, seasonality                     |
+| Vendors            | Onboarding funnel (registered→submitted→approved, time-in-stage), performance, holds       |
+| Refunds & disputes | Refund rate by reason, dispute queue aging, outcomes                                       |
+| Customers          | New/active accounts, corporate vs individual, repeat booking rate                          |
+| System             | Webhook health, queue depth, failed jobs, search latency                                   |
+| Exports            | CSV (MVP); XLSX + scheduled email delivery `[V1.5]`; data warehouse `[V2]`                 |
 
 ### 31.3 Rules
 
@@ -1277,12 +1278,12 @@ Custom departure: quote request (dates, group size, private/group, needs text) �
 
 ### 31.4 Edge cases
 
-| Edge | Rule |
-|---|---|
-| Partial month comparison | "Like-for-like days" toggle |
-| Deleted/suspended vendor | Data retained, flagged; historical reports unaffected |
-| FX rate change mid-cycle | Cycle uses rate-at-event; report shows both |
-| Export of 100k+ rows | Async export + download link (7-day expiry), never synchronous HTTP |
+| Edge                     | Rule                                                                |
+| ------------------------ | ------------------------------------------------------------------- |
+| Partial month comparison | "Like-for-like days" toggle                                         |
+| Deleted/suspended vendor | Data retained, flagged; historical reports unaffected               |
+| FX rate change mid-cycle | Cycle uses rate-at-event; report shows both                         |
+| Export of 100k+ rows     | Async export + download link (7-day expiry), never synchronous HTTP |
 
 ---
 
@@ -1290,18 +1291,18 @@ Custom departure: quote request (dates, group size, private/group, needs text) �
 
 ### 32.1 Page inventory
 
-| Page type | Example URL pattern | Version |
-|---|---|---|
-| Home | `/` | MVP |
-| Line/category hubs | `/tours`, `/trekking`, `/hotels`, `/vehicle-rental`, `/transfers`, `/packages` | MVP |
-| Destination hubs | `/destination/pokhara` (geo-linked) | MVP |
-| Service detail (all lines) | `/tours/{slug}`, `/trekking/{slug}`, `/hotels/{slug}`, `/vehicle-rental/{slug}`, `/transfers/{slug}`, `/packages/{slug}`, `/flights/{route-slug}` | MVP |
-| Travel guides / route guides | `/guides/annapurna-circuit`, `/guides/pokhara-2-days` | MVP (seed set), ongoing |
-| Help/FAQ | `/help/…` | MVP |
-| Legal | `/terms`, `/privacy`, `/vendor-terms` | MVP (pre-launch requirement) |
-| Vendor directory | `/vendors`, `/vendors/{slug}` | V1.5 |
-| Blog (content marketing) | `/blog/{slug}` | V1.5 |
-| Localized (Nepali) | `//ne/…` with hreflang | V1.5 (human-authored) |
+| Page type                    | Example URL pattern                                                                                                                               | Version                      |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------- |
+| Home                         | `/`                                                                                                                                               | MVP                          |
+| Line/category hubs           | `/tours`, `/trekking`, `/hotels`, `/vehicle-rental`, `/transfers`, `/packages`                                                                    | MVP                          |
+| Destination hubs             | `/destination/pokhara` (geo-linked)                                                                                                               | MVP                          |
+| Service detail (all lines)   | `/tours/{slug}`, `/trekking/{slug}`, `/hotels/{slug}`, `/vehicle-rental/{slug}`, `/transfers/{slug}`, `/packages/{slug}`, `/flights/{route-slug}` | MVP                          |
+| Travel guides / route guides | `/guides/annapurna-circuit`, `/guides/pokhara-2-days`                                                                                             | MVP (seed set), ongoing      |
+| Help/FAQ                     | `/help/…`                                                                                                                                         | MVP                          |
+| Legal                        | `/terms`, `/privacy`, `/vendor-terms`                                                                                                             | MVP (pre-launch requirement) |
+| Vendor directory             | `/vendors`, `/vendors/{slug}`                                                                                                                     | V1.5                         |
+| Blog (content marketing)     | `/blog/{slug}`                                                                                                                                    | V1.5                         |
+| Localized (Nepali)           | `//ne/…` with hreflang                                                                                                                            | V1.5 (human-authored)        |
 
 ### 32.2 Strategy rules
 
@@ -1315,15 +1316,15 @@ Custom departure: quote request (dates, group size, private/group, needs text) �
 
 ### 32.3 Technical requirements `[MVP]`
 
-| Item | Requirement |
-|---|---|
-| Rendering | SSG/ISR (Next.js App Router); dynamic booking surfaces client-side only |
-| Meta | Unique title/description, canonical, OG + Twitter cards (auto OG images with brand template) |
+| Item            | Requirement                                                                                                                                     |
+| --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| Rendering       | SSG/ISR (Next.js App Router); dynamic booking surfaces client-side only                                                                         |
+| Meta            | Unique title/description, canonical, OG + Twitter cards (auto OG images with brand template)                                                    |
 | Structured data | `TouristTrip` (tours/treks/packages), `LodgingBusiness` (hotels), `BreadcrumbList`, `FAQPage` (guides), `LocalBusiness` (vendor directory V1.5) |
-| Sitemap/robots | Auto-generated partitioned sitemaps; robots disallow app/private paths |
-| 404/redirects | Branded 404 with search; admin redirect manager with audit |
-| Performance | LCP < 2.5s (4G mobile, p75), CLS < 0.1, INP < 200ms; images AVIF/WebP + `srcset` + lazy; CWV monitoring `[V1.5]` |
-| Accessibility | WCAG 2.1 AA baseline (keyboard nav, contrast, focus states, form labels) — applies site-wide, not just SEO pages |
+| Sitemap/robots  | Auto-generated partitioned sitemaps; robots disallow app/private paths                                                                          |
+| 404/redirects   | Branded 404 with search; admin redirect manager with audit                                                                                      |
+| Performance     | LCP < 2.5s (4G mobile, p75), CLS < 0.1, INP < 200ms; images AVIF/WebP + `srcset` + lazy; CWV monitoring `[V1.5]`                                |
+| Accessibility   | WCAG 2.1 AA baseline (keyboard nav, contrast, focus states, form labels) — applies site-wide, not just SEO pages                                |
 
 ### 32.4 Content ops plan (MVP seed)
 
@@ -1333,12 +1334,12 @@ Custom departure: quote request (dates, group size, private/group, needs text) �
 
 ### 32.5 Edge cases
 
-| Edge | Rule |
-|---|---|
-| Duplicate parameter URLs (`?date=`) | Canonical to clean URL; noindex on param variants |
-| Service suspended while indexed | 60s index removal; page returns 404/redirect (admin choice) |
-| OG image failure | Branded fallback (never broken image) |
-| Guide references a retired service | Content review triggers on linked-service suspension |
+| Edge                                | Rule                                                        |
+| ----------------------------------- | ----------------------------------------------------------- |
+| Duplicate parameter URLs (`?date=`) | Canonical to clean URL; noindex on param variants           |
+| Service suspended while indexed     | 60s index removal; page returns 404/redirect (admin choice) |
+| OG image failure                    | Branded fallback (never broken image)                       |
+| Guide references a retired service  | Content review triggers on linked-service suspension        |
 
 ---
 
@@ -1346,20 +1347,20 @@ Custom departure: quote request (dates, group size, private/group, needs text) �
 
 ### 33.1 Control baseline (OWASP Top-10 aware)
 
-| Area | Control | Version |
-|---|---|---|
-| Injection | Parameterized queries via ORM only; Zod validation on **every** input (API + forms); no string-built SQL; template escaping | MVP |
-| Authentication | Argon2id password hashing; JWT access (15 min) + rotating refresh (30 d, reuse detection ⇒ session family revocation); password policy (min 10, breach-list check); login lockout 5/15 min per identifier; email-verified gate; admin TOTP MFA **required** | MVP |
-| Authorization | RBAC deny-by-default; per-route role checks + object ownership checks (customer→own, vendor→own org, admin scoped); corporate org isolation | MVP |
-| Secrets | Per-env server `.env` (chmod 600) or Docker secrets only; no secrets in repo (pre-commit + CI secret scan); rotation policy; least-privilege provider credentials | MVP |
-| Crypto | TLS 1.2+ everywhere; AES-256 at rest for PII fields; HMAC for signed URLs (vendor share links) | MVP |
-| File uploads | MIME + magic-byte validation, size caps, random server-side names, private-by-default buckets, public only for approved media; AV-scan hook `[V1.5]`; no executables | MVP |
-| API protection | Rate limiting (per IP/user/endpoint tier; login & payment endpoints strict), CORS allowlist, generic error responses + stable error codes (no stack leaks), no debug routes in prod | MVP |
-| Logging & audit | Structured logs with PII masking; immutable audit table (who/what/when/why, admin + state + auth events); retention 1 year (MVP); SIEM export `[V1.5]` | MVP |
-| Monitoring | Health/readiness probes, webhook & queue alerting, error budget dashboards | MVP |
-| Supply chain | Locked dependency graphs, dependency audit in CI (high/critical gate), reproducible builds, minimal base images | MVP |
-| Data protection | Daily backups (30-day retention), restore test (quarterly, documented), retention schedules, PII access role-scoped, deletion workflow `[V1.5]`, DPA with sub-processors | MVP |
-| Client hardening | CSP, HSTS, X-Frame-Options/DENY, referrer-policy, secure/httponly cookies; CSRF via SameSite + token for cookie auth | MVP |
+| Area             | Control                                                                                                                                                                                                                                                     | Version |
+| ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
+| Injection        | Parameterized queries via ORM only; Zod validation on **every** input (API + forms); no string-built SQL; template escaping                                                                                                                                 | MVP     |
+| Authentication   | Argon2id password hashing; JWT access (15 min) + rotating refresh (30 d, reuse detection ⇒ session family revocation); password policy (min 10, breach-list check); login lockout 5/15 min per identifier; email-verified gate; admin TOTP MFA **required** | MVP     |
+| Authorization    | RBAC deny-by-default; per-route role checks + object ownership checks (customer→own, vendor→own org, admin scoped); corporate org isolation                                                                                                                 | MVP     |
+| Secrets          | Per-env server `.env` (chmod 600) or Docker secrets only; no secrets in repo (pre-commit + CI secret scan); rotation policy; least-privilege provider credentials                                                                                           | MVP     |
+| Crypto           | TLS 1.2+ everywhere; AES-256 at rest for PII fields; HMAC for signed URLs (vendor share links)                                                                                                                                                              | MVP     |
+| File uploads     | MIME + magic-byte validation, size caps, random server-side names, private-by-default buckets, public only for approved media; AV-scan hook `[V1.5]`; no executables                                                                                        | MVP     |
+| API protection   | Rate limiting (per IP/user/endpoint tier; login & payment endpoints strict), CORS allowlist, generic error responses + stable error codes (no stack leaks), no debug routes in prod                                                                         | MVP     |
+| Logging & audit  | Structured logs with PII masking; immutable audit table (who/what/when/why, admin + state + auth events); retention 1 year (MVP); SIEM export `[V1.5]`                                                                                                      | MVP     |
+| Monitoring       | Health/readiness probes, webhook & queue alerting, error budget dashboards                                                                                                                                                                                  | MVP     |
+| Supply chain     | Locked dependency graphs, dependency audit in CI (high/critical gate), reproducible builds, minimal base images                                                                                                                                             | MVP     |
+| Data protection  | Daily backups (30-day retention), restore test (quarterly, documented), retention schedules, PII access role-scoped, deletion workflow `[V1.5]`, DPA with sub-processors                                                                                    | MVP     |
+| Client hardening | CSP, HSTS, X-Frame-Options/DENY, referrer-policy, secure/httponly cookies; CSRF via SameSite + token for cookie auth                                                                                                                                        | MVP     |
 
 ### 33.2 Payment-specific
 
@@ -1367,13 +1368,13 @@ Custom departure: quote request (dates, group size, private/group, needs text) �
 
 ### 33.3 PII inventory & rules
 
-| Data | Purpose | Retention (default, legal review) | Access |
-|---|---|---|---|
-| Email, phone, name | Account | Account life + 24 months dormant | Support+ |
-| Passport number (air/trek permits) | Fulfillment | 24 months post-fulfillment | Booking owner, vendor (scoped link), support (case) |
-| Bank details (vendor payout) | Settlement | Account life | FINANCE_ADMIN only |
-| Vendor documents | Verification | Approval life + audit 1 yr | Admin only |
-| Payment references | Reconciliation | 5 years (financial) | Finance |
+| Data                               | Purpose        | Retention (default, legal review) | Access                                              |
+| ---------------------------------- | -------------- | --------------------------------- | --------------------------------------------------- |
+| Email, phone, name                 | Account        | Account life + 24 months dormant  | Support+                                            |
+| Passport number (air/trek permits) | Fulfillment    | 24 months post-fulfillment        | Booking owner, vendor (scoped link), support (case) |
+| Bank details (vendor payout)       | Settlement     | Account life                      | FINANCE_ADMIN only                                  |
+| Vendor documents                   | Verification   | Approval life + audit 1 yr        | Admin only                                          |
+| Payment references                 | Reconciliation | 5 years (financial)               | Finance                                             |
 
 - PI-01 Minimization by design (collect at point of need); PI-02 masking in UI/logs (default masked); PI-03 no PII in analytics events (blocklist validation at ingestion); PI-04 hosting region preference: region-adjacent (e.g., Singapore/Mumbai-class availability) with legal review for Nepal data considerations `[pre-launch]`.
 
@@ -1390,11 +1391,11 @@ Custom departure: quote request (dates, group size, private/group, needs text) �
 
 ### 33.6 Edge cases
 
-| Edge | Rule |
-|---|---|
-| Admin session hijack (suspected) | Global admin revoke (SUPER_ADMIN), forced re-MFA, audit sweep |
-| Webhook signature key compromise | Key rotation runbook; replay window shrunk; alert |
-| Mass credential stuffing | Per-IP + per-identifier rate limits, challenge step `[V1.5]` |
+| Edge                             | Rule                                                                    |
+| -------------------------------- | ----------------------------------------------------------------------- |
+| Admin session hijack (suspected) | Global admin revoke (SUPER_ADMIN), forced re-MFA, audit sweep           |
+| Webhook signature key compromise | Key rotation runbook; replay window shrunk; alert                       |
+| Mass credential stuffing         | Per-IP + per-identifier rate limits, challenge step `[V1.5]`            |
 | Vendor share-link leak (PII doc) | Expiring links (default 72h), access logging, immediate revoke endpoint |
 
 ---
@@ -1415,14 +1416,14 @@ Properties: entity ids, line, destination id (no free-text PII), amounts **exclu
 
 ### 34.3 Dashboards & KPIs `[MVP]`
 
-| KPI | Definition |
-|---|---|
-| Traffic & engagement | Sessions, pages, bounce (p75), top destinations/lines |
-| Conversion | search→detail, detail→booking-start, submit→paid (by mode), quote acceptance rate, offer-to-payment time |
-| Payment | Success rate by method, failure reasons, bank-transfer verify time |
-| Revenue | GMV, net, AOV by line (from ledger, not events) |
-| Quality | Refund rate by reason, cancellation rate, dispute aging, vendor SLA attainment, NPS/CSAT (survey, opt-in) |
-| Performance | Lighthouse/CWV field data `[V1.5]` |
+| KPI                  | Definition                                                                                                |
+| -------------------- | --------------------------------------------------------------------------------------------------------- |
+| Traffic & engagement | Sessions, pages, bounce (p75), top destinations/lines                                                     |
+| Conversion           | search→detail, detail→booking-start, submit→paid (by mode), quote acceptance rate, offer-to-payment time  |
+| Payment              | Success rate by method, failure reasons, bank-transfer verify time                                        |
+| Revenue              | GMV, net, AOV by line (from ledger, not events)                                                           |
+| Quality              | Refund rate by reason, cancellation rate, dispute aging, vendor SLA attainment, NPS/CSAT (survey, opt-in) |
+| Performance          | Lighthouse/CWV field data `[V1.5]`                                                                        |
 
 - AN-04 Funnel dashboards: acquisition→booking (by mode), quote pipeline, payment pipeline.
 - AN-05 Exports: CSV `[MVP]`; cohort/retention `[V2]`.
@@ -1433,13 +1434,13 @@ Properties: entity ids, line, destination id (no free-text PII), amounts **exclu
 
 ### 34.5 Edge cases
 
-| Edge | Rule |
-|---|---|
-| Consent withdrawn mid-session | Collection stops for non-essential; retained aggregates unchanged |
-| Event property contains PII pattern | Ingestion rejects + alert (blocklist) |
-| Clock skew | Server timestamp authoritative |
-| Bot traffic | Basic heuristics (no paid ads in MVP; UA/rate flags) |
-| Event schema migration | Versioned events; dashboards pin version |
+| Edge                                | Rule                                                              |
+| ----------------------------------- | ----------------------------------------------------------------- |
+| Consent withdrawn mid-session       | Collection stops for non-essential; retained aggregates unchanged |
+| Event property contains PII pattern | Ingestion rejects + alert (blocklist)                             |
+| Clock skew                          | Server timestamp authoritative                                    |
+| Bot traffic                         | Basic heuristics (no paid ads in MVP; UA/rate flags)              |
+| Event schema migration              | Versioned events; dashboards pin version                          |
 
 ---
 
@@ -1469,74 +1470,52 @@ Platform: typed API-first backend, PostgreSQL + Redis, S3-compatible storage, RB
 
 ### 35.4 Master classification table (summary; section-level tags are authoritative)
 
-| Feature | MVP | V1.5 | V2 | FUT |
-|---|---|---|---|---|
-| Email+password auth, email OTP, RBAC, audit | ✓ | MFA customers, Google/OTP login | SSO (corporate) | — |
-| Vendor registration/approval (per-line) | ✓ | Expiry automation | — | — |
-| Catalog all 10 lines + publish gate | ✓ | Experiences line | Intl destination lines | — |
-| Instant / Quote / Custom booking | ✓ (custom = trip-desk) | In-place modify, consolidated pay | Auto multi-vendor orchestration | Agentic |
-| Payments: wallets, domestic cards, bank transfer | ✓ | Deposit+balance, vendor-collected (broad), auto payouts | Multi-currency settlement | Embedded finance |
-| International cards | If D2 validated | Else via partner | — | — |
-| Cancellation/refund engine + policies | ✓ | Reconciliation tool, compensatory credits | — | — |
-| Verified reviews + moderation | ✓ | Sub-ratings, similarity heuristics | — | — |
-| Notifications: email + in-app | ✓ | SMS, WhatsApp (official), digest | Push (app) | — |
-| Search (FTS) + filters + facets | ✓ | Availability-aware ranking, saved presets | Semantic search (provider) | — |
-| Wishlist + compare | ✓ | Share, price alerts | — | — |
-| Corporate: org, roles, approvals, caps, CSV | ✓ | Consolidated invoicing, org methods | Dashboards, AM, SSO | — |
-| AI planner | Rule-based only (suggestions in V1.5) | Rule-based suggestions | LLM planner (provider-gated) | Agentic booking |
-| Air ticketing | Quote-only (agency) | Free IATA input, multi-city | Live inventory pilot | — |
-| Hotels | Direct vendors | Waitlists, in-place modify, intl properties prep | Feed/channel-manager pilot | — |
-| SEO | Hubs/details/guides, schema, CWV budget | Vendor directory, blog, Nepali | Multi-country structure | — |
-| Reports | Vendor + admin dashboards + CSV | Scheduled, XLSX, availability gaps | Warehouse, cohorts | — |
-| Analytics | Event pipeline + KPI dashboards | Optional 3P (D9), CWV field data | Experiment framework | — |
-| Security baseline + pen-test gate | ✓ | AV scan, SIEM export, 2-person finance | Bug bounty | — |
-| i18n | English (structure i18n-ready) | Nepali UI + content | Multi-language content | Regional sites |
+| Feature                                          | MVP                                     | V1.5                                                    | V2                              | FUT              |
+| ------------------------------------------------ | --------------------------------------- | ------------------------------------------------------- | ------------------------------- | ---------------- |
+| Email+password auth, email OTP, RBAC, audit      | ✓                                       | MFA customers, Google/OTP login                         | SSO (corporate)                 | —                |
+| Vendor registration/approval (per-line)          | ✓                                       | Expiry automation                                       | —                               | —                |
+| Catalog all 10 lines + publish gate              | ✓                                       | Experiences line                                        | Intl destination lines          | —                |
+| Instant / Quote / Custom booking                 | ✓ (custom = trip-desk)                  | In-place modify, consolidated pay                       | Auto multi-vendor orchestration | Agentic          |
+| Payments: wallets, domestic cards, bank transfer | ✓                                       | Deposit+balance, vendor-collected (broad), auto payouts | Multi-currency settlement       | Embedded finance |
+| International cards                              | If D2 validated                         | Else via partner                                        | —                               | —                |
+| Cancellation/refund engine + policies            | ✓                                       | Reconciliation tool, compensatory credits               | —                               | —                |
+| Verified reviews + moderation                    | ✓                                       | Sub-ratings, similarity heuristics                      | —                               | —                |
+| Notifications: email + in-app                    | ✓                                       | SMS, WhatsApp (official), digest                        | Push (app)                      | —                |
+| Search (FTS) + filters + facets                  | ✓                                       | Availability-aware ranking, saved presets               | Semantic search (provider)      | —                |
+| Wishlist + compare                               | ✓                                       | Share, price alerts                                     | —                               | —                |
+| Corporate: org, roles, approvals, caps, CSV      | ✓                                       | Consolidated invoicing, org methods                     | Dashboards, AM, SSO             | —                |
+| AI planner                                       | Rule-based only (suggestions in V1.5)   | Rule-based suggestions                                  | LLM planner (provider-gated)    | Agentic booking  |
+| Air ticketing                                    | Quote-only (agency)                     | Free IATA input, multi-city                             | Live inventory pilot            | —                |
+| Hotels                                           | Direct vendors                          | Waitlists, in-place modify, intl properties prep        | Feed/channel-manager pilot      | —                |
+| SEO                                              | Hubs/details/guides, schema, CWV budget | Vendor directory, blog, Nepali                          | Multi-country structure         | —                |
+| Reports                                          | Vendor + admin dashboards + CSV         | Scheduled, XLSX, availability gaps                      | Warehouse, cohorts              | —                |
+| Analytics                                        | Event pipeline + KPI dashboards         | Optional 3P (D9), CWV field data                        | Experiment framework            | —                |
+| Security baseline + pen-test gate                | ✓                                       | AV scan, SIEM export, 2-person finance                  | Bug bounty                      | —                |
+| i18n                                             | English (structure i18n-ready)          | Nepali UI + content                                     | Multi-language content          | Regional sites   |
 
 ---
 
 ## Appendix A — MVP Feature List (launch gate checklist)
 
 **A1. Platform & quality**
+
 1. Monorepo (web + api + shared packages), TS strict, CI (lint/type/test), preview + production pipelines, health checks, structured logging, monitoring/alerting, backup/restore verified.
 2. PostgreSQL schema v1 + migrations; Redis (cache/rate-limit/queues); S3-compatible storage (private + public media).
 3. API-first: typed contracts, validation on all endpoints, stable error codes, OpenAPI docs, rate limiting.
 
-**A2. Identity & access**
-4. Customer auth: email+password (Argon2id), email OTP verification, reset, lockout; JWT access + rotating refresh; guest (quote) path.
-5. Vendor + admin auth incl. admin TOTP MFA; RBAC (5 roles, deny-by-default); session policy; ban/suspend + appeal.
-6. Audit logging (auth, state, admin, config, exports, file access).
+**A2. Identity & access** 4. Customer auth: email+password (Argon2id), email OTP verification, reset, lockout; JWT access + rotating refresh; guest (quote) path. 5. Vendor + admin auth incl. admin TOTP MFA; RBAC (5 roles, deny-by-default); session policy; ban/suspend + appeal. 6. Audit logging (auth, state, admin, config, exports, file access).
 
-**A3. Vendor & approval**
-7. Vendor registration, profile, document upload (private, admin-only), line-capability model.
-8. Admin approval workflow: queue, per-line checklists, approve/reject/info-request, suspension + appeal, cooldowns, audit.
-9. Vendor portal: service CRUD (all lines), pricing editors, availability editors (per line), publish gate enforcement.
+**A3. Vendor & approval** 7. Vendor registration, profile, document upload (private, admin-only), line-capability model. 8. Admin approval workflow: queue, per-line checklists, approve/reject/info-request, suspension + appeal, cooldowns, audit. 9. Vendor portal: service CRUD (all lines), pricing editors, availability editors (per line), publish gate enforcement.
 
-**A4. Catalog & content**
-10. Catalog core (Service + line extensions), status lifecycle, publishability gate, SEO fields, media pipeline (validated, licensed-record).
-11. Geo tree (country→state→district→city) + airport/destination seed data; currency/language/tax config entities.
-12. Original content: 15–20 destination hubs, 10 guides, help center, legal pages; content ops checklist.
+**A4. Catalog & content** 10. Catalog core (Service + line extensions), status lifecycle, publishability gate, SEO fields, media pipeline (validated, licensed-record). 11. Geo tree (country→state→district→city) + airport/destination seed data; currency/language/tax config entities. 12. Original content: 15–20 destination hubs, 10 guides, help center, legal pages; content ops checklist.
 
-**A5. Customer experience**
-13. Storefront: responsive/mobile-first design system; home; category hubs; destination hubs; detail pages (all lines); search; filters; compare (≤4); wishlist (auth + guest session); my-trips; notifications center; account/settings; corporate account area.
-14. Three booking models end-to-end with §10 state machine, idempotency, price integrity, SLA timers, trip-desk tooling for custom trips.
-15. Corporate core: org verification, roles, approval-before-payment, caps (basic), CSV statement export.
-16. Verified reviews (eligibility, moderation, aggregates, vendor replies) — zero seed reviews.
+**A5. Customer experience** 13. Storefront: responsive/mobile-first design system; home; category hubs; destination hubs; detail pages (all lines); search; filters; compare (≤4); wishlist (auth + guest session); my-trips; notifications center; account/settings; corporate account area. 14. Three booking models end-to-end with §10 state machine, idempotency, price integrity, SLA timers, trip-desk tooling for custom trips. 15. Corporate core: org verification, roles, approval-before-payment, caps (basic), CSV statement export. 16. Verified reviews (eligibility, moderation, aggregates, vendor replies) — zero seed reviews.
 
-**A6. Money**
-17. Payments: provider sandbox integration (wallets + domestic cards), bank-transfer manual verification, webhook verification, ledger, payment failure/expiry handling.
-18. Commission + settlement (weekly manual batch), holds (air 30d), refund engine (auto full-tier + manual partials, vendor-mediated air), chargeback handling (provider-dependent).
-19. Pricing engine (types, surcharges, taxes config, display-currency ≈ conversion), itemized checkout.
+**A6. Money** 17. Payments: provider sandbox integration (wallets + domestic cards), bank-transfer manual verification, webhook verification, ledger, payment failure/expiry handling. 18. Commission + settlement (weekly manual batch), holds (air 30d), refund engine (auto full-tier + manual partials, vendor-mediated air), chargeback handling (provider-dependent). 19. Pricing engine (types, surcharges, taxes config, display-currency ≈ conversion), itemized checkout.
 
-**A7. Operations & growth**
-20. Notification engine (email + in-app), event catalog, preferences, suppression.
-21. Admin console (all §9 areas, MVP depth), KPI dashboards, reports + CSV, geo/content management, settings + feature flags.
-22. SEO: SSG/ISR, meta/schema, sitemaps, redirects, performance budget.
-23. Analytics: event ingestion + KPI/funnel dashboards (privacy-compliant).
-24. Security gate: threat model, external pen test (≥ high = blocked), load test, runbooks, IR plan.
+**A7. Operations & growth** 20. Notification engine (email + in-app), event catalog, preferences, suppression. 21. Admin console (all §9 areas, MVP depth), KPI dashboards, reports + CSV, geo/content management, settings + feature flags. 22. SEO: SSG/ISR, meta/schema, sitemaps, redirects, performance budget. 23. Analytics: event ingestion + KPI/funnel dashboards (privacy-compliant). 24. Security gate: threat model, external pen test (≥ high = blocked), load test, runbooks, IR plan.
 
-**A8. Supply & launch**
-25. Launch supply: ≥ 20 approved vendors / ≥ 100 published services across ≥ 6 lines (Ops-confirmed target).
-26. First real end-to-end paid booking in production (all modes verified with real vendors).
+**A8. Supply & launch** 25. Launch supply: ≥ 20 approved vendors / ≥ 100 published services across ≥ 6 lines (Ops-confirmed target). 26. First real end-to-end paid booking in production (all modes verified with real vendors).
 
 ---
 
@@ -1552,45 +1531,45 @@ Platform: typed API-first backend, PostgreSQL + Redis, S3-compatible storage, RB
 
 ## Appendix C — Critical Dependencies
 
-| ID | Dependency | Owner | Needed by | Impact if late | Mitigation |
-|---|---|---|---|---|---|
-| C-1 | **Payment provider selection + sandbox** (wallets + domestic cards; verify refund/3DS/chargeback webhooks) | Eng + Finance | Before payment build | Launch delayed or bank-transfer-only launch | Parallel evaluation of 2+ candidates; sandbox PoC in Phase 02 |
-| C-2 | **International card acceptance path** (D2): partner acquirer or compliant foreign-entity route | Finance + Legal | Launch (else honest gap in UI) | Intl customers pay via supported methods only | Evaluate at provider stage; contract by month 1 |
-| C-3 | Transactional email provider | Eng | Phase 01 end | No notification SLAs | Decide in Phase 01 sign-off |
-| C-4 | SMS/WhatsApp (official) provider | Eng | V1.5 | Notification channels reduced | Provider market review at V1.5 planning |
-| C-5 | Object storage + CDN (S3-compatible) | DevOps | Phase 02 | Media pipeline blocked | **MinIO on the self-hosted web server** (S3-compatible; cloud-agnostic) |
-| C-6 | Hosting: **self-hosted web server** (Docker Compose: Caddy + web + api + worker + Postgres + Redis + MinIO) or local environment — **no managed cloud** (D14, confirmed 2026-09-10) | DevOps | Phase 02 | No environments | 12-factor setup; portable container images (Phase 03 §20) |
-| C-7 | Domain, business entity, merchant accounts, legal docs (ToS, privacy, vendor agreement incl. commission/clawback, DPA) | Legal/Ops | Pre-launch (legal before vendor onboarding) | Cannot onboard vendors or collect payments | Legal draft in Phase 02; sign-off gate before first vendor approval |
-| C-8 | Seed data: geo tree (7 provinces, 77 districts, cities), airports, destinations | Product/Ops | Phase 03 (catalog) | Catalog/search/SEO blocked | Curated, sourced, original — no scraped datasets |
-| C-9 | LLM provider (if V2 AI planner proceeds) | Product/Eng | V2 planning | AI planner defers | Gate on privacy/cost/quality evaluation |
-| C-10 | Vendor supply (BD pipeline per line) | Ops | Launch (floor A8.25) | Marketplace has nothing to book | Pre-sign launch vendors in Phase 02–05; quote-first for thin lines |
-| C-11 | Trip-desk + support staffing (ops hours, SOPs) | Ops | Launch | Custom trips & disputes bottleneck | SOPs + staffing plan approved at V1.5 planning |
-| C-12 | Original/licensed photography + destination content | Product/Ops | Phase 04 (storefront) | Thin/low-trust launch | Licensing lead time 4–6 weeks; shoot plan |
-| C-13 | Map/geo display provider | Eng | Phase 04 | Detail pages degraded | Default: OSM/Leaflet (no invented premium features); upgrade optional |
-| C-14 | External penetration test | Security | Pre-launch gate | Launch blocked (by design) | Book 2–4 weeks ahead of gate |
-| C-15 | Analytics decision (3P vs none) | Product | V1.5 planning | Analytics remains self-contained | Low risk; decide with consent UX review |
+| ID   | Dependency                                                                                                                                                                          | Owner           | Needed by                                   | Impact if late                                | Mitigation                                                              |
+| ---- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------- | ------------------------------------------- | --------------------------------------------- | ----------------------------------------------------------------------- |
+| C-1  | **Payment provider selection + sandbox** (wallets + domestic cards; verify refund/3DS/chargeback webhooks)                                                                          | Eng + Finance   | Before payment build                        | Launch delayed or bank-transfer-only launch   | Parallel evaluation of 2+ candidates; sandbox PoC in Phase 02           |
+| C-2  | **International card acceptance path** (D2): partner acquirer or compliant foreign-entity route                                                                                     | Finance + Legal | Launch (else honest gap in UI)              | Intl customers pay via supported methods only | Evaluate at provider stage; contract by month 1                         |
+| C-3  | Transactional email provider                                                                                                                                                        | Eng             | Phase 01 end                                | No notification SLAs                          | Decide in Phase 01 sign-off                                             |
+| C-4  | SMS/WhatsApp (official) provider                                                                                                                                                    | Eng             | V1.5                                        | Notification channels reduced                 | Provider market review at V1.5 planning                                 |
+| C-5  | Object storage + CDN (S3-compatible)                                                                                                                                                | DevOps          | Phase 02                                    | Media pipeline blocked                        | **MinIO on the self-hosted web server** (S3-compatible; cloud-agnostic) |
+| C-6  | Hosting: **self-hosted web server** (Docker Compose: Caddy + web + api + worker + Postgres + Redis + MinIO) or local environment — **no managed cloud** (D14, confirmed 2026-09-10) | DevOps          | Phase 02                                    | No environments                               | 12-factor setup; portable container images (Phase 03 §20)               |
+| C-7  | Domain, business entity, merchant accounts, legal docs (ToS, privacy, vendor agreement incl. commission/clawback, DPA)                                                              | Legal/Ops       | Pre-launch (legal before vendor onboarding) | Cannot onboard vendors or collect payments    | Legal draft in Phase 02; sign-off gate before first vendor approval     |
+| C-8  | Seed data: geo tree (7 provinces, 77 districts, cities), airports, destinations                                                                                                     | Product/Ops     | Phase 03 (catalog)                          | Catalog/search/SEO blocked                    | Curated, sourced, original — no scraped datasets                        |
+| C-9  | LLM provider (if V2 AI planner proceeds)                                                                                                                                            | Product/Eng     | V2 planning                                 | AI planner defers                             | Gate on privacy/cost/quality evaluation                                 |
+| C-10 | Vendor supply (BD pipeline per line)                                                                                                                                                | Ops             | Launch (floor A8.25)                        | Marketplace has nothing to book               | Pre-sign launch vendors in Phase 02–05; quote-first for thin lines      |
+| C-11 | Trip-desk + support staffing (ops hours, SOPs)                                                                                                                                      | Ops             | Launch                                      | Custom trips & disputes bottleneck            | SOPs + staffing plan approved at V1.5 planning                          |
+| C-12 | Original/licensed photography + destination content                                                                                                                                 | Product/Ops     | Phase 04 (storefront)                       | Thin/low-trust launch                         | Licensing lead time 4–6 weeks; shoot plan                               |
+| C-13 | Map/geo display provider                                                                                                                                                            | Eng             | Phase 04                                    | Detail pages degraded                         | Default: OSM/Leaflet (no invented premium features); upgrade optional   |
+| C-14 | External penetration test                                                                                                                                                           | Security        | Pre-launch gate                             | Launch blocked (by design)                    | Book 2–4 weeks ahead of gate                                            |
+| C-15 | Analytics decision (3P vs none)                                                                                                                                                     | Product         | V1.5 planning                               | Analytics remains self-contained              | Low risk; decide with consent UX review                                 |
 
 ---
 
 ## Appendix D — Major Risks
 
-| ID | Risk | Likelihood | Impact | Mitigation | Owner |
-|---|---|---|---|---|---|
-| R-1 | **Supply-side chicken-and-egg** (no vendors ⇒ no demand) | High | Launch credibility | Pre-signed launch vendors (C-10); quote-first for thin lines; curated "launch line" set (transfers, tours, hotels, vehicles) before air/international | Ops |
-| R-2 | **International card acceptance gap** (Stripe-class not available in NP) | Medium-High | Intl customers friction | C-2 decision early; partner acquirer / foreign-entity; honest UI gap messaging; bank transfer + wallets as fallback | Finance/Legal |
-| R-3 | **Air ticketing expectation gap** (no live inventory) | Medium | Complaints, chargebacks | Explicit "partner agency" UX, SLA clocks, no live-price UI, agency contract strictness (C-7), 30d hold | Product/Ops |
-| R-4 | Payment provider integration delay (sandbox quirks, refund API gaps) | Medium | Launch slip | Parallel PoCs; bank-transfer path always viable; capability matrix drives UI copy (GC-2) | Eng |
-| R-5 | Seasonality (peak Mar–May, Sep–Nov; monsoon lull) | High (structural) | Revenue/ops variance | Launch aligned to shoulder/peak; content ops fills lull; vendor availability calendars; capacity planning in trip desk | Ops |
-| R-6 | Refund/chargeback ops complexity across wallets | Medium | Financial leakage, disputes | Ledger + reconciliation (V1.5 tool), contract clawback terms, manual-verify discipline, KPI tracking | Finance |
-| R-7 | Scope creep beyond MVP gate | Medium | Launch slip, quality debt | Appendix A is the gate; change requests re-version this PRD; weekly scope review | Product |
-| R-8 | Regulatory (tourism licensing per line, data protection) | Low-Medium | Lines blocked, legal exposure | Per-line document checklists (C-7 legal), data policy + DPA, legal review gate | Legal |
-| R-9 | FX volatility (display trust) | Medium | Intl customer confusion | ≈ labeling always; rate-table TTL + source label; NPR-exact everywhere | Product |
-| R-10 | PII/security incident (passports, vendor docs) | Low (controls) / High (impact) | Trust + legal | §33 controls, pen-test gate, retention limits, access scoping, IR plan | Security |
-| R-11 | Review manipulation (vendor self-dealing, astroturfing) | Medium | Marketplace trust | Verified-only + eligibility + ownership enforcement + moderation + contract terms (RV-04/RV-05) | Product/Ops |
-| R-12 | Trip-desk bottleneck for custom trips | Medium | V1.5+ conversion loss | CT-07 staffing, SLAs (CT-08), automation roadmap (V2), quote-only guardrails | Ops |
-| R-13 | Data quality (geo/destinations/vendors) | Medium | Search/SEO degradation | Seed governance (C-8), content ops cadence, curation checklists | Ops |
-| R-14 | Vendor quality variance (safety, service) | Medium | Incidents, brand damage | Line-specific docs, metrics + SLA enforcement, suspension tooling, dispute process, contract termination rights | Ops/Legal |
-| R-15 | Key-person dependency (single trip-desk/finance operator) | Medium | Ops fragility | SOPs, runbooks, ≥ 1 backup per role from day 1 | Ops |
+| ID   | Risk                                                                     | Likelihood                     | Impact                        | Mitigation                                                                                                                                            | Owner         |
+| ---- | ------------------------------------------------------------------------ | ------------------------------ | ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- |
+| R-1  | **Supply-side chicken-and-egg** (no vendors ⇒ no demand)                 | High                           | Launch credibility            | Pre-signed launch vendors (C-10); quote-first for thin lines; curated "launch line" set (transfers, tours, hotels, vehicles) before air/international | Ops           |
+| R-2  | **International card acceptance gap** (Stripe-class not available in NP) | Medium-High                    | Intl customers friction       | C-2 decision early; partner acquirer / foreign-entity; honest UI gap messaging; bank transfer + wallets as fallback                                   | Finance/Legal |
+| R-3  | **Air ticketing expectation gap** (no live inventory)                    | Medium                         | Complaints, chargebacks       | Explicit "partner agency" UX, SLA clocks, no live-price UI, agency contract strictness (C-7), 30d hold                                                | Product/Ops   |
+| R-4  | Payment provider integration delay (sandbox quirks, refund API gaps)     | Medium                         | Launch slip                   | Parallel PoCs; bank-transfer path always viable; capability matrix drives UI copy (GC-2)                                                              | Eng           |
+| R-5  | Seasonality (peak Mar–May, Sep–Nov; monsoon lull)                        | High (structural)              | Revenue/ops variance          | Launch aligned to shoulder/peak; content ops fills lull; vendor availability calendars; capacity planning in trip desk                                | Ops           |
+| R-6  | Refund/chargeback ops complexity across wallets                          | Medium                         | Financial leakage, disputes   | Ledger + reconciliation (V1.5 tool), contract clawback terms, manual-verify discipline, KPI tracking                                                  | Finance       |
+| R-7  | Scope creep beyond MVP gate                                              | Medium                         | Launch slip, quality debt     | Appendix A is the gate; change requests re-version this PRD; weekly scope review                                                                      | Product       |
+| R-8  | Regulatory (tourism licensing per line, data protection)                 | Low-Medium                     | Lines blocked, legal exposure | Per-line document checklists (C-7 legal), data policy + DPA, legal review gate                                                                        | Legal         |
+| R-9  | FX volatility (display trust)                                            | Medium                         | Intl customer confusion       | ≈ labeling always; rate-table TTL + source label; NPR-exact everywhere                                                                                | Product       |
+| R-10 | PII/security incident (passports, vendor docs)                           | Low (controls) / High (impact) | Trust + legal                 | §33 controls, pen-test gate, retention limits, access scoping, IR plan                                                                                | Security      |
+| R-11 | Review manipulation (vendor self-dealing, astroturfing)                  | Medium                         | Marketplace trust             | Verified-only + eligibility + ownership enforcement + moderation + contract terms (RV-04/RV-05)                                                       | Product/Ops   |
+| R-12 | Trip-desk bottleneck for custom trips                                    | Medium                         | V1.5+ conversion loss         | CT-07 staffing, SLAs (CT-08), automation roadmap (V2), quote-only guardrails                                                                          | Ops           |
+| R-13 | Data quality (geo/destinations/vendors)                                  | Medium                         | Search/SEO degradation        | Seed governance (C-8), content ops cadence, curation checklists                                                                                       | Ops           |
+| R-14 | Vendor quality variance (safety, service)                                | Medium                         | Incidents, brand damage       | Line-specific docs, metrics + SLA enforcement, suspension tooling, dispute process, contract termination rights                                       | Ops/Legal     |
+| R-15 | Key-person dependency (single trip-desk/finance operator)                | Medium                         | Ops fragility                 | SOPs, runbooks, ≥ 1 backup per role from day 1                                                                                                        | Ops           |
 
 ---
 
@@ -1598,60 +1577,60 @@ Platform: typed API-first backend, PostgreSQL + Redis, S3-compatible storage, RB
 
 > Rationale: **supply and money before demand polish.** Vendors need the portal early to build catalogs; payments must be proven (sandbox) before storefront launch; SEO/content rides on stable catalog APIs.
 
-| Order | Phase | Exit criteria |
-|---|---|---|
-| 1 | **P0 — Foundations** | Monorepo, CI/CD, environments, DB/Redis/storage connected, auth skeleton, error/logging/health, provider sandboxes (payments, email) provisioned |
-| 2 | **P1 — Core schema + Identity** | Schema v1 (identity, roles, geo, catalog core, money/ledger), authN/Z (customer + admin MFA), audit, feature flags |
-| 3 | **P2 — Vendor onboarding & approval** | Vendor portal (profile/docs/services CRUD/pricing/availability), admin approval workflow end-to-end with **real pilot vendors** (C-10 starts) |
-| 4 | **P3 — Catalog & content** | All line models, publish gate, geo/destination seeds, media pipeline, content seeds (destinations, 10 guides), search/filter APIs |
-| 5 | **P4 — Payments & money** | Payment integrations (webhook-verified), bank-transfer verification, ledger, commission/settlement batch, refund engine, price engine — **money path proven in staging with real provider sandboxes** |
-| 6 | **P5 — Booking engine** | Instant → Quote → Custom (trip desk tooling) on the §10 state machine; SLA timers; notifications engine wired |
-| 7 | **P6 — Storefront (customer web)** | Design system, all §A5 customer surfaces, corporate core, reviews, wishlist/compare; SEO rendering (SSG/ISR) + schema + sitemaps |
-| 8 | **P7 — Vendor & Admin consoles (full)** | Vendor booking inbox/earnings/reports; admin §9 areas; KPI dashboards; reports/CSV; settings |
-| 9 | **P8 — Analytics + content ops tooling** | Event ingestion, funnels/KPI dashboards, content checklists live |
-| 10 | **P9 — Hardening & gates** | Load test, pen test + fixes, CWV budget, a11y pass, backup-restore drill, runbooks, legal docs signed |
-| 11 | **P10 — Launch** | Staging soak with pilot vendors, supply floor check (A8), first real paid bookings (all 3 modes), go/no-go |
-| 12 | **P11 — V1.5 backlog start** | Per §35.4 (promotions, i18n-ne, SMS/WhatsApp, deposits, consolidated pay, invoicing, suggestions…) |
+| Order | Phase                                    | Exit criteria                                                                                                                                                                                         |
+| ----- | ---------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1     | **P0 — Foundations**                     | Monorepo, CI/CD, environments, DB/Redis/storage connected, auth skeleton, error/logging/health, provider sandboxes (payments, email) provisioned                                                      |
+| 2     | **P1 — Core schema + Identity**          | Schema v1 (identity, roles, geo, catalog core, money/ledger), authN/Z (customer + admin MFA), audit, feature flags                                                                                    |
+| 3     | **P2 — Vendor onboarding & approval**    | Vendor portal (profile/docs/services CRUD/pricing/availability), admin approval workflow end-to-end with **real pilot vendors** (C-10 starts)                                                         |
+| 4     | **P3 — Catalog & content**               | All line models, publish gate, geo/destination seeds, media pipeline, content seeds (destinations, 10 guides), search/filter APIs                                                                     |
+| 5     | **P4 — Payments & money**                | Payment integrations (webhook-verified), bank-transfer verification, ledger, commission/settlement batch, refund engine, price engine — **money path proven in staging with real provider sandboxes** |
+| 6     | **P5 — Booking engine**                  | Instant → Quote → Custom (trip desk tooling) on the §10 state machine; SLA timers; notifications engine wired                                                                                         |
+| 7     | **P6 — Storefront (customer web)**       | Design system, all §A5 customer surfaces, corporate core, reviews, wishlist/compare; SEO rendering (SSG/ISR) + schema + sitemaps                                                                      |
+| 8     | **P7 — Vendor & Admin consoles (full)**  | Vendor booking inbox/earnings/reports; admin §9 areas; KPI dashboards; reports/CSV; settings                                                                                                          |
+| 9     | **P8 — Analytics + content ops tooling** | Event ingestion, funnels/KPI dashboards, content checklists live                                                                                                                                      |
+| 10    | **P9 — Hardening & gates**               | Load test, pen test + fixes, CWV budget, a11y pass, backup-restore drill, runbooks, legal docs signed                                                                                                 |
+| 11    | **P10 — Launch**                         | Staging soak with pilot vendors, supply floor check (A8), first real paid bookings (all 3 modes), go/no-go                                                                                            |
+| 12    | **P11 — V1.5 backlog start**             | Per §35.4 (promotions, i18n-ne, SMS/WhatsApp, deposits, consolidated pay, invoicing, suggestions…)                                                                                                    |
 
 ---
 
 ## Appendix F — Glossary
 
-| Term | Meaning |
-|---|---|
-| Line | A service line (e.g., `HOTEL`, `TREK`) — the unit of commission, capability, and catalog extension |
-| Service | A bookable catalog item owned by a vendor within a line |
-| Offer | A versioned vendor price/term proposal on a quote booking |
-| Trip group | A set of related bookings (custom trip) shown as one itinerary |
-| Ledger | Append-only financial journal (payments, refunds, commission, settlements) |
-| Hold | Settlement delay before an amount becomes payable to a vendor |
-| Vendor-fault | Cancellation/decline by vendor after payment — triggers full refund + metrics |
-| Trip desk | Platform ops role coordinating custom-trip vendor offers |
-| Published availability | Vendor-declared capacity; the only availability the platform may honor (GC-3) |
-| Capability | A vendor's approved right to operate a specific line |
-| ≈ (approx) | Display-currency conversion from the reference rate table — never the charge amount |
+| Term                   | Meaning                                                                                            |
+| ---------------------- | -------------------------------------------------------------------------------------------------- |
+| Line                   | A service line (e.g., `HOTEL`, `TREK`) — the unit of commission, capability, and catalog extension |
+| Service                | A bookable catalog item owned by a vendor within a line                                            |
+| Offer                  | A versioned vendor price/term proposal on a quote booking                                          |
+| Trip group             | A set of related bookings (custom trip) shown as one itinerary                                     |
+| Ledger                 | Append-only financial journal (payments, refunds, commission, settlements)                         |
+| Hold                   | Settlement delay before an amount becomes payable to a vendor                                      |
+| Vendor-fault           | Cancellation/decline by vendor after payment — triggers full refund + metrics                      |
+| Trip desk              | Platform ops role coordinating custom-trip vendor offers                                           |
+| Published availability | Vendor-declared capacity; the only availability the platform may honor (GC-3)                      |
+| Capability             | A vendor's approved right to operate a specific line                                               |
+| ≈ (approx)             | Display-currency conversion from the reference rate table — never the charge amount                |
 
 ---
 
 ## Appendix G — Open Decisions (require sign-off before Phase 02)
 
-| ID | Decision | Recommendation | Default if unconfirmed |
-|---|---|---|---|
-| D1 | MVP UI language | English only (i18n-ready structure); Nepali V1.5 | English only |
-| D2 | International card path | Start partner-acquirer/foreign-entity evaluation immediately | Launch without int'l cards; honest UI gap |
-| D3 | Commission seed rates (§12.2) | Adopt proposal table | Table values (configurable) |
-| D4 | Bank transfer in MVP | Yes (manual verify; ops cost) | Yes |
-| D5 | Trip-desk model | 1 ops FTE MVP (peak 2), SOPs | 1 FTE |
-| D6 | Self-drive deposit vendor-collected exception | Allow (documented, audited) | Allow |
-| D7 | Quote SLA defaults (24h/48h) | Adopt §10.7 defaults | Adopt |
-| D8 | Review window | 365 days | 365 days |
-| D9 | Third-party analytics | None in MVP | None |
-| D10 | Map provider | OSM/Leaflet default | OSM/Leaflet |
-| D11 | Corporate in MVP | Core (account/roles/approvals/caps/CSV); invoicing V1.5 | Core |
-| D12 | Launch supply floor | 20 vendors / 100 services / 6 lines (working target) | Ops to confirm |
-| D13 | Legal docs owner & timing | Drafts in Phase 02; signed before first vendor approval | Per recommendation |
-| D14 | Deployment target | **Self-hosted web server (Docker Compose) / local environment — no managed cloud** (stakeholder-confirmed 2026-09-10; supersedes earlier AWS-canonical proposal) | Self-hosted (confirmed) |
+| ID  | Decision                                      | Recommendation                                                                                                                                                   | Default if unconfirmed                    |
+| --- | --------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------- |
+| D1  | MVP UI language                               | English only (i18n-ready structure); Nepali V1.5                                                                                                                 | English only                              |
+| D2  | International card path                       | Start partner-acquirer/foreign-entity evaluation immediately                                                                                                     | Launch without int'l cards; honest UI gap |
+| D3  | Commission seed rates (§12.2)                 | Adopt proposal table                                                                                                                                             | Table values (configurable)               |
+| D4  | Bank transfer in MVP                          | Yes (manual verify; ops cost)                                                                                                                                    | Yes                                       |
+| D5  | Trip-desk model                               | 1 ops FTE MVP (peak 2), SOPs                                                                                                                                     | 1 FTE                                     |
+| D6  | Self-drive deposit vendor-collected exception | Allow (documented, audited)                                                                                                                                      | Allow                                     |
+| D7  | Quote SLA defaults (24h/48h)                  | Adopt §10.7 defaults                                                                                                                                             | Adopt                                     |
+| D8  | Review window                                 | 365 days                                                                                                                                                         | 365 days                                  |
+| D9  | Third-party analytics                         | None in MVP                                                                                                                                                      | None                                      |
+| D10 | Map provider                                  | OSM/Leaflet default                                                                                                                                              | OSM/Leaflet                               |
+| D11 | Corporate in MVP                              | Core (account/roles/approvals/caps/CSV); invoicing V1.5                                                                                                          | Core                                      |
+| D12 | Launch supply floor                           | 20 vendors / 100 services / 6 lines (working target)                                                                                                             | Ops to confirm                            |
+| D13 | Legal docs owner & timing                     | Drafts in Phase 02; signed before first vendor approval                                                                                                          | Per recommendation                        |
+| D14 | Deployment target                             | **Self-hosted web server (Docker Compose) / local environment — no managed cloud** (stakeholder-confirmed 2026-09-10; supersedes earlier AWS-canonical proposal) | Self-hosted (confirmed)                   |
 
 ---
 
-*End of PRD v0.2. This document is a DRAFT pending sign-off on Appendix G. Any scope change requires a version bump and a change-log entry.*
+_End of PRD v0.2. This document is a DRAFT pending sign-off on Appendix G. Any scope change requires a version bump and a change-log entry._

@@ -1,0 +1,43 @@
+# dependencies
+node_modules/
+.pnpm-store/
+
+# builds / caches
+dist/
+build/
+out/
+.next/
+.turbo/
+coverage/
+*.tsbuildinfo
+
+# environment & secrets (Arch §25.3 — no secrets in repo)
+# Committed templates hold no secrets: config/env/.env.example, .env.development,
+# .env.test. Everything below can hold credentials and stays out of the repo.
+.env
+.env.local
+.env.*.local
+config/env/.env
+config/env/.env.local
+config/env/.env.*.local
+config/env/.env.staging
+config/env/.env.production
+
+# local development databases (embedded postgres data dirs)
+.tmp/
+.tmp-pg/
+pgdata/
+
+# logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# editor / os
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# generated next types
+apps/web/next-env.d.ts
