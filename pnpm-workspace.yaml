@@ -11,6 +11,8 @@ allowBuilds:
   unrs-resolver: true
   '@swc/core': true
   sharp: true
+  # Compiles/links the native Argon2id binding (password hashing, Arch §5.1).
+  argon2: true
 
 # `embedded-postgres` declares one optional package per platform. Only linux-x64
 # is ever installed here; the rest must not gate the install on their scripts.

@@ -8,6 +8,11 @@ function env(overrides: Record<string, string> = {}): Env {
   return loadEnv({
     APP_ENV: 'test',
     DATABASE_URL: 'postgresql://easytrip:easytrip@127.0.0.1:5432/easytrip_test',
+    // Auth secrets have no defaults by design (Arch §5.2, DB-04); tests must
+    // supply them exactly as a real deployment does.
+    JWT_SECRET: 'test-jwt-secret-0123456789abcdef-0123456789abcdef-0123456789abcdef',
+    ENCRYPTION_KEY: '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
+    IP_HASH_SALT: 'test-ip-hash-salt-0123456789abcdef',
     ...overrides,
   });
 }

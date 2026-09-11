@@ -4,6 +4,9 @@ import { RedisService } from '../../src/infra/redis/redis.service';
 const env = loadEnv({
   APP_ENV: 'test',
   DATABASE_URL: 'postgresql://easytrip:easytrip@127.0.0.1:5432/easytrip_test',
+  JWT_SECRET: 'test-jwt-secret-0123456789abcdef-0123456789abcdef-0123456789abcdef',
+  ENCRYPTION_KEY: '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
+  IP_HASH_SALT: 'test-ip-hash-salt-0123456789abcdef',
   REDIS_URL: 'redis://127.0.0.1:6390',
   REDIS_CONNECT_TIMEOUT_MS: '200',
 });

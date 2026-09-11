@@ -27,6 +27,28 @@ export const ERROR_CATALOG = {
   AUTH_101: entry('ETN-AUTH-101', 401, 'Your session has expired. Please sign in again.'),
   AUTH_102: entry('ETN-AUTH-102', 401, 'We could not verify your credentials.'),
   AUTH_103: entry('ETN-AUTH-103', 401, 'Multi-factor verification is required.'),
+  // Phase 06 additions (additive within v1 — Arch §24).
+  // 104 deliberately does not reveal whether the email exists on a *login*
+  // attempt; it is only returned from registration, where the caller already
+  // volunteered the address (Arch §5.3 no-enumeration applies to authentication).
+  AUTH_104: entry('ETN-AUTH-104', 409, 'An account with that email already exists.'),
+  AUTH_105: entry('ETN-AUTH-105', 403, 'Please verify your email address before continuing.'),
+  AUTH_106: entry('ETN-AUTH-106', 403, 'This account is not active.'),
+  AUTH_107: entry(
+    'ETN-AUTH-107',
+    400,
+    'That link or code is no longer valid. Please request a new one.',
+  ),
+  AUTH_108: entry('ETN-AUTH-108', 422, 'That password does not meet our requirements.'),
+  AUTH_109: entry(
+    'ETN-AUTH-109',
+    403,
+    'Two-factor authentication must be set up before you can continue.',
+  ),
+  AUTH_110: entry('ETN-AUTH-110', 401, 'That verification code is not correct.'),
+  AUTH_111: entry('ETN-AUTH-111', 401, 'Your current password is not correct.'),
+  // Step-up: a privileged action needs a fresh MFA verification (Arch §6.6).
+  AUTH_112: entry('ETN-AUTH-112', 403, 'Please re-verify your identity to perform this action.'),
 
   // Authorization (audited — PRD AR-2/AR-3)
   AUTHZ_101: entry('ETN-AUTHZ-101', 403, 'You do not have access to this resource.'),
